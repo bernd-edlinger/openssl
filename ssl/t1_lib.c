@@ -442,12 +442,11 @@ int ssl_parse_clienthello_tlsext(SSL *s, unsigned char **p, unsigned char *d,
         ssl_check_for_safari(s, data, d, n);
 # endif                         /* !OPENSSL_NO_EC */
 
-    if (data >= (d + n - 2)) {
-        if (data != d + n)
-            goto err;
-        else
-            goto ri_check;
-    }
+    if (data == d + n)
+        goto ri_check;
+
+    if (data > (d + n - 2))
+        goto err;
 
     n2s(data, len);
 
