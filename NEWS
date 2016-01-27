@@ -7,7 +7,7 @@
 
   Major changes between OpenSSL 0.9.8zh and OpenSSL 0.9.8zi [under development]
 
-      o
+      o SSLv2 doesn't block disabled ciphers (CVE-2015-3197)
 
   Major changes between OpenSSL 0.9.8zg and OpenSSL 0.9.8zh [3 Dec 2015]
 
