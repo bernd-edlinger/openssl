@@ -7,6 +7,9 @@
 
   Major changes between OpenSSL 0.9.8zh and OpenSSL 0.9.8zi [under development]
 
+      o Fix BN_hex2bn/BN_dec2bn NULL pointer deref/heap corruption
+        (CVE-2016-0797)
+      o Fix memory issues in BIO_*printf functions (CVE-2016-0799)
       o SSLv2 doesn't block disabled ciphers (CVE-2015-3197)
 
   Major changes between OpenSSL 0.9.8zg and OpenSSL 0.9.8zh [3 Dec 2015]
