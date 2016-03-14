@@ -1653,10 +1653,12 @@ int ssl3_get_certificate_request(SSL *s)
             ssl3_send_alert(s, SSL3_AL_FATAL, SSL_AD_DECODE_ERROR);
             SSLerr(SSL_F_SSL3_GET_CERTIFICATE_REQUEST,
                    SSL_R_CA_DN_LENGTH_MISMATCH);
+            X509_NAME_free(xn);
             goto err;
         }
         if (!sk_X509_NAME_push(ca_sk, xn)) {
             SSLerr(SSL_F_SSL3_GET_CERTIFICATE_REQUEST, ERR_R_MALLOC_FAILURE);
+            X509_NAME_free(xn);
             goto err;
         }
 
