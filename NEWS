@@ -7,6 +7,10 @@
 
   Major changes between OpenSSL 0.9.8zh and OpenSSL 0.9.8zi [under development]
 
+      o Fix EVP_EncodeUpdate overflow (CVE-2016-2105)
+      o Fix EVP_EncryptUpdate overflow (CVE-2016-2106)
+      o Prevent ASN.1 BIO excessive memory allocation (CVE-2016-2109)
+      o EBCDIC overread (CVE-2016-2176)
       o Fix BN_hex2bn/BN_dec2bn NULL pointer deref/heap corruption
         (CVE-2016-0797)
       o Fix memory issues in BIO_*printf functions (CVE-2016-0799)
