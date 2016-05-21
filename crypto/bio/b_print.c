@@ -451,28 +451,29 @@ fmtstr(char **sbuffer,
     if (value == 0)
         value = "<NULL>";
 
-    strln = strlen(value);
-    if (strln > INT_MAX)
-        strln = INT_MAX;
+    strln = BUF_strnlen(value, max < 0 ? (size_t)-1 : (size_t)max);
 
     padlen = min - strln;
     if (min < 0 || padlen < 0)
         padlen = 0;
+    if (max >= 0)
+        max += padlen;      /* The maximum output including padding */
     if (flags & DP_F_MINUS)
         padlen = -padlen;
 
-    while ((padlen > 0) && (cnt < max)) {
+    while ((padlen > 0) && (max < 0 || cnt < max)) {
         if(!doapr_outch(sbuffer, buffer, currlen, maxlen, ' '))
             return 0;
         --padlen;
         ++cnt;
     }
-    while (*value && (cnt < max)) {
+    while (strln > 0 && (max < 0 || cnt < max)) {
         if(!doapr_outch(sbuffer, buffer, currlen, maxlen, *value++))
             return 0;
+        --strln;
         ++cnt;
     }
-    while ((padlen < 0) && (cnt < max)) {
+    while ((padlen < 0) && (max < 0 || cnt < max)) {
         if(!doapr_outch(sbuffer, buffer, currlen, maxlen, ' '))
             return 0;
         ++padlen;
