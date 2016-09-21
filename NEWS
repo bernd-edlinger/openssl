@@ -7,6 +7,14 @@
 
   Major changes between OpenSSL 0.9.8zh and OpenSSL 0.9.8zi [under development]
 
+      o OCSP Status Request extension unbounded memory growth (CVE-2016-6304)
+      o OOB write in MDC2_Update() (CVE-2016-6303)
+      o Malformed SHA512 ticket DoS (CVE-2016-6302)
+      o OOB write in BN_bn2dec() (CVE-2016-2182)
+      o Pointer arithmetic undefined behaviour (CVE-2016-2177)
+      o Constant time flag not preserved in DSA signing (CVE-2016-2178)
+      o DTLS buffered message DoS (CVE-2016-2179)
+      o Certificate message OOB reads (CVE-2016-6306)
       o Fix EVP_EncodeUpdate overflow (CVE-2016-2105)
       o Fix EVP_EncryptUpdate overflow (CVE-2016-2106)
       o Prevent ASN.1 BIO excessive memory allocation (CVE-2016-2109)
