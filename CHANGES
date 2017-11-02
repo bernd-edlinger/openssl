@@ -4,6 +4,16 @@
 
  Changes between 0.9.8zh and 0.9.8zi [xx XXX xxxx]
 
+  *) Malformed X.509 IPAddressFamily could cause OOB read
+
+     If an X.509 certificate has a malformed IPAddressFamily extension,
+     OpenSSL could do a one-byte buffer overread. The most likely result
+     would be an erroneous display of the certificate in text format.
+
+     This issue was reported to OpenSSL by the OSS-Fuzz project.
+     (CVE-2017-3735)
+     [Rich Salz]
+
   *) OCSP Status Request extension unbounded memory growth
 
      A malicious client can send an excessively large OCSP Status Request

@@ -7,6 +7,7 @@
 
   Major changes between OpenSSL 0.9.8zh and OpenSSL 0.9.8zi [under development]
 
+      o Malformed X.509 IPAddressFamily could cause OOB read (CVE-2017-3735)
       o OCSP Status Request extension unbounded memory growth (CVE-2016-6304)
       o OOB write in MDC2_Update() (CVE-2016-6303)
       o Malformed SHA512 ticket DoS (CVE-2016-6302)
