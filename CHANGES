@@ -4,6 +4,19 @@
 
  Changes between 0.9.8zh and 0.9.8zi [xx XXX xxxx]
 
+  *) Constructed ASN.1 types with a recursive definition could exceed the stack
+
+     Constructed ASN.1 types with a recursive definition (such as can be found
+     in PKCS7) could eventually exceed the stack given malicious input with
+     excessive recursion. This could result in a Denial Of Service attack. There
+     are no such structures used within SSL/TLS that come from untrusted sources
+     so this is considered safe.
+
+     This issue was reported to OpenSSL on 4th January 2018 by the OSS-fuzz
+     project.
+     (CVE-2018-0739)
+     [Matt Caswell]
+
   *) Malformed X.509 IPAddressFamily could cause OOB read
 
      If an X.509 certificate has a malformed IPAddressFamily extension,
