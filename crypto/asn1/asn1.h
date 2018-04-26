@@ -1196,6 +1196,7 @@ void ERR_load_ASN1_strings(void);
 # define ASN1_F_D2I_X509                                  156
 # define ASN1_F_D2I_X509_CINF                             157
 # define ASN1_F_D2I_X509_PKEY                             159
+# define ASN1_F_DO_BUF                                    221
 # define ASN1_F_I2D_ASN1_SET                              188
 # define ASN1_F_I2D_ASN1_TIME                             160
 # define ASN1_F_I2D_DSA_PUBKEY                            161
