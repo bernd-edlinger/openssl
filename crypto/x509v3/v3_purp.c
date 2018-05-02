@@ -123,11 +123,10 @@ int X509_check_purpose(X509 *x, int id, int ca)
 {
     int idx;
     const X509_PURPOSE *pt;
-    if (!(x->ex_flags & EXFLAG_SET)) {
-        CRYPTO_w_lock(CRYPTO_LOCK_X509);
-        x509v3_cache_extensions(x);
-        CRYPTO_w_unlock(CRYPTO_LOCK_X509);
-    }
+
+    x509v3_cache_extensions(x);
+
+    /* Return if side-effect only call */
     if (id == -1)
         return 1;
     idx = X509_PURPOSE_get_by_id(id);
@@ -347,8 +346,16 @@ static void x509v3_cache_extensions(X509 *x)
     X509_EXTENSION *ex;
 
     int i;
+
     if (x->ex_flags & EXFLAG_SET)
         return;
+
+    CRYPTO_w_lock(CRYPTO_LOCK_X509);
+    if (x->ex_flags & EXFLAG_SET) {
+        CRYPTO_w_unlock(CRYPTO_LOCK_X509);
+        return;
+    }
+
 #ifndef OPENSSL_NO_SHA
     X509_digest(x, EVP_sha1(), x->sha1_hash, NULL);
 #endif
@@ -466,6 +473,7 @@ static void x509v3_cache_extensions(X509 *x)
         }
     }
     x->ex_flags |= EXFLAG_SET;
+    CRYPTO_w_unlock(CRYPTO_LOCK_X509);
 }
 
 /*-
@@ -516,11 +524,7 @@ static int check_ca(const X509 *x)
 
 int X509_check_ca(X509 *x)
 {
-    if (!(x->ex_flags & EXFLAG_SET)) {
-        CRYPTO_w_lock(CRYPTO_LOCK_X509);
-        x509v3_cache_extensions(x);
-        CRYPTO_w_unlock(CRYPTO_LOCK_X509);
-    }
+    x509v3_cache_extensions(x);
 
     return check_ca(x);
 }
@@ -692,6 +696,7 @@ int X509_check_issued(X509 *issuer, X509 *subject)
     if (X509_NAME_cmp(X509_get_subject_name(issuer),
                       X509_get_issuer_name(subject)))
         return X509_V_ERR_SUBJECT_ISSUER_MISMATCH;
+
     x509v3_cache_extensions(issuer);
     x509v3_cache_extensions(subject);
     if (subject->akid) {
