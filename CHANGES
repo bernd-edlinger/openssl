@@ -4,6 +4,18 @@
 
  Changes between 0.9.8zh and 0.9.8zi [xx XXX xxxx]
 
+  *) Client DoS due to large DH parameter
+
+     During key agreement in a TLS handshake using a DH(E) based ciphersuite a
+     malicious server can send a very large prime value to the client. This will
+     cause the client to spend an unreasonably long period of time generating a
+     key for this prime resulting in a hang until the client has finished. This
+     could be exploited in a Denial Of Service attack.
+
+     This issue was reported to OpenSSL on 5th June 2018 by Guido Vranken
+     (CVE-2018-0732)
+     [Guido Vranken]
+
   *) Constructed ASN.1 types with a recursive definition could exceed the stack
 
      Constructed ASN.1 types with a recursive definition (such as can be found

@@ -7,6 +7,7 @@
 
   Major changes between OpenSSL 0.9.8zh and OpenSSL 0.9.8zi [under development]
 
+      o Client DoS due to large DH parameter (CVE-2018-0732)
       o Constructed ASN.1 types with a recursive definition could exceed the
         stack (CVE-2018-0739)
       o Malformed X.509 IPAddressFamily could cause OOB read (CVE-2017-3735)
