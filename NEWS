@@ -7,7 +7,7 @@
 
   Major changes between OpenSSL 1.1.0l and OpenSSL 1.1.0m [under development]
 
-      o
+      o Fixed NULL pointer deref in GENERAL_NAME_cmp (CVE-2020-1971)
 
   Major changes between OpenSSL 1.1.0k and OpenSSL 1.1.0l [10 Sep 2019]
 
