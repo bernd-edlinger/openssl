@@ -7,7 +7,7 @@
 
   Major changes between OpenSSL 1.0.2u and OpenSSL 1.0.2v [under development]
 
-      o
+      o Fixed NULL pointer deref in GENERAL_NAME_cmp (CVE-2020-1971)
 
   Major changes between OpenSSL 1.0.2t and OpenSSL 1.0.2u [20 Dec 2019]
 
