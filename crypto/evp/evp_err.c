@@ -217,6 +217,7 @@ static ERR_STRING_DATA EVP_str_reasons[] = {
     {ERR_REASON(EVP_R_OPERATON_NOT_INITIALIZED), "operaton not initialized"},
     {ERR_REASON(EVP_R_PKCS8_UNKNOWN_BROKEN_TYPE),
      "pkcs8 unknown broken type"},
+    {ERR_REASON(EVP_R_OUTPUT_WOULD_OVERFLOW), "output would overflow"},
     {ERR_REASON(EVP_R_PRIVATE_KEY_DECODE_ERROR), "private key decode error"},
     {ERR_REASON(EVP_R_PRIVATE_KEY_ENCODE_ERROR), "private key encode error"},
     {ERR_REASON(EVP_R_PUBLIC_KEY_NOT_RSA), "public key not rsa"},
