@@ -143,6 +143,7 @@ static ERR_STRING_DATA EVP_str_reasons[] = {
     {ERR_REASON(EVP_R_OPERATION_NOT_SUPPORTED_FOR_THIS_KEYTYPE),
      "operation not supported for this keytype"},
     {ERR_REASON(EVP_R_OPERATON_NOT_INITIALIZED), "operaton not initialized"},
+    {ERR_REASON(EVP_R_OUTPUT_WOULD_OVERFLOW), "output would overflow"},
     {ERR_REASON(EVP_R_PARTIALLY_OVERLAPPING),
      "partially overlapping buffers"},
     {ERR_REASON(EVP_R_PBKDF2_ERROR), "pbkdf2 error"},
