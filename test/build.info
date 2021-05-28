@@ -51,7 +51,7 @@ INCLUDE_MAIN___test_libtestutil_OLB = /INCLUDE=MAIN
           recordlentest drbgtest drbg_cavs_test sslbuffertest \
           time_offset_test pemtest ssl_cert_table_internal_test ciphername_test \
           servername_test ocspapitest rsa_mp_test fatalerrtest tls13ccstest \
-          sysdefaulttest errtest ssl_ctx_test gosttest
+          sysdefaulttest errtest ssl_ctx_test gosttest pkcs7_test
 
   SOURCE[versions]=versions.c
   INCLUDE[versions]=../include
@@ -243,6 +243,10 @@ INCLUDE_MAIN___test_libtestutil_OLB = /INCLUDE=MAIN
   SOURCE[memleaktest]=memleaktest.c
   INCLUDE[memleaktest]=../include
   DEPEND[memleaktest]=../libcrypto libtestutil.a
+
+  SOURCE[pkcs7_test]=pkcs7_test.c
+  INCLUDE[pkcs7_test]=../include
+  DEPEND[pkcs7_test]=../libcrypto libtestutil.a
 
   SOURCE[stack_test]=stack_test.c
   INCLUDE[stack_test]=../include

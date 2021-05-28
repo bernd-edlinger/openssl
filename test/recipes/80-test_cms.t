@@ -27,7 +27,9 @@ my $smcont   = srctop_file("test", "smcont.txt");
 my ($no_des, $no_dh, $no_dsa, $no_ec, $no_ec2m, $no_rc2, $no_zlib)
     = disabled qw/des dh dsa ec ec2m rc2 zlib/;
 
-plan tests => 12;
+plan tests => 13;
+
+ok(run(test(["pkcs7_test"])), "test pkcs7");
 
 my @smime_pkcs7_tests = (
 
