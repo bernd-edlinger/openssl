@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include <ctype.h>
+#include <string.h>
 #include "internal/cryptlib.h"
 #include <openssl/conf.h>
 #include <openssl/crypto.h>
@@ -31,19 +32,31 @@ static int ipv6_from_asc(unsigned char *v6, const char *in);
 static int ipv6_cb(const char *elem, int len, void *usr);
 static int ipv6_hex(unsigned char *out, const char *in, int inlen);
 
+int x509v3_add_len_value_uchar(const char *name, const unsigned char *value,
+                               size_t vallen, STACK_OF(CONF_VALUE) **extlist);
+
 /* Add a CONF_VALUE name value pair to stack */
 
-int X509V3_add_value(const char *name, const char *value,
-                     STACK_OF(CONF_VALUE) **extlist)
+static int x509v3_add_len_value(const char *name, const char *value,
+                                size_t vallen, STACK_OF(CONF_VALUE) **extlist)
 {
     CONF_VALUE *vtmp = NULL;
     char *tname = NULL, *tvalue = NULL;
     int sk_allocated = (*extlist == NULL);
 
-    if (name && (tname = OPENSSL_strdup(name)) == NULL)
+    if (name != NULL && (tname = OPENSSL_strdup(name)) == NULL)
         goto err;
-    if (value && (tvalue = OPENSSL_strdup(value)) == NULL)
-        goto err;
+    if (value != NULL && vallen > 0) {
+        /*
+         * We tolerate a single trailing NUL character, but otherwise no
+         * embedded NULs
+         */
+        if (memchr(value, 0, vallen - 1) != NULL)
+            goto err;
+        tvalue = OPENSSL_strndup(value, vallen);
+        if (tvalue == NULL)
+            goto err;
+    }
     if ((vtmp = OPENSSL_malloc(sizeof(*vtmp))) == NULL)
         goto err;
     if (sk_allocated && (*extlist = sk_CONF_VALUE_new_null()) == NULL)
@@ -66,10 +79,26 @@ int X509V3_add_value(const char *name, const char *value,
     return 0;
 }
 
+int X509V3_add_value(const char *name, const char *value,
+                     STACK_OF(CONF_VALUE) **extlist)
+{
+    return x509v3_add_len_value(name, value,
+                                value != NULL ? strlen((const char *)value) : 0,
+                                extlist);
+}
+
 int X509V3_add_value_uchar(const char *name, const unsigned char *value,
                            STACK_OF(CONF_VALUE) **extlist)
 {
-    return X509V3_add_value(name, (const char *)value, extlist);
+    return x509v3_add_len_value(name, (const char *)value,
+                                value != NULL ? strlen((const char *)value) : 0,
+                                extlist);
+}
+
+int x509v3_add_len_value_uchar(const char *name, const unsigned char *value,
+                               size_t vallen, STACK_OF(CONF_VALUE) **extlist)
+{
+    return x509v3_add_len_value(name, (const char *)value, vallen, extlist);
 }
 
 /* Free function for STACK_OF(CONF_VALUE) */
