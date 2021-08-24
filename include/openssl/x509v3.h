@@ -888,6 +888,7 @@ int ERR_load_X509V3_strings(void);
 # define X509V3_F_I2S_ASN1_IA5STRING                      149
 # define X509V3_F_I2S_ASN1_INTEGER                        120
 # define X509V3_F_I2V_AUTHORITY_INFO_ACCESS               138
+# define X509V3_F_I2V_AUTHORITY_KEYID                     169
 # define X509V3_F_NOTICE_SECTION                          132
 # define X509V3_F_NREF_NOS                                133
 # define X509V3_F_POLICY_SECTION                          131
