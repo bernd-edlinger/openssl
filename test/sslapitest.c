@@ -7687,7 +7687,7 @@ static int test_pipelining(int idx)
         return 0;
     }
 
-    if (!TEST_true(ENGINE_register_ciphers(e)))
+    if (!TEST_true(ENGINE_set_default_ciphers(e)))
         goto end;
 
     if (!TEST_true(create_ssl_ctx_pair(TLS_server_method(),

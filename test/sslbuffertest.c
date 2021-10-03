@@ -188,7 +188,7 @@ static int test_free_buffers(int test)
             return 0;
         }
 
-        if (!TEST_true(ENGINE_register_ciphers(e)))
+        if (!TEST_true(ENGINE_set_default_ciphers(e)))
             goto end;
 
         test -= 4;
