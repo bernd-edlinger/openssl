@@ -41,6 +41,10 @@
 #  define BN_RECURSION
 # endif
 
+# if defined(__mips) && defined(THIRTY_TWO_BIT)
+#  undef BN_RECURSION
+# endif
+
 /*
  * This next option uses the C libraries (2 word)/(1 word) function. If it is
  * not defined, I use my C version (which is slower). The reason for this
