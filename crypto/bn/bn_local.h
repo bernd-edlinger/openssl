@@ -42,7 +42,7 @@
 # endif
 
 # if defined(__mips) && defined(THIRTY_TWO_BIT)
-#  undef BN_RECURSION
+#  undef BN_SQR_COMBA
 # endif
 
 /*
