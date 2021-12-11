@@ -11,6 +11,16 @@
 #if !(defined(__GNUC__) && __GNUC__>=2)
 # include "../bn_asm.c"         /* kind of dirty hack for Sun Studio */
 #else
+# undef bn_mul_add_words
+# undef bn_mul_words
+# undef bn_sqr_words
+# undef bn_div_words
+# undef bn_add_words
+# undef bn_sub_words
+# undef bn_mul_comba8
+# undef bn_mul_comba4
+# undef bn_sqr_comba8
+# undef bn_sqr_comba4
 /*-
  * x86_64 BIGNUM accelerator version 0.1, December 2002.
  *

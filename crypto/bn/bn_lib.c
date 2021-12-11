@@ -1019,3 +1019,206 @@ void bn_correct_top(BIGNUM *a)
     a->flags &= ~BN_FLG_FIXED_TOP;
     bn_pollute(a);
 }
+
+#undef bn_mul_add_words
+#undef bn_mul_words
+#undef bn_sqr_words
+#undef bn_div_words
+#undef bn_add_words
+#undef bn_sub_words
+#undef bn_mul_comba8
+#undef bn_mul_comba4
+#undef bn_sqr_comba8
+#undef bn_sqr_comba4
+
+BN_ULONG bn_mul_add_words_chk(BN_ULONG *rp, const BN_ULONG *ap, int num,
+                              BN_ULONG w)
+{
+    return bn_mul_add_words_ref(rp, ap, num, w);
+}
+
+BN_ULONG bn_mul_words_chk(BN_ULONG *rp, const BN_ULONG *ap, int num, BN_ULONG w)
+{
+    return bn_mul_words_ref(rp, ap, num, w);
+}
+
+void bn_sqr_words_chk(BN_ULONG *rp, const BN_ULONG *ap, int num)
+{
+    bn_sqr_words_ref(rp, ap, num);
+}
+
+BN_ULONG bn_div_words_chk(BN_ULONG h, BN_ULONG l, BN_ULONG d)
+{
+    return bn_div_words_ref(h, l, d);
+}
+
+BN_ULONG bn_add_words_chk(BN_ULONG *rp, const BN_ULONG *ap, const BN_ULONG *bp,
+                          int num)
+{
+    return bn_add_words_ref(rp, ap, bp, num);
+}
+
+BN_ULONG bn_sub_words_chk(BN_ULONG *rp, const BN_ULONG *ap, const BN_ULONG *bp,
+                          int num)
+{
+    return bn_sub_words_ref(rp, ap, bp, num);
+}
+
+void bn_mul_comba8_chk(BN_ULONG *r, BN_ULONG *a, BN_ULONG *b)
+{
+    BN_ULONG r1[16];
+    bn_mul_comba8(r1, a, b);
+    bn_mul_comba8_ref(r, a, b);
+    if (memcmp(r1, r, sizeof(r1))) {
+        int i;
+        fprintf(stderr, "**** error at bn_mul_comba8 ****\n");
+        fprintf(stderr, "a = ");
+        for (i = 7; i >= 0; i--)
+            fprintf(stderr, " " BN_HEX_FMT2, a[i]);
+        fprintf(stderr, "\n");
+        fprintf(stderr, "b = ");
+        for (i = 7; i >= 0; i--)
+            fprintf(stderr, " " BN_HEX_FMT2, b[i]);
+        fprintf(stderr, "\n");
+        fprintf(stderr, "r1 =");
+        for (i = 15; i >= 0; i--)
+            fprintf(stderr, " " BN_HEX_FMT2, r1[i]);
+        fprintf(stderr, "\n");
+        fprintf(stderr, "r = ");
+        for (i = 15; i >= 0; i--)
+            fprintf(stderr, " " BN_HEX_FMT2, r[i]);
+        fprintf(stderr, "\n");
+        abort();
+    }
+}
+
+void bn_mul_comba4_chk(BN_ULONG *r, BN_ULONG *a, BN_ULONG *b)
+{
+    BN_ULONG r1[8];
+    bn_mul_comba8(r1, a, b);
+    bn_mul_comba4_ref(r, a, b);
+    if (memcmp(r1, r, sizeof(r1))) {
+        int i;
+        fprintf(stderr, "**** error at bn_mul_comba4 ****\n");
+        fprintf(stderr, "a = ");
+        for (i = 3; i >= 0; i--)
+            fprintf(stderr, " " BN_HEX_FMT2, a[i]);
+        fprintf(stderr, "\n");
+        fprintf(stderr, "b = ");
+        for (i = 3; i >= 0; i--)
+            fprintf(stderr, " " BN_HEX_FMT2, b[i]);
+        fprintf(stderr, "\n");
+        fprintf(stderr, "r1 =");
+        for (i = 7; i >= 0; i--)
+            fprintf(stderr, " " BN_HEX_FMT2, r1[i]);
+        fprintf(stderr, "\n");
+        fprintf(stderr, "r = ");
+        for (i = 7; i >= 0; i--)
+            fprintf(stderr, " " BN_HEX_FMT2, r[i]);
+        fprintf(stderr, "\n");
+        abort();
+    }
+}
+
+void bn_sqr_comba8_chk(BN_ULONG *r, const BN_ULONG *a)
+{
+    BN_ULONG r1[16];
+    bn_mul_comba8(r1, (BN_ULONG*)a, (BN_ULONG*)a);
+    bn_sqr_comba8_ref(r, a);
+    if (memcmp(r1, r, sizeof(r1))) {
+        int i;
+        fprintf(stderr, "**** error at bn_mul_comba8 ****\n");
+        fprintf(stderr, "a = ");
+        for (i = 7; i >= 0; i--)
+            fprintf(stderr, " " BN_HEX_FMT2, a[i]);
+        fprintf(stderr, "\n");
+        fprintf(stderr, "r1 =");
+        for (i = 15; i >= 0; i--)
+            fprintf(stderr, " " BN_HEX_FMT2, r1[i]);
+        fprintf(stderr, "\n");
+        fprintf(stderr, "r = ");
+        for (i = 15; i >= 0; i--)
+            fprintf(stderr, " " BN_HEX_FMT2, r[i]);
+        fprintf(stderr, "\n");
+        abort();
+    }
+    bn_sqr_comba8(r1, a);
+    if (memcmp(r1, r, sizeof(r1))) {
+        int i;
+        fprintf(stderr, "**** error at bn_sqr_comba8 ****\n");
+        fprintf(stderr, "a = ");
+        for (i = 7; i >= 0; i--)
+            fprintf(stderr, " " BN_HEX_FMT2, a[i]);
+        fprintf(stderr, "\n");
+        fprintf(stderr, "r1 =");
+        for (i = 15; i >= 0; i--)
+            fprintf(stderr, " " BN_HEX_FMT2, r1[i]);
+        fprintf(stderr, "\n");
+        fprintf(stderr, "r = ");
+        for (i = 15; i >= 0; i--)
+            fprintf(stderr, " " BN_HEX_FMT2, r[i]);
+        fprintf(stderr, "\n");
+        abort();
+    }
+}
+
+void bn_sqr_comba4_chk(BN_ULONG *r, const BN_ULONG *a)
+{
+    BN_ULONG r1[8];
+    bn_mul_comba4(r1, (BN_ULONG*)a, (BN_ULONG*)a);
+    bn_sqr_comba4_ref(r, a);
+    if (memcmp(r1, r, sizeof(r1))) {
+        int i;
+        fprintf(stderr, "**** error at bn_mul_comba4 ****\n");
+        fprintf(stderr, "a = ");
+        for (i = 3; i >= 0; i--)
+            fprintf(stderr, " " BN_HEX_FMT2, a[i]);
+        fprintf(stderr, "\n");
+        fprintf(stderr, "r1 =");
+        for (i = 7; i >= 0; i--)
+            fprintf(stderr, " " BN_HEX_FMT2, r1[i]);
+        fprintf(stderr, "\n");
+        fprintf(stderr, "r = ");
+        for (i = 7; i >= 0; i--)
+            fprintf(stderr, " " BN_HEX_FMT2, r[i]);
+        fprintf(stderr, "\n");
+        abort();
+    }
+    bn_sqr_comba4(r1, a);
+    if (memcmp(r1, r, sizeof(r1))) {
+        int i;
+        fprintf(stderr, "**** error at bn_sqr_comba4 ****\n");
+        fprintf(stderr, "a = ");
+        for (i = 3; i >= 0; i--)
+            fprintf(stderr, " " BN_HEX_FMT2, a[i]);
+        fprintf(stderr, "\n");
+        fprintf(stderr, "r1 =");
+        for (i = 7; i >= 0; i--)
+            fprintf(stderr, " " BN_HEX_FMT2, r1[i]);
+        fprintf(stderr, "\n");
+        fprintf(stderr, "r = ");
+        for (i = 7; i >= 0; i--)
+            fprintf(stderr, " " BN_HEX_FMT2, r[i]);
+        fprintf(stderr, "\n");
+        abort();
+    }
+}
+
+#define bn_mul_add_words bn_mul_add_words_ref
+#define bn_mul_words bn_mul_words_ref
+#define bn_sqr_words bn_sqr_words_ref
+#define bn_div_words bn_div_words_ref
+#define bn_add_words bn_add_words_ref
+#define bn_sub_words bn_sub_words_ref
+#define bn_mul_comba8 bn_mul_comba8_ref
+#define bn_mul_comba4 bn_mul_comba4_ref
+#define bn_sqr_comba8 bn_sqr_comba8_ref
+#define bn_sqr_comba4 bn_sqr_comba4_ref
+#define bn_mul_mont bn_mul_mont_ref
+
+int bn_mul_mont_ref(BN_ULONG *rp, const BN_ULONG *ap, const BN_ULONG *bp,
+                    const BN_ULONG *np, const BN_ULONG *n0, int num);
+
+#define BN_REFERENCE_IMPL
+
+#include "bn_asm.c"

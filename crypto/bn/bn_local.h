@@ -72,6 +72,7 @@
 #  define BN_DEC_NUM      19
 #  define BN_DEC_FMT1     "%lu"
 #  define BN_DEC_FMT2     "%019lu"
+#  define BN_HEX_FMT2     "%016lx"
 # endif
 
 /*
@@ -89,6 +90,7 @@
 #  define BN_DEC_NUM      19
 #  define BN_DEC_FMT1     "%llu"
 #  define BN_DEC_FMT2     "%019llu"
+#  define BN_HEX_FMT2     "%016llx"
 # endif
 
 # ifdef THIRTY_TWO_BIT
@@ -108,6 +110,7 @@
 #  define BN_DEC_NUM      9
 #  define BN_DEC_FMT1     "%u"
 #  define BN_DEC_FMT2     "%09u"
+#  define BN_HEX_FMT2     "%08x"
 # endif
 
 
@@ -665,4 +668,42 @@ static ossl_inline BIGNUM *bn_expand(BIGNUM *a, int bits)
     return bn_expand2((a),(bits+BN_BITS2-1)/BN_BITS2);
 }
 
+#define bn_mul_add_words bn_mul_add_words_chk
+#define bn_mul_words bn_mul_words_chk
+#define bn_sqr_words bn_sqr_words_chk
+#define bn_div_words bn_div_words_chk
+#define bn_add_words bn_add_words_chk
+#define bn_sub_words bn_sub_words_chk
+#define bn_mul_comba8 bn_mul_comba8_chk
+#define bn_mul_comba4 bn_mul_comba4_chk
+#define bn_sqr_comba8 bn_sqr_comba8_chk
+#define bn_sqr_comba4 bn_sqr_comba4_chk
+
+BN_ULONG bn_mul_add_words_chk(BN_ULONG *rp, const BN_ULONG *ap, int num,
+                              BN_ULONG w);
+BN_ULONG bn_mul_words_chk(BN_ULONG *rp, const BN_ULONG *ap, int num, BN_ULONG w);
+void bn_sqr_words_chk(BN_ULONG *rp, const BN_ULONG *ap, int num);
+BN_ULONG bn_div_words_chk(BN_ULONG h, BN_ULONG l, BN_ULONG d);
+BN_ULONG bn_add_words_chk(BN_ULONG *rp, const BN_ULONG *ap, const BN_ULONG *bp,
+                          int num);
+BN_ULONG bn_sub_words_chk(BN_ULONG *rp, const BN_ULONG *ap, const BN_ULONG *bp,
+                          int num);
+void bn_mul_comba8_chk(BN_ULONG *r, BN_ULONG *a, BN_ULONG *b);
+void bn_mul_comba4_chk(BN_ULONG *r, BN_ULONG *a, BN_ULONG *b);
+void bn_sqr_comba8_chk(BN_ULONG *r, const BN_ULONG *a);
+void bn_sqr_comba4_chk(BN_ULONG *r, const BN_ULONG *a);
+
+BN_ULONG bn_mul_add_words_ref(BN_ULONG *rp, const BN_ULONG *ap, int num,
+                              BN_ULONG w);
+BN_ULONG bn_mul_words_ref(BN_ULONG *rp, const BN_ULONG *ap, int num, BN_ULONG w);
+void bn_sqr_words_ref(BN_ULONG *rp, const BN_ULONG *ap, int num);
+BN_ULONG bn_div_words_ref(BN_ULONG h, BN_ULONG l, BN_ULONG d);
+BN_ULONG bn_add_words_ref(BN_ULONG *rp, const BN_ULONG *ap, const BN_ULONG *bp,
+                          int num);
+BN_ULONG bn_sub_words_ref(BN_ULONG *rp, const BN_ULONG *ap, const BN_ULONG *bp,
+                          int num);
+void bn_mul_comba8_ref(BN_ULONG *r, BN_ULONG *a, BN_ULONG *b);
+void bn_mul_comba4_ref(BN_ULONG *r, BN_ULONG *a, BN_ULONG *b);
+void bn_sqr_comba8_ref(BN_ULONG *r, const BN_ULONG *a);
+void bn_sqr_comba4_ref(BN_ULONG *r, const BN_ULONG *a);
 #endif

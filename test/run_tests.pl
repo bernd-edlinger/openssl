@@ -11,7 +11,7 @@ use warnings;
 
 # Recognise VERBOSE and V which is common on other projects.
 BEGIN {
-    $ENV{HARNESS_VERBOSE} = "yes" if $ENV{VERBOSE} || $ENV{V};
+    $ENV{HARNESS_VERBOSE} = "yes";
 }
 
 use File::Spec::Functions qw/catdir catfile curdir abs2rel rel2abs/;

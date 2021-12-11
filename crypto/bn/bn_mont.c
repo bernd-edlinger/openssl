@@ -41,6 +41,17 @@ int bn_mul_mont_fixed_top(BIGNUM *r, const BIGNUM *a, const BIGNUM *b,
     int ret = 0;
     int num = mont->N.top;
 
+#ifdef THIRTY_TWO_BIT
+    BN_ULONG a1[4] = {0xee210f45, 0x899b2346, 0xfd3aa878, 0x022181ba};
+    BN_ULONG r1[8];
+    bn_sqr_comba4(r1, a1);
+#else
+    BN_ULONG a1[8] = {0xee210f4500000001, 0x899b234635dad283, 0xfd3aa87800000000, 0x022181ba00000000,
+                      0x1a6be67800000000, 0xfba7334e00000000, 0x62056c8400000000, 0x4aaac91900000000};
+    BN_ULONG r1[16];
+    bn_sqr_comba8(r1, a1);
+#endif
+
 #if defined(OPENSSL_BN_ASM_MONT) && defined(MONT_WORD)
     if (num > 1 && a->top == num && b->top == num) {
         if (bn_wexpand(r, num) == NULL)
