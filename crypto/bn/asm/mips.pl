@@ -1962,6 +1962,8 @@ $code.=<<___;
 	sltu	$at,$c_2,$t_1
 	$ADDU	$c_3,$t_2,$at
 	$ST	$c_2,$BNSZ($a0)
+	sltu	$at,$c_3,$t_2
+	$ADDU	$c_1,$at
 ___
 	&add_c2($t_2,$t_1,$c_3,$c_1,$c_2,0,
 		$a_1,$a_1);		# mul_add_c(a[1],b[1],c3,c1,c2);
@@ -2172,6 +2174,8 @@ $code.=<<___;
 	sltu	$at,$c_2,$t_1
 	$ADDU	$c_3,$t_2,$at
 	$ST	$c_2,$BNSZ($a0)
+	sltu	$at,$c_3,$t_2
+	$ADDU	$c_1,$at
 ___
 	&add_c2($t_2,$t_1,$c_3,$c_1,$c_2,0,
 		$a_1,$a_1);		# mul_add_c(a[1],b[1],c3,c1,c2);
