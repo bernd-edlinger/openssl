@@ -1034,22 +1034,117 @@ void bn_correct_top(BIGNUM *a)
 BN_ULONG bn_mul_add_words_chk(BN_ULONG *rp, const BN_ULONG *ap, int num,
                               BN_ULONG w)
 {
-    return bn_mul_add_words_ref(rp, ap, num, w);
+    BN_ULONG *r1 = OPENSSL_malloc(sizeof(BN_ULONG)*3*num);
+    BN_ULONG *r0 = r1 + num;
+    BN_ULONG *a1 = r1 + 2*num;
+    BN_ULONG c1, c;
+    memcpy(r0, rp, sizeof(BN_ULONG)*num);
+    memcpy(r1, rp, sizeof(BN_ULONG)*num);
+    memcpy(a1, ap, sizeof(BN_ULONG)*num);
+    c1 = bn_mul_add_words(r1, a1, num, w);
+    c = bn_mul_add_words_ref(rp, ap, num, w);
+    if (c1 != c || memcmp(r1,rp,sizeof(BN_ULONG)*num)) {
+        int i;
+        fprintf(stderr, "**** error at bn_mul_add_words ****\n");
+        fprintf(stderr, "n =  %d\n", num);
+        fprintf(stderr, "a = ");
+        for (i = num-1; i >= 0; i--)
+            fprintf(stderr, " " BN_HEX_FMT2, a1[i]);
+        fprintf(stderr, "\n");
+        fprintf(stderr, "w  = " BN_HEX_FMT2 "\n", w);
+        fprintf(stderr, "r0 =");
+        for (i = num-1; i >= 0; i--)
+            fprintf(stderr, " " BN_HEX_FMT2, r0[i]);
+        fprintf(stderr, "c1 = " BN_HEX_FMT2 "\n", c1);
+        fprintf(stderr, "r1 =");
+        for (i = num-1; i >= 0; i--)
+            fprintf(stderr, " " BN_HEX_FMT2, r1[i]);
+        fprintf(stderr, "\n");
+        fprintf(stderr, "c =  " BN_HEX_FMT2 "\n", c);
+        fprintf(stderr, "r = ");
+        for (i = num-1; i >= 0; i--)
+            fprintf(stderr, " " BN_HEX_FMT2, rp[i]);
+        fprintf(stderr, "\n");
+        abort();
+    }
+    OPENSSL_free(r1);
+    return c;
 }
 
 BN_ULONG bn_mul_words_chk(BN_ULONG *rp, const BN_ULONG *ap, int num, BN_ULONG w)
 {
-    return bn_mul_words_ref(rp, ap, num, w);
+    BN_ULONG *r1 = OPENSSL_malloc(sizeof(BN_ULONG)*2*num);
+    BN_ULONG *a1 = r1 + num;
+    BN_ULONG c1, c;
+    memcpy(a1, ap, sizeof(BN_ULONG)*num);
+    c1 = bn_mul_words(r1, a1, num, w);
+    c = bn_mul_words_ref(rp, ap, num, w);
+    if (c1 != c || memcmp(r1,rp,sizeof(BN_ULONG)*num)) {
+        int i;
+        fprintf(stderr, "**** error at bn_mul_words ****\n");
+        fprintf(stderr, "n =  %d\n", num);
+        fprintf(stderr, "a = ");
+        for (i = num-1; i >= 0; i--)
+            fprintf(stderr, " " BN_HEX_FMT2, a1[i]);
+        fprintf(stderr, "\n");
+        fprintf(stderr, "w  = " BN_HEX_FMT2 "\n", w);
+        fprintf(stderr, "c1 = " BN_HEX_FMT2 "\n", c1);
+        fprintf(stderr, "r1 =");
+        for (i = num-1; i >= 0; i--)
+            fprintf(stderr, " " BN_HEX_FMT2, r1[i]);
+        fprintf(stderr, "\n");
+        fprintf(stderr, "c =  " BN_HEX_FMT2 "\n", c);
+        fprintf(stderr, "r = ");
+        for (i = num-1; i >= 0; i--)
+            fprintf(stderr, " " BN_HEX_FMT2, rp[i]);
+        fprintf(stderr, "\n");
+        abort();
+    }
+    OPENSSL_free(r1);
+    return c;
 }
 
 void bn_sqr_words_chk(BN_ULONG *rp, const BN_ULONG *ap, int num)
 {
+    BN_ULONG *r1 = OPENSSL_malloc(sizeof(BN_ULONG)*2*num);
+    bn_sqr_words(r1, ap, num);
     bn_sqr_words_ref(rp, ap, num);
+    if (memcmp(r1,rp,sizeof(BN_ULONG)*2*num)) {
+        int i;
+        fprintf(stderr, "**** error at bn_sqr_words ****\n");
+        fprintf(stderr, "n =  %d\n", num);
+        fprintf(stderr, "a = ");
+        for (i = num-1; i >= 0; i--)
+            fprintf(stderr, " " BN_HEX_FMT2, ap[i]);
+        fprintf(stderr, "\n");
+        fprintf(stderr, "r1 =");
+        for (i = 2*num-1; i >= 0; i--)
+            fprintf(stderr, " " BN_HEX_FMT2, r1[i]);
+        fprintf(stderr, "\n");
+        fprintf(stderr, "r = ");
+        for (i = 2*num-1; i >= 0; i--)
+            fprintf(stderr, " " BN_HEX_FMT2, rp[i]);
+        fprintf(stderr, "\n");
+        abort();
+    }
+    OPENSSL_free(r1);
 }
 
 BN_ULONG bn_div_words_chk(BN_ULONG h, BN_ULONG l, BN_ULONG d)
 {
-    return bn_div_words_ref(h, l, d);
+    BN_ULONG c1, c;
+    c1 = bn_div_words(h, l, d);
+    c = bn_div_words_ref(h, l, d);
+    if (c1 != c) {
+        fprintf(stderr, "**** error at bn_div_words ****\n");
+        fprintf(stderr, "h  = " BN_HEX_FMT2 "\n", h);
+        fprintf(stderr, "l  = " BN_HEX_FMT2 "\n", l);
+        fprintf(stderr, "d  = " BN_HEX_FMT2 "\n", d);
+        fprintf(stderr, "c1 = " BN_HEX_FMT2 "\n", c1);
+        fprintf(stderr, "c  = " BN_HEX_FMT2 "\n", c);
+        abort();
+    }
+    return c;
 }
 
 BN_ULONG bn_add_words_chk(BN_ULONG *rp, const BN_ULONG *ap, const BN_ULONG *bp,
