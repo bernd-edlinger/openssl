@@ -1055,13 +1055,79 @@ BN_ULONG bn_div_words_chk(BN_ULONG h, BN_ULONG l, BN_ULONG d)
 BN_ULONG bn_add_words_chk(BN_ULONG *rp, const BN_ULONG *ap, const BN_ULONG *bp,
                           int num)
 {
-    return bn_add_words_ref(rp, ap, bp, num);
+    BN_ULONG *r1 = OPENSSL_malloc(sizeof(BN_ULONG)*3*num);
+    BN_ULONG *a1 = r1 + num;
+    BN_ULONG *b1 = r1 + 2*num;
+    BN_ULONG c1, c;
+    memcpy(a1, ap, sizeof(BN_ULONG)*num);
+    memcpy(b1, bp, sizeof(BN_ULONG)*num);
+    c1 = bn_add_words(r1, a1, b1, num);
+    c = bn_add_words_ref(rp, ap, bp, num);
+    if (c1 != c || memcmp(r1,rp,sizeof(BN_ULONG)*num)) {
+        int i;
+        fprintf(stderr, "**** error at bn_add_words ****\n");
+        fprintf(stderr, "n =  %d\n", num);
+        fprintf(stderr, "a = ");
+        for (i = num-1; i >= 0; i--)
+            fprintf(stderr, " " BN_HEX_FMT2, a1[i]);
+        fprintf(stderr, "\n");
+        fprintf(stderr, "b = ");
+        for (i = num-1; i >= 0; i--)
+            fprintf(stderr, " " BN_HEX_FMT2, b1[i]);
+        fprintf(stderr, "\n");
+        fprintf(stderr, "c1 = " BN_HEX_FMT2 "\n", c1);
+        fprintf(stderr, "r1 =");
+        for (i = num-1; i >= 0; i--)
+            fprintf(stderr, " " BN_HEX_FMT2, r1[i]);
+        fprintf(stderr, "\n");
+        fprintf(stderr, "c =  " BN_HEX_FMT2 "\n", c);
+        fprintf(stderr, "r = ");
+        for (i = num-1; i >= 0; i--)
+            fprintf(stderr, " " BN_HEX_FMT2, rp[i]);
+        fprintf(stderr, "\n");
+        abort();
+    }
+    OPENSSL_free(r1);
+    return c;
 }
 
 BN_ULONG bn_sub_words_chk(BN_ULONG *rp, const BN_ULONG *ap, const BN_ULONG *bp,
                           int num)
 {
-    return bn_sub_words_ref(rp, ap, bp, num);
+    BN_ULONG *r1 = OPENSSL_malloc(sizeof(BN_ULONG)*3*num);
+    BN_ULONG *a1 = r1 + num;
+    BN_ULONG *b1 = r1 + 2*num;
+    BN_ULONG c1, c;
+    memcpy(a1, ap, sizeof(BN_ULONG)*num);
+    memcpy(b1, bp, sizeof(BN_ULONG)*num);
+    c1 = bn_sub_words(r1, a1, b1, num);
+    c = bn_sub_words_ref(rp, ap, bp, num);
+    if (c1 != c || memcmp(r1,rp,sizeof(BN_ULONG)*num)) {
+        int i;
+        fprintf(stderr, "**** error at bn_sub_words ****\n");
+        fprintf(stderr, "n =  %d\n", num);
+        fprintf(stderr, "a = ");
+        for (i = num-1; i >= 0; i--)
+            fprintf(stderr, " " BN_HEX_FMT2, a1[i]);
+        fprintf(stderr, "\n");
+        fprintf(stderr, "b = ");
+        for (i = num-1; i >= 0; i--)
+            fprintf(stderr, " " BN_HEX_FMT2, b1[i]);
+        fprintf(stderr, "\n");
+        fprintf(stderr, "c1 = " BN_HEX_FMT2 "\n", c1);
+        fprintf(stderr, "r1 =");
+        for (i = num-1; i >= 0; i--)
+            fprintf(stderr, " " BN_HEX_FMT2, r1[i]);
+        fprintf(stderr, "\n");
+        fprintf(stderr, "c =  " BN_HEX_FMT2 "\n", c);
+        fprintf(stderr, "r = ");
+        for (i = num-1; i >= 0; i--)
+            fprintf(stderr, " " BN_HEX_FMT2, rp[i]);
+        fprintf(stderr, "\n");
+        abort();
+    }
+    OPENSSL_free(r1);
+    return c;
 }
 
 void bn_mul_comba8_chk(BN_ULONG *r, BN_ULONG *a, BN_ULONG *b)
