@@ -1123,26 +1123,8 @@ void bn_mul_comba4_chk(BN_ULONG *r, BN_ULONG *a, BN_ULONG *b)
 void bn_sqr_comba8_chk(BN_ULONG *r, const BN_ULONG *a)
 {
     BN_ULONG r1[16];
-    bn_mul_comba8(r1, (BN_ULONG*)a, (BN_ULONG*)a);
-    bn_sqr_comba8_ref(r, a);
-    if (memcmp(r1, r, sizeof(r1))) {
-        int i;
-        fprintf(stderr, "**** error at bn_mul_comba8 ****\n");
-        fprintf(stderr, "a = ");
-        for (i = 7; i >= 0; i--)
-            fprintf(stderr, " " BN_HEX_FMT2, a[i]);
-        fprintf(stderr, "\n");
-        fprintf(stderr, "r1 =");
-        for (i = 15; i >= 0; i--)
-            fprintf(stderr, " " BN_HEX_FMT2, r1[i]);
-        fprintf(stderr, "\n");
-        fprintf(stderr, "r = ");
-        for (i = 15; i >= 0; i--)
-            fprintf(stderr, " " BN_HEX_FMT2, r[i]);
-        fprintf(stderr, "\n");
-        abort();
-    }
     bn_sqr_comba8(r1, a);
+    bn_sqr_comba8_ref(r, a);
     if (memcmp(r1, r, sizeof(r1))) {
         int i;
         fprintf(stderr, "**** error at bn_sqr_comba8 ****\n");
@@ -1165,26 +1147,8 @@ void bn_sqr_comba8_chk(BN_ULONG *r, const BN_ULONG *a)
 void bn_sqr_comba4_chk(BN_ULONG *r, const BN_ULONG *a)
 {
     BN_ULONG r1[8];
-    bn_mul_comba4(r1, (BN_ULONG*)a, (BN_ULONG*)a);
-    bn_sqr_comba4_ref(r, a);
-    if (memcmp(r1, r, sizeof(r1))) {
-        int i;
-        fprintf(stderr, "**** error at bn_mul_comba4 ****\n");
-        fprintf(stderr, "a = ");
-        for (i = 3; i >= 0; i--)
-            fprintf(stderr, " " BN_HEX_FMT2, a[i]);
-        fprintf(stderr, "\n");
-        fprintf(stderr, "r1 =");
-        for (i = 7; i >= 0; i--)
-            fprintf(stderr, " " BN_HEX_FMT2, r1[i]);
-        fprintf(stderr, "\n");
-        fprintf(stderr, "r = ");
-        for (i = 7; i >= 0; i--)
-            fprintf(stderr, " " BN_HEX_FMT2, r[i]);
-        fprintf(stderr, "\n");
-        abort();
-    }
     bn_sqr_comba4(r1, a);
+    bn_sqr_comba4_ref(r, a);
     if (memcmp(r1, r, sizeof(r1))) {
         int i;
         fprintf(stderr, "**** error at bn_sqr_comba4 ****\n");
