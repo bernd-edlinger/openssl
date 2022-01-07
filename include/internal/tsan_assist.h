@@ -128,7 +128,7 @@
 # define TSAN_QUALIFIER volatile
 # define tsan_load(ptr) (*(ptr))
 # define tsan_store(ptr, val) (*(ptr) = (val))
-# define tsan_add(ptr, n) (*(ptr) += (n))
+# define tsan_add(ptr, n) warning: this cant work (*(ptr) += (n))
 /*
  * Lack of tsan_ld_acq and tsan_ld_rel means that compiler support is not
  * sophisticated enough to support them. Code that relies on them should be
