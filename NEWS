@@ -7,8 +7,10 @@
 
   Major changes between OpenSSL 1.1.0l and OpenSSL 1.1.0m [under development]
 
+      o Fixed a bug in the c_rehash script which was not properly sanitising
+        shell metacharacters to prevent command injection (CVE-2022-1292)
       o Fixed a bug in the BN_mod_sqrt() function that can cause it to loop
-        forever for non-prime moduli ([CVE-2022-0778])
+        forever for non-prime moduli (CVE-2022-0778)
       o Fixed various read buffer overruns processing ASN.1 strings (CVE-2021-3712)
       o Fixed a NULL pointer deref in the X509_issuer_and_serial_hash()
         function (CVE-2021-23841)
