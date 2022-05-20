@@ -164,13 +164,23 @@ int FuzzerTestOneInput(const uint8_t *buf, size_t len)
         return 0;
 
     in = BIO_new(BIO_s_mem());
-    OPENSSL_assert((size_t)BIO_write(in, buf, len) == len);
+    if (in == NULL)
+        return 0;
+    if ((size_t)BIO_write(in, buf, len) != len) {
+        BIO_free(in);
+        return 0;
+    }
     msg = d2i_OSSL_CMP_MSG_bio(in, NULL);
     if (msg != NULL) {
         BIO *out = BIO_new(BIO_s_null());
         OSSL_CMP_SRV_CTX *srv_ctx = OSSL_CMP_SRV_CTX_new(NULL, NULL);
         OSSL_CMP_CTX *client_ctx = OSSL_CMP_CTX_new(NULL, NULL);
 
+        if (out == NULL) {
+            OSSL_CMP_MSG_free(msg);
+            BIO_free(in);
+            return 0;
+        }
         i2d_OSSL_CMP_MSG_bio(out, msg);
         ASN1_item_print(out, (ASN1_VALUE *)msg, 4,
                         ASN1_ITEM_rptr(OSSL_CMP_MSG), NULL);

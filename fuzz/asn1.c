@@ -207,8 +207,6 @@ static ASN1_ITEM_EXP *item_type[] = {
     NULL
 };
 
-static ASN1_PCTX *pctx;
-
 #define DO_TEST(TYPE, D2I, I2D, PRINT) { \
     const unsigned char *p = buf; \
     unsigned char *der = NULL; \
@@ -285,12 +283,6 @@ static ASN1_PCTX *pctx;
 int FuzzerInitialize(int *argc, char ***argv)
 {
     FuzzerSetRand();
-    pctx = ASN1_PCTX_new();
-    ASN1_PCTX_set_flags(pctx, ASN1_PCTX_FLAGS_SHOW_ABSENT |
-        ASN1_PCTX_FLAGS_SHOW_SEQUENCE | ASN1_PCTX_FLAGS_SHOW_SSOF |
-        ASN1_PCTX_FLAGS_SHOW_TYPE | ASN1_PCTX_FLAGS_SHOW_FIELD_STRUCT_NAME);
-    ASN1_PCTX_set_str_flags(pctx, ASN1_STRFLGS_UTF8_CONVERT |
-        ASN1_STRFLGS_SHOW_TYPE | ASN1_STRFLGS_DUMP_ALL);
 
     OPENSSL_init_crypto(OPENSSL_INIT_LOAD_CRYPTO_STRINGS, NULL);
     OPENSSL_init_ssl(OPENSSL_INIT_LOAD_SSL_STRINGS, NULL);
@@ -303,7 +295,17 @@ int FuzzerInitialize(int *argc, char ***argv)
 int FuzzerTestOneInput(const uint8_t *buf, size_t len)
 {
     int n;
+    ASN1_PCTX *pctx;
 
+    pctx = ASN1_PCTX_new();
+    if (pctx == NULL)
+        return 0;
+
+    ASN1_PCTX_set_flags(pctx, ASN1_PCTX_FLAGS_SHOW_ABSENT |
+        ASN1_PCTX_FLAGS_SHOW_SEQUENCE | ASN1_PCTX_FLAGS_SHOW_SSOF |
+        ASN1_PCTX_FLAGS_SHOW_TYPE | ASN1_PCTX_FLAGS_SHOW_FIELD_STRUCT_NAME);
+    ASN1_PCTX_set_str_flags(pctx, ASN1_STRFLGS_UTF8_CONVERT |
+        ASN1_STRFLGS_SHOW_TYPE | ASN1_STRFLGS_DUMP_ALL);
 
     for (n = 0; item_type[n] != NULL; ++n) {
         const uint8_t *b = buf;
@@ -363,12 +365,12 @@ int FuzzerTestOneInput(const uint8_t *buf, size_t len)
     DO_TEST(SSL_SESSION, d2i_SSL_SESSION, i2d_SSL_SESSION, SSL_SESSION_print);
 
     ERR_clear_error();
+    ASN1_PCTX_free(pctx);
 
     return 0;
 }
 
 void FuzzerCleanup(void)
 {
-    ASN1_PCTX_free(pctx);
     FuzzerClearRand();
 }
