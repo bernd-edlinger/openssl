@@ -194,40 +194,28 @@ static const uint16_t suiteb_curves[] = {
 uint16_t ssl_group_id_internal_to_tls13(uint16_t curve_id)
 {
     switch(curve_id) {
-    case TLSEXT_GROUPID_secp256r1:
-        return TLSEXT_GROUPID_secp256r1;
-    case TLSEXT_GROUPID_secp384r1:
-        return TLSEXT_GROUPID_secp384r1;
-    case TLSEXT_GROUPID_secp521r1:
-        return TLSEXT_GROUPID_secp521r1;
-    case TLSEXT_GROUPID_X25519:
-        return TLSEXT_GROUPID_X25519;
-    case TLSEXT_GROUPID_X448:
-        return TLSEXT_GROUPID_X448;
     case TLSEXT_GROUPID_brainpoolP256r1:
         return TLSEXT_GROUPID_brainpoolP256r1_tls13;
     case TLSEXT_GROUPID_brainpoolP384r1:
         return TLSEXT_GROUPID_brainpoolP384r1_tls13;
     case TLSEXT_GROUPID_brainpoolP512r1:
         return TLSEXT_GROUPID_brainpoolP512r1_tls13;
-    default:
+    case TLSEXT_GROUPID_brainpoolP256r1_tls13:
+    case TLSEXT_GROUPID_brainpoolP384r1_tls13:
+    case TLSEXT_GROUPID_brainpoolP512r1_tls13:
         return 0;
+    default:
+        return curve_id;
     }
 }
 
 uint16_t ssl_group_id_tls13_to_internal(uint16_t curve_id)
 {
     switch(curve_id) {
-    case TLSEXT_GROUPID_secp256r1:
-        return TLSEXT_GROUPID_secp256r1;
-    case TLSEXT_GROUPID_secp384r1:
-        return TLSEXT_GROUPID_secp384r1;
-    case TLSEXT_GROUPID_secp521r1:
-        return TLSEXT_GROUPID_secp521r1;
-    case TLSEXT_GROUPID_X25519:
-        return TLSEXT_GROUPID_X25519;
-    case TLSEXT_GROUPID_X448:
-        return TLSEXT_GROUPID_X448;
+    case TLSEXT_GROUPID_brainpoolP256r1:
+    case TLSEXT_GROUPID_brainpoolP384r1:
+    case TLSEXT_GROUPID_brainpoolP512r1:
+        return 0;
     case TLSEXT_GROUPID_brainpoolP256r1_tls13:
         return TLSEXT_GROUPID_brainpoolP256r1;
     case TLSEXT_GROUPID_brainpoolP384r1_tls13:
@@ -235,7 +223,7 @@ uint16_t ssl_group_id_tls13_to_internal(uint16_t curve_id)
     case TLSEXT_GROUPID_brainpoolP512r1_tls13:
         return TLSEXT_GROUPID_brainpoolP512r1;
     default:
-        return 0;
+        return curve_id;
     }
 }
 
