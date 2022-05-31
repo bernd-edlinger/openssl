@@ -839,7 +839,7 @@ int tls_parse_ctos_cookie(SSL *s, PACKET *pkt, unsigned int context, X509 *x,
                  SSL_R_LENGTH_MISMATCH);
         return 0;
     }
-    if (group_id != s->s3->group_id
+    if (group_id != ssl_group_id_tls13_to_internal(s->s3->group_id)
             || s->s3->tmp.new_cipher
                != ssl_get_cipher_by_char(s, ciphdata, 0)) {
         /*
