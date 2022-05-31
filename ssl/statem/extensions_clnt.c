@@ -693,9 +693,6 @@ EXT_RETURN tls_construct_ctos_key_share(SSL *s, WPACKET *pkt,
     } else {
         for (i = 0; i < num_groups; i++) {
 
-            if (ssl_group_id_internal_to_tls13(pgroups[i]) == 0)
-                continue;
-
             if (!tls_curve_allowed(s, pgroups[i], SSL_SECOP_CURVE_SUPPORTED))
                 continue;
 

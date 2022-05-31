@@ -685,7 +685,7 @@ int tls_parse_ctos_key_share(SSL *s, PACKET *pkt, unsigned int context, X509 *x,
          * we requested, and must be the only key_share sent.
          */
         if (s->s3->group_id != 0
-                && (ssl_group_id_tls13_to_internal(group_id) != s->s3->group_id
+                && (group_id != s->s3->group_id
                     || PACKET_remaining(&key_share_list) != 0)) {
             SSLfatal(s, SSL_AD_ILLEGAL_PARAMETER,
                      SSL_F_TLS_PARSE_CTOS_KEY_SHARE, SSL_R_BAD_KEY_SHARE);
@@ -839,7 +839,7 @@ int tls_parse_ctos_cookie(SSL *s, PACKET *pkt, unsigned int context, X509 *x,
                  SSL_R_LENGTH_MISMATCH);
         return 0;
     }
-    if (group_id != ssl_group_id_tls13_to_internal(s->s3->group_id)
+    if (group_id != s->s3->group_id
             || s->s3->tmp.new_cipher
                != ssl_get_cipher_by_char(s, ciphdata, 0)) {
         /*
@@ -1696,8 +1696,7 @@ EXT_RETURN tls_construct_stoc_key_share(SSL *s, WPACKET *pkt,
         }
         if (!WPACKET_put_bytes_u16(pkt, TLSEXT_TYPE_key_share)
                 || !WPACKET_start_sub_packet_u16(pkt)
-                || !WPACKET_put_bytes_u16(pkt, ssl_group_id_internal_to_tls13(
-                                          s->s3->group_id))
+                || !WPACKET_put_bytes_u16(pkt, s->s3->group_id)
                 || !WPACKET_close(pkt)) {
             SSLfatal(s, SSL_AD_INTERNAL_ERROR,
                      SSL_F_TLS_CONSTRUCT_STOC_KEY_SHARE,
