@@ -201,7 +201,7 @@ EXT_RETURN tls_construct_ctos_supported_groups(SSL *s, WPACKET *pkt,
 #ifndef OPENSSL_NO_TLS1_3
             int ctmp13 = ssl_group_id_internal_to_tls13(ctmp);
 
-            if (ctmp13 != 0 && ctmp13 != ctmp) {
+            if (!SSL_IS_DTLS(s) && ctmp13 != ctmp) {
                 int ver_min, ver_max;
                 if (ssl_get_min_max_version(s, &ver_min, &ver_max, NULL)) {
                     SSLfatal(s, SSL_AD_INTERNAL_ERROR,
