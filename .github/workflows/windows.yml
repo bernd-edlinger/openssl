@@ -1,0 +1,57 @@
+---
+name: Windows GitHub CI for 1.0.2
+
+on: [pull_request, push]
+
+jobs:
+  shared:
+    # Run a job for each of the specified target architectures:
+    strategy:
+      matrix:
+        os:
+        - windows-2019
+        - windows-2022
+        platform:
+        - arch: win64
+          config: VC-WIN64A
+          scheme: win64a
+        - arch: win32
+          config: VC-WIN32
+          scheme: nasm
+    runs-on: ${{matrix.os}}
+    steps:
+    - uses: actions/checkout@v2
+    - uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: ${{ matrix.platform.arch }}
+    - uses: ilammy/setup-nasm@v1
+      with:
+        platform: ${{ matrix.platform.arch }}
+    - uses: shogo82148/actions-setup-perl@v1
+    - name: config
+      run: |
+        perl Configure ${{ matrix.platform.config }}
+        ms\do_${{ matrix.platform.scheme }}
+    - name: build
+      run: nmake -f ms\ntdll.mak
+    - name: test
+      run: nmake -f ms\ntdll.mak test
+  plain:
+    strategy:
+      matrix:
+        os:
+        - windows-2019
+        - windows-2022
+    runs-on: ${{matrix.os}}
+    steps:
+    - uses: actions/checkout@v2
+    - uses: ilammy/msvc-dev-cmd@v1
+    - uses: shogo82148/actions-setup-perl@v1
+    - name: config
+      run: |
+        perl Configure no-asm VC-WIN64A
+        ms\do_nt
+    - name: build
+      run: nmake -f ms\nt.mak
+    - name: test
+      run: nmake -f ms\nt.mak test
