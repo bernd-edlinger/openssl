@@ -1,0 +1,270 @@
+---
+name: Cross Compile for 1.1.0
+
+on: [pull_request, push]
+
+jobs:
+  cross-compilation:
+    strategy:
+      fail-fast: false
+      matrix:
+        # The platform matrix specifies:
+        #   arch: the architecture to build for, this defines the tool-chain
+        #         prefix {arch}- and the Debian compiler package gcc-{arch}
+        #         name.
+        #   libs: the Debian package for the necessary link/runtime libraries.
+        #   target: the OpenSSL configuration target to use, this is passed
+        #           directly to the config command line.
+        #   tests: omit this to run all the tests using QEMU, set it to "none"
+        #          to never run the tests, otherwise it's value is passed to
+        #          the "make test" command to allow selectiving disabling of
+        #          tests.
+        platform: [
+          {
+            arch: aarch64-linux-gnu,
+            libs: libc6-dev-arm64-cross,
+            target: --strict-warnings linux-aarch64,
+          }, {
+            arch: alpha-linux-gnu,
+            libs: libc6.1-dev-alpha-cross,
+            target: --strict-warnings linux-alpha-gcc,
+          }, {
+            arch: arm-linux-gnueabi,
+            libs: libc6-dev-armel-cross,
+            target: --strict-warnings linux-armv4,
+            # everything except test_x509_store which triggers a qemu bug
+            tests: test_abort test_sanity test_symbol_presence test_ordinals test_exdata
+                   test_internal_ec test_ui test_err test_pem test_bf test_cast test_des
+                   test_hmac test_idea test_md2 test_md4 test_md5 test_mdc2 test_rand
+                   test_rc2 test_rc4 test_rc5 test_rmd test_sha1 test_sha256 test_sha512
+                   test_wp test_bn test_exp test_dh test_dsa test_ec test_ecdsa test_genrsa
+                   test_rsa test_rsapss test_enc test_passwd test_crl test_d2i test_pkcs7
+                   test_req test_sid test_verify test_x509 test_afalg test_engine test_evp
+                   test_evp_extra test_pbelu test_rehash test_x509_dup_cert test_x509_time
+                   test_asyncio test_bad_dtls test_clienthello test_packet
+                   test_sslcbcpadding test_sslcertstatus test_sslextension test_sslmessages
+                   test_sslrecords test_sslsessiontick test_sslskewith0p test_sslvertol
+                   test_tlsextms test_verify_extra test_ca test_cipherlist test_cms test_ct
+                   test_dane test_dtls test_dtlsv1listen test_ocsp test_pkcs12 test_ssl_new
+                   test_ssl_old test_ssl_test_ctx test_sslcorrupt test_tsa test_x509aux
+                   test_async test_bio_enc test_bioprint test_constant_time test_fatalerr
+                   test_fuzz test_gmdiff test_heartbeat test_ige test_memleak test_p5_crpt2
+                   test_secmem test_shlibload test_srp test_sslapi test_threads test_v3name
+          }, {
+            arch: arm-linux-gnueabihf,
+            libs: libc6-dev-armhf-cross,
+            target: --strict-warnings linux-armv4,
+            # everything except test_x509_store which triggers a qemu bug
+            tests: test_abort test_sanity test_symbol_presence test_ordinals test_exdata
+                   test_internal_ec test_ui test_err test_pem test_bf test_cast test_des
+                   test_hmac test_idea test_md2 test_md4 test_md5 test_mdc2 test_rand
+                   test_rc2 test_rc4 test_rc5 test_rmd test_sha1 test_sha256 test_sha512
+                   test_wp test_bn test_exp test_dh test_dsa test_ec test_ecdsa test_genrsa
+                   test_rsa test_rsapss test_enc test_passwd test_crl test_d2i test_pkcs7
+                   test_req test_sid test_verify test_x509 test_afalg test_engine test_evp
+                   test_evp_extra test_pbelu test_rehash test_x509_dup_cert test_x509_time
+                   test_asyncio test_bad_dtls test_clienthello test_packet
+                   test_sslcbcpadding test_sslcertstatus test_sslextension test_sslmessages
+                   test_sslrecords test_sslsessiontick test_sslskewith0p test_sslvertol
+                   test_tlsextms test_verify_extra test_ca test_cipherlist test_cms test_ct
+                   test_dane test_dtls test_dtlsv1listen test_ocsp test_pkcs12 test_ssl_new
+                   test_ssl_old test_ssl_test_ctx test_sslcorrupt test_tsa test_x509aux
+                   test_async test_bio_enc test_bioprint test_constant_time test_fatalerr
+                   test_fuzz test_gmdiff test_heartbeat test_ige test_memleak test_p5_crpt2
+                   test_secmem test_shlibload test_srp test_sslapi test_threads test_v3name
+          }, {
+            arch: hppa-linux-gnu,
+            libs: libc6-dev-hppa-cross,
+            target: --strict-warnings -static linux-generic32,
+            # everything except test_x509_store which triggers a qemu bug
+            tests: test_abort test_sanity test_symbol_presence test_ordinals test_exdata
+                   test_internal_ec test_ui test_err test_pem test_bf test_cast test_des
+                   test_hmac test_idea test_md2 test_md4 test_md5 test_mdc2 test_rand
+                   test_rc2 test_rc4 test_rc5 test_rmd test_sha1 test_sha256 test_sha512
+                   test_wp test_bn test_exp test_dh test_dsa test_ec test_ecdsa test_genrsa
+                   test_rsa test_rsapss test_enc test_passwd test_crl test_d2i test_pkcs7
+                   test_req test_sid test_verify test_x509 test_afalg test_engine test_evp
+                   test_evp_extra test_pbelu test_rehash test_x509_dup_cert test_x509_time
+                   test_asyncio test_bad_dtls test_clienthello test_packet
+                   test_sslcbcpadding test_sslcertstatus test_sslextension test_sslmessages
+                   test_sslrecords test_sslsessiontick test_sslskewith0p test_sslvertol
+                   test_tlsextms test_verify_extra test_ca test_cipherlist test_cms test_ct
+                   test_dane test_dtls test_dtlsv1listen test_ocsp test_pkcs12 test_ssl_new
+                   test_ssl_old test_ssl_test_ctx test_sslcorrupt test_tsa test_x509aux
+                   test_async test_bio_enc test_bioprint test_constant_time test_fatalerr
+                   test_fuzz test_gmdiff test_heartbeat test_ige test_memleak test_p5_crpt2
+                   test_secmem test_shlibload test_srp test_sslapi test_threads test_v3name
+          }, {
+            arch: m68k-linux-gnu,
+            libs: libc6-dev-m68k-cross,
+            target: --strict-warnings -static -m68040 linux-generic32,
+            # everything except test_x509_store which triggers a qemu bug
+            # and test_constant_time which triggers a compiler bug
+            tests: test_abort test_sanity test_symbol_presence test_ordinals test_exdata
+                   test_internal_ec test_ui test_err test_pem test_bf test_cast test_des
+                   test_hmac test_idea test_md2 test_md4 test_md5 test_mdc2 test_rand
+                   test_rc2 test_rc4 test_rc5 test_rmd test_sha1 test_sha256 test_sha512
+                   test_wp test_bn test_exp test_dh test_dsa test_ec test_ecdsa test_genrsa
+                   test_rsa test_rsapss test_enc test_passwd test_crl test_d2i test_pkcs7
+                   test_req test_sid test_verify test_x509 test_afalg test_engine test_evp
+                   test_evp_extra test_pbelu test_rehash test_x509_dup_cert test_x509_time
+                   test_asyncio test_bad_dtls test_clienthello test_packet
+                   test_sslcbcpadding test_sslcertstatus test_sslextension test_sslmessages
+                   test_sslrecords test_sslsessiontick test_sslskewith0p test_sslvertol
+                   test_tlsextms test_verify_extra test_ca test_cipherlist test_cms test_ct
+                   test_dane test_dtls test_dtlsv1listen test_ocsp test_pkcs12 test_ssl_new
+                   test_ssl_old test_ssl_test_ctx test_sslcorrupt test_tsa test_x509aux
+                   test_async test_bio_enc test_bioprint test_fatalerr test_fuzz
+                   test_gmdiff test_heartbeat test_ige test_memleak test_p5_crpt2
+                   test_secmem test_shlibload test_srp test_sslapi test_threads test_v3name
+          }, {
+            arch: mips-linux-gnu,
+            libs: libc6-dev-mips-cross,
+            target: --strict-warnings -static linux-mips32,
+            # everything except test_x509_store which triggers a qemu bug
+            tests: test_abort test_sanity test_symbol_presence test_ordinals test_exdata
+                   test_internal_ec test_ui test_err test_pem test_bf test_cast test_des
+                   test_hmac test_idea test_md2 test_md4 test_md5 test_mdc2 test_rand
+                   test_rc2 test_rc4 test_rc5 test_rmd test_sha1 test_sha256 test_sha512
+                   test_wp test_bn test_exp test_dh test_dsa test_ec test_ecdsa test_genrsa
+                   test_rsa test_rsapss test_enc test_passwd test_crl test_d2i test_pkcs7
+                   test_req test_sid test_verify test_x509 test_afalg test_engine test_evp
+                   test_evp_extra test_pbelu test_rehash test_x509_dup_cert test_x509_time
+                   test_asyncio test_bad_dtls test_clienthello test_packet
+                   test_sslcbcpadding test_sslcertstatus test_sslextension test_sslmessages
+                   test_sslrecords test_sslsessiontick test_sslskewith0p test_sslvertol
+                   test_tlsextms test_verify_extra test_ca test_cipherlist test_cms test_ct
+                   test_dane test_dtls test_dtlsv1listen test_ocsp test_pkcs12 test_ssl_new
+                   test_ssl_old test_ssl_test_ctx test_sslcorrupt test_tsa test_x509aux
+                   test_async test_bio_enc test_bioprint test_constant_time test_fatalerr
+                   test_fuzz test_gmdiff test_heartbeat test_ige test_memleak test_p5_crpt2
+                   test_secmem test_shlibload test_srp test_sslapi test_threads test_v3name
+          }, {
+            arch: mips64-linux-gnuabi64,
+            libs: libc6-dev-mips64-cross,
+            target: --strict-warnings -static linux64-mips64,
+          }, {
+            arch: mipsel-linux-gnu,
+            libs: libc6-dev-mipsel-cross,
+            target: --strict-warnings linux-mips32,
+            # everything except test_x509_store which triggers a qemu bug
+            tests: test_abort test_sanity test_symbol_presence test_ordinals test_exdata
+                   test_internal_ec test_ui test_err test_pem test_bf test_cast test_des
+                   test_hmac test_idea test_md2 test_md4 test_md5 test_mdc2 test_rand
+                   test_rc2 test_rc4 test_rc5 test_rmd test_sha1 test_sha256 test_sha512
+                   test_wp test_bn test_exp test_dh test_dsa test_ec test_ecdsa test_genrsa
+                   test_rsa test_rsapss test_enc test_passwd test_crl test_d2i test_pkcs7
+                   test_req test_sid test_verify test_x509 test_afalg test_engine test_evp
+                   test_evp_extra test_pbelu test_rehash test_x509_dup_cert test_x509_time
+                   test_asyncio test_bad_dtls test_clienthello test_packet
+                   test_sslcbcpadding test_sslcertstatus test_sslextension test_sslmessages
+                   test_sslrecords test_sslsessiontick test_sslskewith0p test_sslvertol
+                   test_tlsextms test_verify_extra test_ca test_cipherlist test_cms test_ct
+                   test_dane test_dtls test_dtlsv1listen test_ocsp test_pkcs12 test_ssl_new
+                   test_ssl_old test_ssl_test_ctx test_sslcorrupt test_tsa test_x509aux
+                   test_async test_bio_enc test_bioprint test_constant_time test_fatalerr
+                   test_fuzz test_gmdiff test_heartbeat test_ige test_memleak test_p5_crpt2
+                   test_secmem test_shlibload test_srp test_sslapi test_threads test_v3name
+          }, {
+            arch: powerpc64le-linux-gnu,
+            libs: libc6-dev-ppc64el-cross,
+            target: linux-ppc64le,
+          }, {
+            arch: riscv64-linux-gnu,
+            libs: libc6-dev-riscv64-cross,
+            target: --strict-warnings linux-generic64,
+          }, {
+            arch: s390x-linux-gnu,
+            libs: libc6-dev-s390x-cross,
+            target: linux64-s390x,
+          }, {
+            arch: sh4-linux-gnu,
+            libs: libc6-dev-sh4-cross,
+            target: --strict-warnings no-async linux-generic32,
+            # everything except test_x509_store which triggers a qemu bug
+            tests: test_abort test_sanity test_symbol_presence test_ordinals test_exdata
+                   test_internal_ec test_ui test_err test_pem test_bf test_cast test_des
+                   test_hmac test_idea test_md2 test_md4 test_md5 test_mdc2 test_rand
+                   test_rc2 test_rc4 test_rc5 test_rmd test_sha1 test_sha256 test_sha512
+                   test_wp test_bn test_exp test_dh test_dsa test_ec test_ecdsa test_genrsa
+                   test_rsa test_rsapss test_enc test_passwd test_crl test_d2i test_pkcs7
+                   test_req test_sid test_verify test_x509 test_afalg test_engine test_evp
+                   test_evp_extra test_pbelu test_rehash test_x509_dup_cert test_x509_time
+                   test_asyncio test_bad_dtls test_clienthello test_packet
+                   test_sslcbcpadding test_sslcertstatus test_sslextension test_sslmessages
+                   test_sslrecords test_sslsessiontick test_sslskewith0p test_sslvertol
+                   test_tlsextms test_verify_extra test_ca test_cipherlist test_cms test_ct
+                   test_dane test_dtls test_dtlsv1listen test_ocsp test_pkcs12 test_ssl_new
+                   test_ssl_old test_ssl_test_ctx test_sslcorrupt test_tsa test_x509aux
+                   test_async test_bio_enc test_bioprint test_constant_time test_fatalerr
+                   test_fuzz test_gmdiff test_heartbeat test_ige test_memleak test_p5_crpt2
+                   test_secmem test_shlibload test_srp test_sslapi test_threads test_v3name
+          },
+
+          # These build with shared libraries but they crash when run
+          # They mirror static builds above in order to cover more of the
+          # code base.
+          {
+            arch: hppa-linux-gnu,
+            libs: libc6-dev-hppa-cross,
+            target: --strict-warnings linux-generic32,
+            tests: none
+          }, {
+            arch: m68k-linux-gnu,
+            libs: libc6-dev-m68k-cross,
+            target: --strict-warnings -mcfv4e linux-generic32,
+            tests: none
+          }, {
+            arch: mips-linux-gnu,
+            libs: libc6-dev-mips-cross,
+            target: --strict-warnings linux-mips32,
+            tests: none
+          }, {
+            arch: mips64-linux-gnuabi64,
+            libs: libc6-dev-mips64-cross,
+            target: --strict-warnings linux64-mips64,
+            tests: none
+          },
+
+          # This build doesn't execute either with or without shared libraries.
+          {
+            arch: sparc64-linux-gnu,
+            libs: libc6-dev-sparc64-cross,
+            target: linux64-sparcv9,
+            tests: none
+          }
+        ]
+    runs-on: ubuntu-latest
+    steps:
+    - name: install packages
+      run: |
+        sudo apt-get update
+        sudo apt-get -yq --force-yes install \
+            gcc-${{ matrix.platform.arch }} \
+            ${{ matrix.platform.libs }}
+    - uses: actions/checkout@v2
+
+    - name: config
+      run: |
+        ./Configure \
+                 --cross-compile-prefix=${{ matrix.platform.arch }}- \
+                 ${{ matrix.platform.target }}
+
+    - name: make
+      run: make -s -j4
+
+    - name: install qemu
+      if: github.event_name == 'push' && matrix.platform.tests != 'none'
+      run: sudo apt-get -yq --force-yes install qemu-user
+
+    - name: make all tests
+      if: github.event_name == 'push' && matrix.platform.tests == ''
+      run: |
+        make test \
+                  QEMU_LD_PREFIX=/usr/${{ matrix.platform.arch }}
+    - name: make some tests
+      if: github.event_name == 'push' && matrix.platform.tests != 'none' && matrix.platform.tests != ''
+      run: |
+        make test \
+                  TESTS="${{ matrix.platform.tests }}" \
+                  QEMU_LD_PREFIX=/usr/${{ matrix.platform.arch }}

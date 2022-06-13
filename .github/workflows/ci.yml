@@ -1,0 +1,208 @@
+---
+name: GitHub CI for 1.1.0
+
+on: [pull_request, push]
+
+jobs:
+  check_update:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: config
+      run: ./config --strict-warnings
+    - name: make build_generated
+      run: make -s build_generated
+    - name: make update
+      run: make update
+    - name: git diff
+      run: git diff --exit-code
+
+  check_docs:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: config
+      run: ./config --strict-warnings
+    - name: make build_generated
+      run: make -s build_generated
+    - name: make doc-nits
+      run: make doc-nits
+
+  # This checks that we use ANSI C language syntax and semantics.
+  # We are not as strict with libraries, but rather adapt to what's
+  # expected to be available in a certain version of each platform.
+  check-ansi:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: config
+      run: CPPFLAGS=-ansi ./config no-asm no-makedepend --strict-warnings -D_DEFAULT_SOURCE
+    - name: make
+      run: make -s -j4
+
+  basic_gcc:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: config
+      run: CC=gcc ./config --strict-warnings
+    - name: make
+      run: make -s -j4
+    - name: make test
+      run: make test
+
+  basic_clang:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: config
+      run: CC=clang ./config --strict-warnings -Wno-implicit-const-int-float-conversion
+    - name: make
+      run: make -s -j4
+    - name: make test
+      run: make test
+
+  minimal:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: config
+      run: ./config --strict-warnings no-shared no-dso no-pic no-async no-blake2 no-bf no-camellia no-cast no-chacha no-cmac no-cms no-comp no-ct no-des no-dgram no-dh no-dsa no-dtls no-ec2m no-engine no-filenames no-gost no-idea no-mdc2 no-md4 no-multiblock no-nextprotoneg no-ocsp no-ocb no-poly1305 no-psk no-rc2 no-rc4 no-rmd160 no-seed no-srp no-srtp no-ssl3 no-ssl3-method no-ts no-whirlpool no-asm -DOPENSSL_SMALL_FOOTPRINT
+    - name: make
+      run: make -j4  # verbose, so no -s here
+    - name: make test
+      run: make test
+
+  no-deprecated:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: config
+      run: ./config --strict-warnings no-deprecated
+    - name: make
+      run: make -s -j4
+    - name: make test
+      run: make test
+
+  no-shared:
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-latest ]
+    runs-on: ${{matrix.os}}
+    steps:
+    - uses: actions/checkout@v2
+    - name: config
+      run: ./config no-shared
+    - name: make
+      run: make -s -j4
+    - name: make test
+      run: make test
+
+  address_ub_sanitizer:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: config
+      run: ./config --debug enable-asan enable-ubsan -fno-sanitize=alignment enable-rc5 enable-md2 enable-ec_nistp_64_gcc_128 -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
+    - name: make
+      run: make -s -j4
+    - name: make test
+      run: make test
+
+  memory_sanitizer:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: config
+      run: CC=clang ./config --debug -fsanitize=memory no-asm no-afalgeng enable-rc5 enable-md2 enable-ec_nistp_64_gcc_128
+    - name: make
+      run: make -s -j4
+    - name: make test
+      run: make test
+
+  threads_sanitizer:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: config
+      run: CC=clang ./config --strict-warnings -Wno-implicit-const-int-float-conversion -fsanitize=thread
+    - name: make
+      run: make -s -j4
+    - name: make test
+      run: make TESTS=test_threads test
+
+  enable_non-default_options:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: config
+      run: ./config --strict-warnings no-ec enable-ssl-trace enable-zlib enable-zlib-dynamic enable-crypto-mdebug enable-crypto-mdebug-backtrace enable-egd
+    - name: make
+      run: make -s -j4
+    - name: make test
+      run: make test
+
+  legacy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: config
+      run: ./config -Werror --debug no-afalgeng no-shared enable-crypto-mdebug enable-rc5 enable-md2 enable-ssl3 enable-ssl3-method enable-weak-ssl-ciphers enable-zlib enable-ec_nistp_64_gcc_128
+    - name: make
+      run: make -s -j4
+    - name: make test
+      run: make test
+
+  buildtest:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: config
+      run: ./config no-asm no-makedepend --strict-warnings -D_DEFAULT_SOURCE
+    - name: make
+      run: make -s -j4
+    - name: make test
+      run: make test
+
+  out-of-tree_build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: setup build dir
+      run: |
+          set -eux
+          mkdir -p ${myblddir:=../_build/nest/a/little/more}
+          echo "mysrcdir=$(realpath .)" | tee -a $GITHUB_ENV
+          echo "myblddir=$(realpath $myblddir)" | tee -a $GITHUB_ENV
+    - name: config
+      run: set -eux ; cd ${{ env.myblddir }} && ${{ env.mysrcdir }}/config --strict-warnings
+    - name: make build_generated
+      run: set -eux; cd ${{ env.myblddir }} && make -s build_generated
+    - name: make
+      run: set -eux; cd ${{ env.myblddir }} && make -s -j4
+    - name: make test (minimal subset)
+      run: set -eux; cd ${{ env.myblddir }} && make test TESTS='0[0-9]'
+
+  out-of-source-and-install:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest ]
+    runs-on: ${{matrix.os}}
+    steps:
+    - uses: actions/checkout@v2
+    - name: extra preparations
+      run: |
+        mkdir ./build
+        mkdir ./install_dir
+    - name: config
+      run: ../config --prefix=$(cd ../install_dir; pwd)
+      working-directory: ./build
+    - name: make
+      run: make -s -j4
+      working-directory: ./build
+    - name: make test
+      run: make test
+      working-directory: ./build
+    - name: make install
+      run: make install
+      working-directory: ./build
