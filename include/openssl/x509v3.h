@@ -923,6 +923,7 @@ int ERR_load_X509V3_strings(void);
 # define X509V3_F_V2I_TLS_FEATURE                         165
 # define X509V3_F_V3_GENERIC_EXTENSION                    116
 # define X509V3_F_X509V3_ADD1_I2D                         140
+# define X509V3_F_X509V3_ADD_LEN_VALUE                    168
 # define X509V3_F_X509V3_ADD_VALUE                        105
 # define X509V3_F_X509V3_EXT_ADD                          104
 # define X509V3_F_X509V3_EXT_ADD_ALIAS                    106
