@@ -147,6 +147,6 @@ jobs:
     - name: make some tests
       if: github.event_name == 'push' && matrix.platform.tests != 'none' && matrix.platform.tests != ''
       run: |
-        make test \
+        make test V=1 \
                   TESTS="${{ matrix.platform.tests }}" \
                   QEMU_LD_PREFIX=/usr/${{ matrix.platform.arch }}
