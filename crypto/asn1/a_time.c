@@ -139,7 +139,6 @@ ASN1_GENERALIZEDTIME *ASN1_TIME_to_generalizedtime(ASN1_TIME *t,
 {
     ASN1_GENERALIZEDTIME *ret = NULL;
     char *str;
-    int newlen;
 
     if (!ASN1_TIME_check(t))
         return NULL;
@@ -161,21 +160,25 @@ ASN1_GENERALIZEDTIME *ASN1_TIME_to_generalizedtime(ASN1_TIME *t,
     /* grow the string */
     if (!ASN1_STRING_set(ret, NULL, t->length + 2))
         goto err;
-    /* ASN1_STRING_set() allocated 'len + 1' bytes. */
-    newlen = t->length + 2 + 1;
+
     str = (char *)ret->data;
     /* Work out the century and prepend */
     if (t->data[0] >= '5')
-        BUF_strlcpy(str, "19", newlen);
+        memcpy(str, "19", 2);
     else
-        BUF_strlcpy(str, "20", newlen);
+        memcpy(str, "20", 2);
 
-    BUF_strlcat(str, (char *)t->data, newlen);
+    memcpy(str + 2, (const char *)t->data, t->length);
+
+#ifndef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
+    /* ASN1_STRING_set() allocated 'len + 1' bytes. */
+    str[t->length + 2] = '\0';
+#endif
 
  done:
-   if (out != NULL && *out == NULL)
-       *out = ret;
-   return ret;
+    if (out != NULL && *out == NULL)
+        *out = ret;
+    return ret;
 
  err:
     if (out == NULL || *out != ret)
