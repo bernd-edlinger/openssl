@@ -67,7 +67,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: config
-      run: ./config --debug enable-asan enable-rc5 enable-md2 enable-ec_nistp_64_gcc_128 && make depend
+      run: ./config --debug -fsanitize=address -fno-omit-frame-pointer enable-rc5 enable-md2 enable-ec_nistp_64_gcc_128 -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION && make depend
     - name: make
       run: make -s
     - name: make test
