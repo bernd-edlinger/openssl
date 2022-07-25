@@ -252,6 +252,7 @@ typedef struct mempacket_test_ctx_st {
     unsigned int currrec;
     unsigned int currpkt;
     unsigned int lastpkt;
+    unsigned int injected;
     unsigned int noinject;
 } MEMPACKET_TEST_CTX;
 
@@ -344,7 +345,8 @@ static int mempacket_test_read(BIO *bio, char *out, int outl)
     if (outl > thispkt->len)
         outl = thispkt->len;
 
-    if (thispkt->type != INJECT_PACKET_IGNORE_REC_SEQ) {
+    if (thispkt->type != INJECT_PACKET_IGNORE_REC_SEQ
+            && ctx->injected) {
         /*
          * Overwrite the record sequence number. We strictly number them in
          * the order received. Since we are actually a reliable transport
@@ -386,6 +388,39 @@ static int mempacket_test_read(BIO *bio, char *out, int outl)
     return outl;
 }
 
+/* Take the last and penultimate packets and swap them around */
+int mempacket_swap_recent(BIO *bio)
+{
+    MEMPACKET_TEST_CTX *ctx = BIO_get_data(bio);
+    MEMPACKET *thispkt;
+    int numpkts = sk_MEMPACKET_num(ctx->pkts);
+
+    /* We need at least 2 packets to be able to swap them */
+    if (numpkts <= 1)
+        return 0;
+
+    /* Get the penultimate packet */
+    thispkt = sk_MEMPACKET_value(ctx->pkts, numpkts - 2);
+    if (thispkt == NULL)
+        return 0;
+
+    if (sk_MEMPACKET_delete(ctx->pkts, numpkts - 2) != thispkt)
+        return 0;
+
+    /* Re-add it to the end of the list */
+    thispkt->num++;
+    if (sk_MEMPACKET_insert(ctx->pkts, thispkt, numpkts - 1) <= 0)
+        return 0;
+
+    /* We also have to adjust the packet number of the other packet */
+    thispkt = sk_MEMPACKET_value(ctx->pkts, numpkts - 2);
+    if (thispkt == NULL)
+        return 0;
+    thispkt->num--;
+
+    return 1;
+}
+
 int mempacket_test_inject(BIO *bio, const char *in, int inl, int pktnum,
                           int type)
 {
@@ -400,6 +435,7 @@ int mempacket_test_inject(BIO *bio, const char *in, int inl, int pktnum,
     if (pktnum >= 0) {
         if (ctx->noinject)
             return -1;
+        ctx->injected = 1;
     } else {
         ctx->noinject = 1;
     }

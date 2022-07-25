@@ -31,6 +31,7 @@ void bio_s_mempacket_test_free(void);
 #define INJECT_PACKET                   1
 #define INJECT_PACKET_IGNORE_REC_SEQ    2
 
+int mempacket_swap_recent(BIO *bio);
 int mempacket_test_inject(BIO *bio, const char *in, int inl, int pktnum,
                           int type);
 

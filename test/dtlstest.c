@@ -105,6 +105,84 @@ static int test_dtls_unprocessed(int testidx)
     return testresult;
 }
 
+/*
+ * Test that swapping an app data record so that it is received before the
+ * Finished message still works.
+ */
+static int test_swap_app_data(void)
+{
+    SSL_CTX *sctx = NULL, *cctx = NULL;
+    SSL *sssl = NULL, *cssl = NULL;
+    int testresult = 0;
+    BIO *bio;
+    char msg[] = { 0x00, 0x01, 0x02, 0x03 };
+    char buf[10];
+
+    if (!create_ssl_ctx_pair(DTLS_server_method(),
+                             DTLS_client_method(),
+                             DTLS1_VERSION, 0,
+                             &sctx, &cctx, cert, privkey))
+        return 0;
+
+    if (!SSL_CTX_set_cipher_list(cctx, "AES128-SHA"))
+        goto end;
+
+    if (!create_ssl_objects(sctx, cctx, &sssl, &cssl,
+                            NULL, NULL))
+        goto end;
+
+    /* Send flight 1: ClientHello */
+    if (!(SSL_connect(cssl) <= 0))
+        goto end;
+
+    /* Recv flight 1, send flight 2: ServerHello, Certificate, ServerHelloDone */
+    if (!(SSL_accept(sssl) <= 0))
+        goto end;
+
+    /* Recv flight 2, send flight 3: ClientKeyExchange, CCS, Finished */
+    if (!(SSL_connect(cssl) <= 0))
+        goto end;
+
+    /* Recv flight 3, send flight 4: datagram 1(NST, CCS) datagram 2(Finished) */
+    if (!(SSL_accept(sssl) > 0))
+        goto end;
+
+    /* Send flight 5: app data */
+    if (!(SSL_write(sssl, msg, sizeof(msg)) == (int)sizeof(msg)))
+        goto end;
+
+    bio = SSL_get_wbio(sssl);
+    if (!bio || !mempacket_swap_recent(bio))
+        goto end;
+
+    /*
+     * Recv flight 4 (datagram 1): NST, CCS, + flight 5: app data
+     *      + flight 4 (datagram 2): Finished
+     */
+    if (!(SSL_connect(cssl) > 0))
+        goto end;
+
+    /* The app data should be buffered already */
+    if (!(SSL_pending(cssl) == (int)sizeof(msg))
+            || !SSL_has_pending(cssl))
+        goto end;
+
+    /*
+     * Recv flight 5 (app data)
+     * We already buffered this so it should be available.
+     */
+    if (!(SSL_read(cssl, buf, sizeof(buf)) == (int)sizeof(msg)))
+        goto end;
+
+    testresult = 1;
+ end:
+    SSL_free(cssl);
+    SSL_free(sssl);
+    SSL_CTX_free(cctx);
+    SSL_CTX_free(sctx);
+    return testresult;
+}
+
 int main(int argc, char *argv[])
 {
     BIO *err = NULL;
@@ -124,6 +202,7 @@ int main(int argc, char *argv[])
     CRYPTO_mem_ctrl(CRYPTO_MEM_CHECK_ON);
 
     ADD_ALL_TESTS(test_dtls_unprocessed, NUM_TESTS);
+    ADD_TEST(test_swap_app_data);
 
     testresult = run_tests(argv[0]);
 
