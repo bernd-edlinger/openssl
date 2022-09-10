@@ -1,0 +1,154 @@
+---
+name: Cross Compile for 0.9.8
+
+on: [pull_request, push]
+
+jobs:
+  cross-compilation:
+    strategy:
+      fail-fast: false
+      matrix:
+        # The platform matrix specifies:
+        #   arch: the architecture to build for, this defines the tool-chain
+        #         prefix {arch}- and the Debian compiler package gcc-{arch}
+        #         name.
+        #   libs: the Debian package for the necessary link/runtime libraries.
+        #   target: the OpenSSL configuration target to use, this is passed
+        #           directly to the config command line.
+        #   tests: omit this to run all the tests using QEMU, set it to "none"
+        #          to never run the tests, otherwise it's value is passed to
+        #          the "make test" command to allow selectiving disabling of
+        #          tests.
+        platform: [
+          {
+            arch: aarch64-linux-gnu,
+            libs: libc6-dev-arm64-cross,
+            target: linux-generic64,
+          }, {
+            arch: alpha-linux-gnu,
+            libs: libc6.1-dev-alpha-cross,
+            target: linux-alpha-gcc,
+          }, {
+            arch: arm-linux-gnueabi,
+            libs: libc6-dev-armel-cross,
+            target: linux-generic32,
+          }, {
+            arch: arm-linux-gnueabihf,
+            libs: libc6-dev-armhf-cross,
+            target: linux-generic32,
+          }, {
+            arch: hppa-linux-gnu,
+            libs: libc6-dev-hppa-cross,
+            target: -static no-dso linux-generic32,
+          }, {
+            arch: m68k-linux-gnu,
+            libs: libc6-dev-m68k-cross,
+            target: -m68040 -static no-dso linux-generic32,
+            # everything except test_constant_time which triggers a compiler bug
+            tests: test_des test_idea test_sha test_md4 test_md5 test_hmac
+                   test_md2 test_mdc2
+                   test_rmd test_rc2 test_rc4 test_rc5 test_bf test_cast test_aes
+                   test_rand test_bn test_ec test_ecdsa test_ecdh
+                   test_enc test_x509 test_rsa test_crl test_sid
+                   test_gen test_req test_pkcs7 test_verify test_dh test_dsa
+                   test_ss test_ca test_engine test_evp test_ssl test_ige
+                   test_jpake
+          }, {
+            arch: mips-linux-gnu,
+            libs: libc6-dev-mips-cross,
+            target: -static no-dso linux-generic32,
+          }, {
+            arch: mips64-linux-gnuabi64,
+            libs: libc6-dev-mips64-cross,
+            target: -static no-dso linux-generic64,
+          }, {
+            arch: mipsel-linux-gnu,
+            libs: libc6-dev-mipsel-cross,
+            target: linux-generic32,
+          }, {
+            arch: powerpc64le-linux-gnu,
+            libs: libc6-dev-ppc64el-cross,
+            target: linux-generic64,
+          }, {
+            arch: riscv64-linux-gnu,
+            libs: libc6-dev-riscv64-cross,
+            target: linux-generic64,
+          }, {
+            arch: s390x-linux-gnu,
+            libs: libc6-dev-s390x-cross,
+            target: linux-generic64,
+          }, {
+            arch: sh4-linux-gnu,
+            libs: libc6-dev-sh4-cross,
+            target: linux-generic32,
+          },
+
+          # These build with shared libraries but they crash when run
+          # They mirror static builds above in order to cover more of the
+          # code base.
+          {
+            arch: hppa-linux-gnu,
+            libs: libc6-dev-hppa-cross,
+            target: shared linux-generic32,
+            tests: none
+          }, {
+            arch: m68k-linux-gnu,
+            libs: libc6-dev-m68k-cross,
+            target: -mcfv4e shared linux-generic32,
+            tests: none
+          }, {
+            arch: mips-linux-gnu,
+            libs: libc6-dev-mips-cross,
+            target: shared linux-generic32,
+            tests: none
+          }, {
+            arch: mips64-linux-gnuabi64,
+            libs: libc6-dev-mips64-cross,
+            target: shared linux-generic64,
+            tests: none
+          },
+
+          # This build doesn't execute either with or without shared libraries.
+          {
+            arch: sparc64-linux-gnu,
+            libs: libc6-dev-sparc64-cross,
+            target: linux64-sparcv9,
+            tests: none
+          }
+        ]
+    runs-on: ubuntu-latest
+    steps:
+    - name: install packages
+      run: |
+        sudo apt-get update
+        sudo apt-get -yq --force-yes install \
+            gcc-${{ matrix.platform.arch }} \
+            ${{ matrix.platform.libs }}
+    - uses: actions/checkout@v2
+
+    - name: config
+      run: |
+        CROSS_COMPILE=${{ matrix.platform.arch }}- ./Configure \
+                 ${{ matrix.platform.target }}
+    - name: make
+      run: make
+
+    - name: install qemu
+      if: github.event_name == 'push' && matrix.platform.tests != 'none'
+      run: sudo apt-get -yq --force-yes install qemu-user
+
+    - name: make all tests
+      if: github.event_name == 'push' && matrix.platform.tests == ''
+      run: |
+        QEMU_LD_PREFIX=/usr/${{ matrix.platform.arch }} \
+                  OPENSSL="$PWD/util/opensslwrap.sh" perl tools/c_rehash certs/demo
+        make test \
+                  QEMU_LD_PREFIX=/usr/${{ matrix.platform.arch }}
+    - name: make some tests
+      if: github.event_name == 'push' && matrix.platform.tests != 'none' && matrix.platform.tests != ''
+      run: |
+        QEMU_LD_PREFIX=/usr/${{ matrix.platform.arch }} \
+                  OPENSSL="$PWD/util/opensslwrap.sh" perl tools/c_rehash certs/demo
+        make test \
+                  TESTS="${{ matrix.platform.tests }}" \
+                  QEMU_LD_PREFIX=/usr/${{ matrix.platform.arch }}

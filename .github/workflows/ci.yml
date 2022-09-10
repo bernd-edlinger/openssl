@@ -1,0 +1,71 @@
+---
+name: GitHub CI for 0.9.8
+
+on: [pull_request, push]
+
+jobs:
+  basic_gcc:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: config
+      run: CC=gcc ./config
+    - name: make
+      run: make -s
+    - name: make test
+      run: make test
+
+  basic_clang:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: config
+      run: CC=clang ./config
+    - name: make
+      run: make -s
+    - name: make test
+      run: make test
+
+  minimal:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: config
+      run: ./config no-dso no-engine no-dh no-mdc2 no-md4 no-rc2 no-rc4 no-bf no-cast no-idea no-ripemd no-asm -DOPENSSL_SMALL_FOOTPRINT && make depend
+    - name: make
+      run: make # verbose, so no -s here
+    - name: make test
+      run: make test
+
+  shared:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: config
+      run: ./config shared
+    - name: make
+      run: make -s
+    - name: make test
+      run: make test
+
+  address_sanitizer:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: config
+      run: ./config -d -fsanitize=address -fno-omit-frame-pointer enable-rc5 enable-md2 && make depend
+    - name: make
+      run: make -s
+    - name: make test
+      run: make test
+
+  enable_non-default_options:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: config
+      run: ./config enable-camellia enable-capieng enable-cms enable-mdc2 enable-montasm enable-rc5 enable-rfc3779 enable-seed enable-zlib enable-zlib-dynamic && make depend
+    - name: make
+      run: make -s
+    - name: make test
+      run: make test
