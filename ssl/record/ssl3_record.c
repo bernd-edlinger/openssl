@@ -658,6 +658,7 @@ int tls1_enc(SSL *s, SSL3_RECORD *recs, unsigned int n_recs, int sending)
     size_t reclen[SSL_MAX_PIPELINES];
     unsigned char buf[SSL_MAX_PIPELINES][EVP_AEAD_TLS1_AAD_LEN];
     int bs, i, j, k, pad = 0, ret, mac_size = 0;
+    unsigned char *data[SSL_MAX_PIPELINES];
     const EVP_CIPHER *enc;
     unsigned int ctr;
 
@@ -790,8 +791,6 @@ int tls1_enc(SSL *s, SSL3_RECORD *recs, unsigned int n_recs, int sending)
             }
         }
         if (n_recs > 1) {
-            unsigned char *data[SSL_MAX_PIPELINES];
-
             /* Set the output buffers */
             for (ctr = 0; ctr < n_recs; ctr++) {
                 data[ctr] = recs[ctr].data;
