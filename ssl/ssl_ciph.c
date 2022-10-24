@@ -1220,9 +1220,7 @@ static int ssl_cipher_process_rulestr(const char *rule_str,
                  */
                 SSLerr(SSL_F_SSL_CIPHER_PROCESS_RULESTR,
                        SSL_R_INVALID_COMMAND);
-                retval = found = 0;
-                l++;
-                break;
+                return 0;
             }
 
             if (rule == CIPHER_SPECIAL) {
