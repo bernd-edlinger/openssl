@@ -25,7 +25,7 @@ NON_EMPTY_TRANSLATION_UNIT
 # include <string.h>
 
 # if defined(__GNUC__)
-#  define ALIGN1  __attribute__((aligned(1)))
+#  define ALIGN1  __attribute__((aligned(1), may_alias))
 # elif defined(_MSC_VER)
 #  define ALIGN1  __declspec(align(1))
 # else
