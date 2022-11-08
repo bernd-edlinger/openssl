@@ -147,7 +147,7 @@ int BN_mod_mul_montgomery(BIGNUM *r, const BIGNUM *a, const BIGNUM *b,
 #if defined(OPENSSL_BN_ASM_MONT) && defined(MONT_WORD)
     int num = mont->N.top;
 
-    if (num > 1 && a->top == num && b->top == num) {
+    if (num > 1 && num <= BN_SOFT_LIMIT && a->top == num && b->top == num) {
         if (bn_wexpand(r, num) == NULL)
             return (0);
 # if 0                          /* for OpenSSL 0.9.9 mont->n0 */
