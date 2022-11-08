@@ -52,6 +52,7 @@ static int test_exp_mod_zero()
     BN_ULONG one_word = 1;
     BN_CTX *ctx = BN_CTX_new();
     int ret = 1, failed = 0;
+    BN_MONT_CTX *mont = NULL;
 
     m = BN_new();
     if (!m)
@@ -106,6 +107,31 @@ static int test_exp_mod_zero()
     if (!a_is_zero_mod_one("BN_mod_exp_mont_consttime", r, a))
         failed = 1;
 
+    if (!(mont = BN_MONT_CTX_new()))
+        goto err;
+
+    ERR_set_mark();
+    /* mont is not set but passed in */
+    if (BN_mod_exp_mont_consttime(r, p, a, m, ctx, mont))
+        goto err;
+    ERR_pop_to_mark();
+
+    if (!BN_MONT_CTX_set(mont, m, ctx))
+        goto err;
+
+    /* we compute 0 ** a mod 1 here, to execute code that uses mont */
+    if (!BN_mod_exp_mont_consttime(r, p, a, m, ctx, mont))
+        goto err;
+
+    if (!a_is_zero_mod_one("BN_mod_exp_mont_consttime", r, a))
+        failed = 1;
+
+    if (!BN_mod_exp_mont(r, p, a, m, ctx, mont))
+        goto err;
+
+    if (!a_is_zero_mod_one("BN_mod_exp_mont", r, a))
+        failed = 1;
+
     /*
      * A different codepath exists for single word multiplication
      * in non-constant-time only.
@@ -129,6 +155,7 @@ static int test_exp_mod_zero()
     BN_free(a);
     BN_free(p);
     BN_free(m);
+    BN_MONT_CTX_free(mont);
     BN_CTX_free(ctx);
 
     return ret;
