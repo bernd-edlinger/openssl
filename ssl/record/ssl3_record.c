@@ -576,7 +576,8 @@ int ssl3_get_record(SSL *s)
         }
     }
 
-    enc_err = s->method->ssl3_enc->enc(s, rr, num_recs, 0, macbufs, mac_size);
+    enc_err = s->method->ssl3_enc->enc(s, rr, num_recs, 0, macbufs, mac_size,
+                                       NULL);
 
     /*-
      * enc_err is:
@@ -835,7 +836,7 @@ int ssl3_do_compress(SSL *ssl, SSL3_RECORD *wr)
  *    1: Success or Mac-then-encrypt decryption failed (MAC will be randomised)
  */
 int ssl3_enc(SSL *s, SSL3_RECORD *inrecs, size_t n_recs, int sending,
-             SSL_MAC_BUF *mac, size_t macsize)
+             SSL_MAC_BUF *mac, size_t macsize, const SSL3_BUFFER *wb)
 {
     SSL3_RECORD *rec;
     EVP_CIPHER_CTX *ds;
@@ -843,6 +844,7 @@ int ssl3_enc(SSL *s, SSL3_RECORD *inrecs, size_t n_recs, int sending,
     size_t bs;
     const EVP_CIPHER *enc;
 
+    (void)wb;
     rec = inrecs;
     /*
      * We shouldn't ever be called with more than one record in the SSLv3 case
@@ -959,7 +961,7 @@ int ssl3_enc(SSL *s, SSL3_RECORD *inrecs, size_t n_recs, int sending,
  *    1: Success or Mac-then-encrypt decryption failed (MAC will be randomised)
  */
 int tls1_enc(SSL *s, SSL3_RECORD *recs, size_t n_recs, int sending,
-             SSL_MAC_BUF *macs, size_t macsize)
+             SSL_MAC_BUF *macs, size_t macsize, const SSL3_BUFFER *wb)
 {
     EVP_CIPHER_CTX *ds;
     size_t reclen[SSL_MAX_PIPELINES];
@@ -1090,6 +1092,13 @@ int tls1_enc(SSL *s, SSL3_RECORD *recs, size_t n_recs, int sending,
                 }
 
                 if (sending) {
+                    if (wb != NULL
+                            && wb[ctr].buf - recs[ctr].data + wb[ctr].len
+                               < recs[ctr].length + pad) {
+                        SSLfatal(s, SSL_AD_INTERNAL_ERROR,
+                                 ERR_R_INTERNAL_ERROR);
+                        return -1;
+                    }
                     reclen[ctr] += pad;
                     recs[ctr].length += pad;
                 }
@@ -1584,7 +1593,7 @@ int dtls1_process_record(SSL *s, DTLS1_BITMAP *bitmap)
      * errors in the queue from processing bogus junk that we ignored.
      */
     ERR_set_mark();
-    enc_err = s->method->ssl3_enc->enc(s, rr, 1, 0, &macbuf, mac_size);
+    enc_err = s->method->ssl3_enc->enc(s, rr, 1, 0, &macbuf, mac_size, NULL);
 
     /*-
      * enc_err is:

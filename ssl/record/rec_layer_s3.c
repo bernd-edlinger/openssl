@@ -1040,12 +1040,13 @@ int do_ssl3_write(SSL *s, int type, const unsigned char *buf,
         }
     }
 
+    wb = &s->rlayer.wbuf[0];
     if (s->statem.enc_write_state == ENC_WRITE_STATE_WRITE_PLAIN_ALERTS) {
         /*
          * We haven't actually negotiated the version yet, but we're trying to
          * send early data - so we need to use the tls13enc function.
          */
-        if (tls13_enc(s, wr, numpipes, 1, NULL, mac_size) < 1) {
+        if (tls13_enc(s, wr, numpipes, 1, NULL, mac_size, wb) < 1) {
             if (!ossl_statem_in_error(s)) {
                 SSLfatal(s, SSL_AD_INTERNAL_ERROR, ERR_R_INTERNAL_ERROR);
             }
@@ -1054,7 +1055,7 @@ int do_ssl3_write(SSL *s, int type, const unsigned char *buf,
     } else {
         if (!BIO_get_ktls_send(s->wbio)) {
             if (s->method->ssl3_enc->enc(s, wr, numpipes, 1, NULL,
-                                         mac_size) < 1) {
+                                         mac_size, wb) < 1) {
                 if (!ossl_statem_in_error(s)) {
                     SSLfatal(s, SSL_AD_INTERNAL_ERROR, ERR_R_INTERNAL_ERROR);
                 }

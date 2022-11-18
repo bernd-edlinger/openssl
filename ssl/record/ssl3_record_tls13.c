@@ -21,7 +21,8 @@
  *    1: if the record encryption/decryption was successful.
  */
 int tls13_enc(SSL *s, SSL3_RECORD *recs, size_t n_recs, int sending,
-              ossl_unused SSL_MAC_BUF *mac, ossl_unused size_t macsize)
+              ossl_unused SSL_MAC_BUF *mac, ossl_unused size_t macsize,
+              const SSL3_BUFFER *wb)
 {
     EVP_CIPHER_CTX *ctx;
     unsigned char iv[EVP_MAX_IV_LENGTH], recheader[SSL3_RT_HEADER_LENGTH];
@@ -34,6 +35,7 @@ int tls13_enc(SSL *s, SSL3_RECORD *recs, size_t n_recs, int sending,
     uint32_t alg_enc;
     WPACKET wpkt;
 
+    (void)wb;
     if (n_recs != 1) {
         /* Should not happen */
         SSLfatal(s, SSL_AD_INTERNAL_ERROR, ERR_R_INTERNAL_ERROR);

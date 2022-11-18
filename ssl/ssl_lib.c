@@ -27,7 +27,8 @@
 #include "internal/ktls.h"
 
 static int ssl_undefined_function_1(SSL *ssl, SSL3_RECORD *r, size_t s, int t,
-                                    SSL_MAC_BUF *mac, size_t macsize)
+                                    SSL_MAC_BUF *mac, size_t macsize,
+                                    const SSL3_BUFFER *wb)
 {
     return ssl_undefined_function(ssl);
 }
