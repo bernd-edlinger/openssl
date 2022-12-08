@@ -199,6 +199,12 @@ jobs:
                    test_async test_bio_enc test_bioprint test_constant_time test_fatalerr
                    test_fuzz test_gmdiff test_heartbeat test_ige test_memleak test_p5_crpt2
                    test_secmem test_shlibload test_srp test_sslapi test_threads test_v3name
+          }, {
+            arch: sparc64-linux-gnu,
+            libs: libc6-dev-sparc64-cross,
+            # work around a qemu bug
+            target: -static -fno-tree-vectorize linux64-sparcv9,
+            tests: "\" OPENSSL_sparcv9cap=\"0x120:0"
           },
 
           # These build with shared libraries but they crash when run
