@@ -7,7 +7,7 @@ jobs:
   basic_gcc:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: config
       run: CC=gcc ./config
     - name: make
@@ -18,7 +18,7 @@ jobs:
   basic_clang:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: config
       run: CC=clang ./config
     - name: make
@@ -29,7 +29,7 @@ jobs:
   minimal:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: config
       run: ./config no-dso no-engine no-dh no-mdc2 no-md4 no-rc2 no-rc4 no-bf no-cast no-idea no-ripemd no-asm -DOPENSSL_SMALL_FOOTPRINT && make depend
     - name: make
@@ -40,7 +40,7 @@ jobs:
   shared:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: config
       run: ./config shared
     - name: make
@@ -51,7 +51,7 @@ jobs:
   address_sanitizer:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: config
       run: ./config -d -fsanitize=address -fno-omit-frame-pointer enable-rc5 enable-md2 && make depend
     - name: make
@@ -62,7 +62,7 @@ jobs:
   enable_non-default_options:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: config
       run: ./config enable-camellia enable-capieng enable-cms enable-mdc2 enable-montasm enable-rc5 enable-rfc3779 enable-seed enable-zlib enable-zlib-dynamic && make depend
     - name: make
