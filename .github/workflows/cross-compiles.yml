@@ -88,7 +88,6 @@ jobs:
             libs: libc6-dev-sparc64-cross,
             # work around a qemu bug
             target: -static -fno-tree-vectorize linux64-sparcv9,
-            tests: "\" OPENSSL_sparcv9cap=\"0x120:0"
           },
 
           # These build with shared libraries but they crash when run
@@ -150,8 +149,10 @@ jobs:
       if: github.event_name == 'push' && matrix.platform.tests == ''
       run: |
         QEMU_LD_PREFIX=/usr/${{ matrix.platform.arch }} \
+                  OPENSSL_sparcv9cap="0x120:0" \
                   OPENSSL="$PWD/util/opensslwrap.sh" perl tools/c_rehash certs/demo
         make test \
+                  OPENSSL_sparcv9cap="0x120:0" \
                   QEMU_LD_PREFIX=/usr/${{ matrix.platform.arch }}
     - name: make some tests
       if: github.event_name == 'push' && matrix.platform.tests != 'none' && matrix.platform.tests != ''
