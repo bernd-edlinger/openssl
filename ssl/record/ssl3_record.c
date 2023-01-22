@@ -909,6 +909,12 @@ int ssl3_enc(SSL *s, SSL3_RECORD *inrecs, size_t n_recs, int sending,
                                   (unsigned int)l))
                 return 0;
             rec->length = outlen;
+            if (wb != NULL
+                    && wb[0].buf - rec->data + wb[0].len < rec->length ) {
+                /* Buffer overrun already happened */
+                SSLfatal(s, SSL_AD_INTERNAL_ERROR, ERR_R_INTERNAL_ERROR);
+                return 0;
+            }
 
             if (!sending && mac != NULL) {
                 /* Now get a pointer to the MAC */
@@ -1097,7 +1103,7 @@ int tls1_enc(SSL *s, SSL3_RECORD *recs, size_t n_recs, int sending,
                                < recs[ctr].length + pad) {
                         SSLfatal(s, SSL_AD_INTERNAL_ERROR,
                                  ERR_R_INTERNAL_ERROR);
-                        return -1;
+                        return 0;
                     }
                     reclen[ctr] += pad;
                     recs[ctr].length += pad;
@@ -1189,6 +1195,12 @@ int tls1_enc(SSL *s, SSL3_RECORD *recs, size_t n_recs, int sending,
                                   (unsigned int)reclen[0]))
                 return 0;
             recs[0].length = outlen;
+            if (wb != NULL
+                    && wb[0].buf - recs[0].data + wb[0].len < recs[0].length ) {
+                /* Buffer overrun already happened */
+                SSLfatal(s, SSL_AD_INTERNAL_ERROR, ERR_R_INTERNAL_ERROR);
+                return 0;
+            }
 
             /*
              * The length returned from EVP_CipherUpdate above is the actual
