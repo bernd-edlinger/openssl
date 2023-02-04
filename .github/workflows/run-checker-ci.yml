@@ -37,6 +37,9 @@ jobs:
           enable-trace enable-fips,
           no-ts,
           no-ui,
+          -DSSL3_ALIGN_PAYLOAD=0,
+          -DSSL3_ALIGN_PAYLOAD=1,
+          -DSSL3_ALIGN_PAYLOAD=2,
         ]
     runs-on: ubuntu-latest
     steps:
