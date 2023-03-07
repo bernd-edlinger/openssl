@@ -30,7 +30,7 @@ sub verify {
     run(app([@args]));
 }
 
-plan tests => 129;
+plan tests => 131;
 
 # Canonical success
 ok(verify("ee-cert", "sslserver", ["root-cert"], ["ca-cert"]),
@@ -384,3 +384,14 @@ ok(verify("some-names2", "sslserver", ["many-constraints"],
 ok(verify("some-names2", "sslserver", ["many-constraints"],
           ["many-constraints"], ),
    "Not too many names and constraints to check (3)");
+
+# Certificate Policies
+ok(verify("ee-cert-policies", "sslserver", ["root-cert"], ["ca-pol-cert"],
+          "-policy_check", "-policy", "1.3.6.1.4.1.16604.998855.1",
+          "-explicit_policy"),
+   "Certificate policy");
+
+ok(!verify("ee-cert-policies-bad", "sslserver", ["root-cert"], ["ca-pol-cert"],
+           "-policy_check", "-policy", "1.3.6.1.4.1.16604.998855.1",
+           "-explicit_policy"),
+   "Bad certificate policy");
