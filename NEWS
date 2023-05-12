@@ -7,6 +7,8 @@
 
   Major changes between OpenSSL 1.1.0l and OpenSSL 1.1.0m [under development]
 
+      o Mitigate for very slow `OBJ_obj2txt()` performance with gigantic
+        OBJECT IDENTIFIER sub-identities.  (CVE-2023-2650)
       o Fixed handling of invalid certificate policies in leaf certificates
         (CVE-2023-0465)
       o Limited the number of nodes created in a policy tree ([CVE-2023-0464])
