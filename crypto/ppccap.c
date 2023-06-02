@@ -36,7 +36,15 @@
 
 unsigned int OPENSSL_ppccap_P = 0;
 
+#ifndef OPENSSL_PPCCAP_OVERRIDE
 static sigset_t all_masked;
+
+static sigjmp_buf ill_jmp;
+static void ill_handler(int sig)
+{
+    siglongjmp(ill_jmp, sig);
+}
+#endif
 
 #ifdef OPENSSL_BN_ASM_MONT
 int bn_mul_mont(BN_ULONG *rp, const BN_ULONG *ap, const BN_ULONG *bp,
@@ -155,12 +163,6 @@ void ecp_nistz256_from_mont(unsigned long res[4], const unsigned long in[4])
     ecp_nistz256_mul_mont(res, in, one);
 }
 #endif
-
-static sigjmp_buf ill_jmp;
-static void ill_handler(int sig)
-{
-    siglongjmp(ill_jmp, sig);
-}
 
 void OPENSSL_fpu_probe(void);
 void OPENSSL_ppc64_probe(void);

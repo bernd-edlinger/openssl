@@ -29,6 +29,7 @@ uint32_t OPENSSL_rdtsc(void)
     return 0;
 }
 #else
+# ifndef OPENSSL_ARMCAP_OVERRIDE
 static sigset_t all_masked;
 
 static sigjmp_buf ill_jmp;
@@ -36,6 +37,7 @@ static void ill_handler(int sig)
 {
     siglongjmp(ill_jmp, sig);
 }
+# endif
 
 /*
  * Following subroutines could have been inlined, but it's not all
