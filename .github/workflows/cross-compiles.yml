@@ -30,7 +30,7 @@ jobs:
           }, {
             arch: aarch64-linux-gnu,
             libs: libc6-dev-arm64-cross,
-            target: linux-aarch64 -DOPENSSL_AES_CONST_TIME
+            target: linux-aarch64 -DOPENSSL_AES_CONST_TIME -DOPENSSL_ARMCAP_OVERRIDE=0
           }, {
             arch: alpha-linux-gnu,
             libs: libc6.1-dev-alpha-cross,
@@ -42,7 +42,7 @@ jobs:
           }, {
             arch: arm-linux-gnueabi,
             libs: libc6-dev-armel-cross,
-            target: linux-armv4,
+            target: linux-armv4 -DOPENSSL_ARMCAP_OVERRIDE=0,
             tests: -test_includes -test_store -test_x509_store
           }, {
             arch: arm-linux-gnueabihf,
@@ -76,7 +76,7 @@ jobs:
           }, {
             arch: powerpc64le-linux-gnu,
             libs: libc6-dev-ppc64el-cross,
-            target: linux-ppc64le
+            target: linux-ppc64le -DOPENSSL_PPCCAP_OVERRIDE=0
           }, {
             arch: riscv64-linux-gnu,
             libs: libc6-dev-riscv64-cross,
