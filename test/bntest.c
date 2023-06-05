@@ -2879,6 +2879,65 @@ err:
     return res;
 }
 
+static int test_mod_exp_alias(int idx)
+{
+    int res = 0;
+    char *str = NULL;
+    BIGNUM* a = NULL;
+    BIGNUM* b = NULL;
+    BIGNUM* c = NULL;
+
+    if (!TEST_true(BN_dec2bn(&a, "15")))
+        goto err;
+    if (!TEST_true(BN_dec2bn(&b, "10")))
+        goto err;
+    if (!TEST_true(BN_dec2bn(&c, "39")))
+        goto err;
+    switch (idx) {
+    case 0:
+         /* Note that this aliases the result with the modulus. */
+         if (!TEST_int_eq(BN_mod_exp_simple(c, a, b, c, ctx), 1))
+            goto err;
+         if (!TEST_ptr_ne(str = BN_bn2dec(c), NULL))
+            goto err;
+         break;
+    case 1:
+         /* Note that this aliases the result with the exponent. */
+         if (!TEST_int_eq(BN_mod_exp_simple(b, a, b, c, ctx), 1))
+            goto err;
+         if (!TEST_ptr_ne(str = BN_bn2dec(b), NULL))
+            goto err;
+         break;
+    case 2:
+         /* Note that this aliases the result with the modulus. */
+         if (!TEST_int_eq(BN_mod_exp_recp(c, a, b, c, ctx), 1))
+            goto err;
+         if (!TEST_ptr_ne(str = BN_bn2dec(c), NULL))
+            goto err;
+         break;
+    case 3:
+         /* Note that this aliases the result with the exponent. */
+         if (!TEST_int_eq(BN_mod_exp_recp(b, a, b, c, ctx), 1))
+            goto err;
+         if (!TEST_ptr_ne(str = BN_bn2dec(b), NULL))
+            goto err;
+         break;
+    default:
+         goto err;
+    }
+    if (!TEST_int_eq(strcmp(str, "36"), 0))
+        goto err;
+
+    res = 1;
+
+err:
+    BN_free(a);
+    BN_free(b);
+    BN_free(c);
+    OPENSSL_free(str);
+    return res;
+}
+
 static int file_test_run(STANZA *s)
 {
     static const FILETEST filetests[] = {
@@ -2989,6 +3048,7 @@ int setup_tests(void)
         ADD_ALL_TESTS(test_mod_exp_consttime, (int)OSSL_NELEM(ModExpTests));
         ADD_TEST(test_mod_exp2_mont);
         ADD_TEST(test_mod_inverse);
+        ADD_ALL_TESTS(test_mod_exp_alias, 4);
     } else {
         ADD_ALL_TESTS(run_file_tests, n);
     }
