@@ -159,13 +159,13 @@ jobs:
     - name: make all tests
       if: github.event_name == 'push' && matrix.platform.tests == ''
       run: |
-        QEMU_LD_PREFIX=/usr/${{ matrix.platform.arch }} apps/openssl version -a; \
+        QEMU_LD_PREFIX=/usr/${{ matrix.platform.arch }} util/shlib_wrap.sh apps/openssl version -a; \
         make test \
                   QEMU_LD_PREFIX=/usr/${{ matrix.platform.arch }}
     - name: make some tests
       if: github.event_name == 'push' && matrix.platform.tests != 'none' && matrix.platform.tests != ''
       run: |
-        QEMU_LD_PREFIX=/usr/${{ matrix.platform.arch }} apps/openssl version -a; \
+        QEMU_LD_PREFIX=/usr/${{ matrix.platform.arch }} util/shlib_wrap.sh apps/openssl version -a; \
         make test \
                   TESTS="${{ matrix.platform.tests }}" \
                   QEMU_LD_PREFIX=/usr/${{ matrix.platform.arch }}
