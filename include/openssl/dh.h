@@ -28,6 +28,9 @@ extern "C" {
 # ifndef OPENSSL_DH_MAX_MODULUS_BITS
 #  define OPENSSL_DH_MAX_MODULUS_BITS    10000
 # endif
+# ifndef OPENSSL_DH_CHECK_MAX_MODULUS_BITS
+#  define OPENSSL_DH_CHECK_MAX_MODULUS_BITS  32768
+# endif
 
 # define OPENSSL_DH_FIPS_MIN_MODULUS_BITS 1024
 
@@ -322,6 +325,7 @@ int ERR_load_DH_strings(void);
 # define DH_F_COMPUTE_KEY                                 102
 # define DH_F_DHPARAMS_PRINT_FP                           101
 # define DH_F_DH_BUILTIN_GENPARAMS                        106
+# define DH_F_DH_CHECK                                    126
 # define DH_F_DH_CMS_DECRYPT                              114
 # define DH_F_DH_CMS_SET_PEERKEY                          115
 # define DH_F_DH_CMS_SET_SHARED_INFO                      116

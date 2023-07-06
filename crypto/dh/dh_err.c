@@ -38,6 +38,7 @@ static ERR_STRING_DATA DH_str_functs[] = {
     {ERR_FUNC(DH_F_GENERATE_KEY), "generate_key"},
     {ERR_FUNC(DH_F_PKEY_DH_DERIVE), "pkey_dh_derive"},
     {ERR_FUNC(DH_F_PKEY_DH_KEYGEN), "pkey_dh_keygen"},
+    {ERR_FUNC(DH_F_DH_CHECK), "DH_check"},
     {0, NULL}
 };
 
