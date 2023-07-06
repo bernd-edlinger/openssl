@@ -76,6 +76,9 @@
 # ifndef OPENSSL_DH_MAX_MODULUS_BITS
 #  define OPENSSL_DH_MAX_MODULUS_BITS    10000
 # endif
+# ifndef OPENSSL_DH_CHECK_MAX_MODULUS_BITS
+#  define OPENSSL_DH_CHECK_MAX_MODULUS_BITS  32768
+# endif
 
 # define OPENSSL_DH_FIPS_MIN_MODULUS_BITS 1024
 
@@ -231,6 +234,7 @@ void ERR_load_DH_strings(void);
 # define DH_F_DHPARAMS_PRINT                              100
 # define DH_F_DHPARAMS_PRINT_FP                           101
 # define DH_F_DH_BUILTIN_GENPARAMS                        106
+# define DH_F_DH_CHECK                                    126
 # define DH_F_DH_COMPUTE_KEY                              107
 # define DH_F_DH_GENERATE_KEY                             108
 # define DH_F_DH_GENERATE_PARAMETERS                      109

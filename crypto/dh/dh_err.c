@@ -80,6 +80,7 @@ static ERR_STRING_DATA DH_str_functs[] = {
     {ERR_FUNC(DH_F_DH_NEW_METHOD), "DH_new_method"},
     {ERR_FUNC(DH_F_GENERATE_KEY), "GENERATE_KEY"},
     {ERR_FUNC(DH_F_GENERATE_PARAMETERS), "GENERATE_PARAMETERS"},
+    {ERR_FUNC(DH_F_DH_CHECK), "DH_check"},
     {0, NULL}
 };
 
