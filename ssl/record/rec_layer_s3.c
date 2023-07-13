@@ -894,10 +894,9 @@ int ssl3_write_pending(SSL *s, int type, const unsigned char *buf,
         return (-1);
     }
 
-    for (;;) {
+    while (currbuf < s->rlayer.numwpipes) {
         /* Loop until we find a buffer we haven't written out yet */
-        if (SSL3_BUFFER_get_left(&wb[currbuf]) == 0
-            && currbuf < s->rlayer.numwpipes - 1) {
+        if (SSL3_BUFFER_get_left(&wb[currbuf]) == 0) {
             currbuf++;
             continue;
         }
@@ -915,10 +914,8 @@ int ssl3_write_pending(SSL *s, int type, const unsigned char *buf,
         if (i == SSL3_BUFFER_get_left(&wb[currbuf])) {
             SSL3_BUFFER_set_left(&wb[currbuf], 0);
             SSL3_BUFFER_add_offset(&wb[currbuf], i);
-            if (currbuf + 1 < s->rlayer.numwpipes)
-                continue;
-            s->rwstate = SSL_NOTHING;
-            return (s->rlayer.wpend_ret);
+            currbuf++;
+            continue;
         } else if (i <= 0) {
             if (SSL_IS_DTLS(s)) {
                 /*
@@ -932,6 +929,8 @@ int ssl3_write_pending(SSL *s, int type, const unsigned char *buf,
         SSL3_BUFFER_add_offset(&wb[currbuf], i);
         SSL3_BUFFER_add_left(&wb[currbuf], -i);
     }
+    s->rwstate = SSL_NOTHING;
+    return (s->rlayer.wpend_ret);
 }
 
 /*-
