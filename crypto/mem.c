@@ -229,7 +229,6 @@ void *CRYPTO_zalloc(size_t num, const char *file, int line)
 {
     void *ret = CRYPTO_malloc(num, file, line);
 
-    FAILTEST();
     if (ret != NULL)
         memset(ret, 0, num);
     return ret;
@@ -241,7 +240,6 @@ void *CRYPTO_realloc(void *str, size_t num, const char *file, int line)
     if (realloc_impl != NULL && realloc_impl != &CRYPTO_realloc)
         return realloc_impl(str, num, file, line);
 
-    FAILTEST();
     if (str == NULL)
         return CRYPTO_malloc(num, file, line);
 
@@ -250,6 +248,7 @@ void *CRYPTO_realloc(void *str, size_t num, const char *file, int line)
         return NULL;
     }
 
+    FAILTEST();
 #ifndef OPENSSL_NO_CRYPTO_MDEBUG
     if (call_malloc_debug) {
         void *ret;
