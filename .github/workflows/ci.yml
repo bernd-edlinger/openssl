@@ -7,7 +7,7 @@ jobs:
   check_update:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: config
       run: ./config --strict-warnings
     - name: make build_generated
@@ -20,7 +20,7 @@ jobs:
   check_docs:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: config
       run: ./config --strict-warnings
     - name: make build_generated
@@ -34,7 +34,7 @@ jobs:
   check-ansi:
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: config
       run: ./config no-asm no-makedepend no-afalgeng --strict-warnings -ansi -D_DEFAULT_SOURCE
     - name: make
@@ -43,7 +43,7 @@ jobs:
   basic_gcc:
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: config
       run: CC=gcc ./config --strict-warnings
     - name: make
@@ -54,7 +54,7 @@ jobs:
   basic_clang:
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: config
       run: CC=clang ./config --strict-warnings -Wno-implicit-const-int-float-conversion
     - name: make
@@ -65,7 +65,7 @@ jobs:
   minimal:
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: config
       run: ./config --strict-warnings no-shared no-dso no-pic no-async no-blake2 no-bf no-camellia no-cast no-chacha no-cmac no-cms no-comp no-ct no-des no-dgram no-dh no-dsa no-dtls no-ec2m no-engine no-filenames no-gost no-heartbeats no-idea no-mdc2 no-md4 no-multiblock no-nextprotoneg no-ocsp no-ocb no-poly1305 no-psk no-rc2 no-rc4 no-rmd160 no-sctp no-seed no-srp no-srtp no-ssl3 no-ssl3-method no-ts no-whirlpool no-asm -DOPENSSL_SMALL_FOOTPRINT
     - name: make
@@ -76,7 +76,7 @@ jobs:
   no-deprecated:
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: config
       run: ./config --strict-warnings no-deprecated
     - name: make
@@ -90,7 +90,7 @@ jobs:
         os: [ ubuntu-latest, macos-latest ]
     runs-on: ${{matrix.os}}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: config
       run: ./config no-shared
     - name: make
@@ -101,7 +101,7 @@ jobs:
   address_ub_sanitizer:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: config
       run: ./config --debug enable-asan enable-ubsan -fno-sanitize=alignment enable-rc5 enable-md2 enable-ec_nistp_64_gcc_128 -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
     - name: make
@@ -112,7 +112,7 @@ jobs:
   memory_sanitizer:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: config
       run: CC=clang ./config --debug -fsanitize=memory no-asm no-afalgeng enable-rc5 enable-md2 enable-ec_nistp_64_gcc_128
     - name: make
@@ -123,7 +123,7 @@ jobs:
   threads_sanitizer:
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: config
       run: CC=clang ./config --strict-warnings -Wno-implicit-const-int-float-conversion -fsanitize=thread
     - name: make
@@ -134,7 +134,7 @@ jobs:
   enable_non-default_options:
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: config
       run: ./config --strict-warnings no-ec enable-ssl-trace enable-zlib enable-zlib-dynamic enable-crypto-mdebug enable-crypto-mdebug-backtrace enable-egd
     - name: make
@@ -145,7 +145,7 @@ jobs:
   legacy:
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: config
       run: ./config -Werror --debug no-afalgeng no-shared enable-crypto-mdebug enable-rc5 enable-md2 enable-ssl3 enable-ssl3-method enable-weak-ssl-ciphers enable-zlib enable-ec_nistp_64_gcc_128
     - name: make
@@ -156,7 +156,7 @@ jobs:
   buildtest:
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: config
       run: ./config no-asm no-makedepend --strict-warnings -D_DEFAULT_SOURCE
     - name: make
@@ -167,7 +167,7 @@ jobs:
   out-of-tree_build:
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: setup build dir
       run: |
           set -eux
@@ -189,7 +189,7 @@ jobs:
         os: [ubuntu-latest, macos-latest ]
     runs-on: ${{matrix.os}}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: extra preparations
       run: |
         mkdir ./build
