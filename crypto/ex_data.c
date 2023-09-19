@@ -370,6 +370,11 @@ int CRYPTO_set_ex_data(CRYPTO_EX_DATA *ad, int idx, void *val)
 {
     int i;
 
+    if (idx < 0) {
+        CRYPTOerr(CRYPTO_F_CRYPTO_SET_EX_DATA, ERR_R_PASSED_INVALID_ARGUMENT);
+        return 0;
+    }
+
     if (ad->sk == NULL) {
         if ((ad->sk = sk_void_new_null()) == NULL) {
             CRYPTOerr(CRYPTO_F_CRYPTO_SET_EX_DATA, ERR_R_MALLOC_FAILURE);
