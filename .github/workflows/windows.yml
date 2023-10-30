@@ -29,7 +29,6 @@ jobs:
       run: |
         choco install nasm ${{ matrix.platform.arch == 'win32' && '--x86' || '' }}
         "C:\Program Files${{ matrix.platform.arch == 'win32' && ' (x86)' || '' }}\NASM" | Out-File -FilePath "$env:GITHUB_PATH" -Append
-    - uses: shogo82148/actions-setup-perl@v1
     - name: prepare the build directory
       run: mkdir _build
     - name: config
@@ -60,7 +59,6 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - uses: ilammy/msvc-dev-cmd@v1
-    - uses: shogo82148/actions-setup-perl@v1
     - name: prepare the build directory
       run: mkdir _build
     - name: config
@@ -84,7 +82,6 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - uses: ilammy/msvc-dev-cmd@v1
-    - uses: shogo82148/actions-setup-perl@v1
     - name: prepare the build directory
       run: mkdir _build
     - name: config
