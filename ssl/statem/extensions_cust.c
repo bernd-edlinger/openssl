@@ -221,6 +221,8 @@ int custom_ext_add(SSL *s, int context, WPACKET *pkt, X509 *x, size_t chainidx,
                 || !WPACKET_start_sub_packet_u16(pkt)
                 || (outlen > 0 && !WPACKET_memcpy(pkt, out, outlen))
                 || !WPACKET_close(pkt)) {
+            if (meth->free_cb != NULL)
+                meth->free_cb(s, meth->ext_type, context, out, meth->add_arg);
             SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_CUSTOM_EXT_ADD,
                      ERR_R_INTERNAL_ERROR);
             return 0;
@@ -230,6 +232,9 @@ int custom_ext_add(SSL *s, int context, WPACKET *pkt, X509 *x, size_t chainidx,
              * We can't send duplicates: code logic should prevent this.
              */
             if (!ossl_assert((meth->ext_flags & SSL_EXT_FLAG_SENT) == 0)) {
+                if (meth->free_cb != NULL)
+                    meth->free_cb(s, meth->ext_type, context, out,
+                                  meth->add_arg);
                 SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_CUSTOM_EXT_ADD,
                          ERR_R_INTERNAL_ERROR);
                 return 0;
