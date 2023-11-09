@@ -1190,8 +1190,6 @@ void SSL_free(SSL *s)
     SSL_SESSION_free(s->psksession);
     OPENSSL_free(s->psksession_id);
 
-    clear_ciphers(s);
-
     ssl_cert_free(s->cert);
     OPENSSL_free(s->shared_sigalgs);
     /* Free up if allocated */
@@ -1228,6 +1226,12 @@ void SSL_free(SSL *s)
 
     if (s->method != NULL)
         s->method->ssl_free(s);
+
+    /*
+     * Must occur after s->method->ssl_free(). The DTLS sent_messages queue
+     * may reference the EVP_CIPHER_CTX/EVP_MD_CTX that are freed here.
+     */
+    clear_ciphers(s);
 
     RECORD_LAYER_release(&s->rlayer);
 
