@@ -164,6 +164,17 @@ int DH_check_pub_key(const DH *dh, const BIGNUM *pub_key, int *ret)
     BIGNUM *tmp = NULL;
     BN_CTX *ctx = NULL;
 
+    if (BN_num_bits(dh->p) > OPENSSL_DH_CHECK_MAX_MODULUS_BITS) {
+        DHerr(DH_F_DH_CHECK_PUB_KEY, DH_R_MODULUS_TOO_LARGE);
+        *ret = DH_CHECK_PUBKEY_INVALID;
+        return 0;
+    }
+
+    if (dh->q != NULL && BN_ucmp(dh->p, dh->q) < 0) {
+        *ret = DH_CHECK_PUBKEY_INVALID;
+        return 1;
+    }
+
     *ret = 0;
     ctx = BN_CTX_new();
     if (ctx == NULL)
