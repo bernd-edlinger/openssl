@@ -404,6 +404,7 @@ DH_F_DH_BUILTIN_GENPARAMS:106:dh_builtin_genparams
 DH_F_DH_CHECK:126:DH_check
 DH_F_DH_CHECK_EX:121:DH_check_ex
 DH_F_DH_CHECK_PARAMS_EX:122:DH_check_params_ex
+DH_F_DH_CHECK_PUB_KEY:127:DH_check_pub_key
 DH_F_DH_CHECK_PUB_KEY_EX:123:DH_check_pub_key_ex
 DH_F_DH_CMS_DECRYPT:114:dh_cms_decrypt
 DH_F_DH_CMS_SET_PEERKEY:115:dh_cms_set_peerkey
