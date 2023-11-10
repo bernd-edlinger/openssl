@@ -367,7 +367,7 @@ static int evp_EncryptDecryptUpdate(EVP_CIPHER_CTX *ctx,
              * we process from ctx->buf does not exceed INT_MAX
              */
             if (((inl - j) & ~(bl - 1)) > INT_MAX - bl) {
-                EVPerr(EVP_F_EVP_ENCRYPTUPDATE,
+                EVPerr(EVP_F_EVP_ENCRYPTDECRYPTUPDATE,
                        EVP_R_OUTPUT_WOULD_OVERFLOW);
                 return 0;
             }

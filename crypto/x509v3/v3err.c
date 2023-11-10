@@ -1,6 +1,6 @@
 /* crypto/x509v3/v3err.c */
 /* ====================================================================
- * Copyright (c) 1999-2014 The OpenSSL Project.  All rights reserved.
+ * Copyright (c) 1999-2023 The OpenSSL Project.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -89,6 +89,7 @@ static ERR_STRING_DATA X509V3_str_functs[] = {
     {ERR_FUNC(X509V3_F_I2S_ASN1_INTEGER), "i2s_ASN1_INTEGER"},
     {ERR_FUNC(X509V3_F_I2V_AUTHORITY_INFO_ACCESS),
      "I2V_AUTHORITY_INFO_ACCESS"},
+    {ERR_FUNC(X509V3_F_I2V_AUTHORITY_KEYID), "I2V_AUTHORITY_KEYID"},
     {ERR_FUNC(X509V3_F_NOTICE_SECTION), "NOTICE_SECTION"},
     {ERR_FUNC(X509V3_F_NREF_NOS), "NREF_NOS"},
     {ERR_FUNC(X509V3_F_POLICY_SECTION), "POLICY_SECTION"},
@@ -128,6 +129,7 @@ static ERR_STRING_DATA X509V3_str_functs[] = {
      "V3_ADDR_VALIDATE_PATH_INTERNAL"},
     {ERR_FUNC(X509V3_F_V3_GENERIC_EXTENSION), "V3_GENERIC_EXTENSION"},
     {ERR_FUNC(X509V3_F_X509V3_ADD1_I2D), "X509V3_add1_i2d"},
+    {ERR_FUNC(X509V3_F_X509V3_ADD_LEN_VALUE), "X509V3_ADD_LEN_VALUE"},
     {ERR_FUNC(X509V3_F_X509V3_ADD_VALUE), "X509V3_add_value"},
     {ERR_FUNC(X509V3_F_X509V3_EXT_ADD), "X509V3_EXT_add"},
     {ERR_FUNC(X509V3_F_X509V3_EXT_ADD_ALIAS), "X509V3_EXT_add_alias"},

@@ -94,12 +94,12 @@ static STACK_OF(CONF_VALUE) *i2v_AUTHORITY_KEYID(X509V3_EXT_METHOD *method,
     if (akeyid->keyid) {
         tmp = hex_to_string(akeyid->keyid->data, akeyid->keyid->length);
         if (tmp == NULL) {
-            X509V3err(X509V3_F_V2I_AUTHORITY_KEYID, ERR_R_MALLOC_FAILURE);
+            X509V3err(X509V3_F_I2V_AUTHORITY_KEYID, ERR_R_MALLOC_FAILURE);
             return NULL;
         }
         if (!X509V3_add_value("keyid", tmp, &extlist)) {
             OPENSSL_free(tmp);
-            X509V3err(X509V3_F_V2I_AUTHORITY_KEYID, ERR_R_X509_LIB);
+            X509V3err(X509V3_F_I2V_AUTHORITY_KEYID, ERR_R_X509_LIB);
             goto err;
         }
         OPENSSL_free(tmp);
@@ -107,7 +107,7 @@ static STACK_OF(CONF_VALUE) *i2v_AUTHORITY_KEYID(X509V3_EXT_METHOD *method,
     if (akeyid->issuer) {
         tmpextlist = i2v_GENERAL_NAMES(NULL, akeyid->issuer, extlist);
         if (tmpextlist == NULL) {
-            X509V3err(X509V3_F_V2I_AUTHORITY_KEYID, ERR_R_X509_LIB);
+            X509V3err(X509V3_F_I2V_AUTHORITY_KEYID, ERR_R_X509_LIB);
             goto err;
         }
         extlist = tmpextlist;
@@ -115,12 +115,12 @@ static STACK_OF(CONF_VALUE) *i2v_AUTHORITY_KEYID(X509V3_EXT_METHOD *method,
     if (akeyid->serial) {
         tmp = hex_to_string(akeyid->serial->data, akeyid->serial->length);
         if (tmp == NULL) {
-            X509V3err(X509V3_F_V2I_AUTHORITY_KEYID, ERR_R_MALLOC_FAILURE);
+            X509V3err(X509V3_F_I2V_AUTHORITY_KEYID, ERR_R_MALLOC_FAILURE);
             goto err;
         }
         if (!X509V3_add_value("serial", tmp, &extlist)) {
             OPENSSL_free(tmp);
-            X509V3err(X509V3_F_V2I_AUTHORITY_KEYID, ERR_R_X509_LIB);
+            X509V3err(X509V3_F_I2V_AUTHORITY_KEYID, ERR_R_X509_LIB);
             goto err;
         }
         OPENSSL_free(tmp);
