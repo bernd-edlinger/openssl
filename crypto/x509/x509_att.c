@@ -78,7 +78,7 @@ STACK_OF(X509_ATTRIBUTE) *X509at_add1_attr(STACK_OF(X509_ATTRIBUTE) **x,
 
     if (x == NULL) {
         X509err(X509_F_X509AT_ADD1_ATTR, ERR_R_PASSED_NULL_PARAMETER);
-        goto err2;
+        return NULL;
     }
 
     if (*x == NULL) {
@@ -98,7 +98,8 @@ STACK_OF(X509_ATTRIBUTE) *X509at_add1_attr(STACK_OF(X509_ATTRIBUTE) **x,
     X509err(X509_F_X509AT_ADD1_ATTR, ERR_R_MALLOC_FAILURE);
  err2:
     X509_ATTRIBUTE_free(new_attr);
-    sk_X509_ATTRIBUTE_free(sk);
+    if (*x == NULL)
+        sk_X509_ATTRIBUTE_free(sk);
     return NULL;
 }
 
