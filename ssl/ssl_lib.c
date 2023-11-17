@@ -3859,7 +3859,7 @@ static int dup_ca_names(STACK_OF(X509_NAME) **dst, STACK_OF(X509_NAME) *src)
             sk_X509_NAME_pop_free(sk, X509_NAME_free);
             return 0;
         }
-        if (sk_X509_NAME_insert(sk, xn, i) == 0) {
+        if (!sk_X509_NAME_insert(sk, xn, i)) {
             X509_NAME_free(xn);
             sk_X509_NAME_pop_free(sk, X509_NAME_free);
             return 0;

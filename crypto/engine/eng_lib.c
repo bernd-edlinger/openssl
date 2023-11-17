@@ -158,7 +158,7 @@ int engine_cleanup_add_last(ENGINE_CLEANUP_CB *cb)
         return 0;
     item = int_cleanup_item(cb);
     if (item != NULL) {
-        if (sk_ENGINE_CLEANUP_ITEM_push(cleanup_stack, item) > 0)
+        if (sk_ENGINE_CLEANUP_ITEM_push(cleanup_stack, item))
             return 1;
         OPENSSL_free(item);
     }

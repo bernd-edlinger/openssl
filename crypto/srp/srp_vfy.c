@@ -366,7 +366,7 @@ static BIGNUM *SRP_gN_place_bn(STACK_OF(SRP_gN_cache) *gN_cache, char *ch)
     {                           /* it is the first time that we find it */
         SRP_gN_cache *newgN = SRP_gN_new_init(ch);
         if (newgN) {
-            if (sk_SRP_gN_cache_insert(gN_cache, newgN, 0) > 0)
+            if (sk_SRP_gN_cache_insert(gN_cache, newgN, 0))
                 return newgN->bn;
             SRP_gN_free(newgN);
         }
@@ -424,7 +424,7 @@ int SRP_VBASE_init(SRP_VBASE *vb, char *verifier_file)
                         == NULL
                 || (gN->g = SRP_gN_place_bn(vb->gN_cache, pp[DB_srpsalt]))
                         == NULL
-                || sk_SRP_gN_insert(SRP_gN_tab, gN, 0) == 0)
+                || !sk_SRP_gN_insert(SRP_gN_tab, gN, 0))
                 goto err;
 
             gN = NULL;
@@ -451,7 +451,7 @@ int SRP_VBASE_init(SRP_VBASE *vb, char *verifier_file)
                     (user_pwd, pp[DB_srpsalt], pp[DB_srpverifier]))
                     goto err;
 
-                if (sk_SRP_user_pwd_insert(vb->users_pwd, user_pwd, 0) == 0)
+                if (!sk_SRP_user_pwd_insert(vb->users_pwd, user_pwd, 0))
                     goto err;
                 user_pwd = NULL; /* abandon responsibility */
             }
