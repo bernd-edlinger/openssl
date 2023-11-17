@@ -72,7 +72,11 @@ STACK_OF(X509) *TS_CONF_load_certs(const char *file)
     for (i = 0; i < sk_X509_INFO_num(allcerts); i++) {
         X509_INFO *xi = sk_X509_INFO_value(allcerts, i);
         if (xi->x509) {
-            sk_X509_push(othercerts, xi->x509);
+            if (!sk_X509_push(othercerts, xi->x509)) {
+                sk_X509_pop_free(othercerts, X509_free);
+                othercerts = NULL;
+                goto end;
+            }
             xi->x509 = NULL;
         }
     }
