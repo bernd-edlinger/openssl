@@ -373,8 +373,10 @@ CMS_SignerInfo *CMS_add1_signer(CMS_ContentInfo *cms,
             if (EVP_PKEY_CTX_set_signature_md(si->pctx, md) <= 0)
                 goto err;
         } else if (EVP_DigestSignInit(si->mctx, &si->pctx, md, NULL, pk) <=
-                   0)
+                   0) {
+            si->pctx = NULL;
             goto err;
+        }
         else
             EVP_MD_CTX_set_flags(si->mctx, EVP_MD_CTX_FLAG_KEEP_PKEY_CTX);
     }
@@ -753,8 +755,10 @@ int CMS_SignerInfo_verify(CMS_SignerInfo *si)
         EVP_PKEY_CTX_free(si->pctx);
         si->pctx = NULL;
     }
-    if (EVP_DigestVerifyInit(mctx, &si->pctx, md, NULL, si->pkey) <= 0)
+    if (EVP_DigestVerifyInit(mctx, &si->pctx, md, NULL, si->pkey) <= 0) {
+        si->pctx = NULL;
         goto err;
+    }
     EVP_MD_CTX_set_flags(mctx, EVP_MD_CTX_FLAG_KEEP_PKEY_CTX);
 
     if (!cms_sd_asn1_ctrl(si, 1))
