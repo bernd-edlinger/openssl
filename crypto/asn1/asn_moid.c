@@ -67,6 +67,11 @@ static int do_create(const char *value, const char *name)
     if (!p) {
         ln = name;
         ostr = value;
+    } else if (p == value) {
+        /* we started with a leading comma */
+        ln = name;
+        ostr = p + 1;
+        p = NULL;
     } else {
         ln = NULL;
         ostr = p + 1;
