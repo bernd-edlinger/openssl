@@ -834,7 +834,7 @@ static int ecdh_cms_encrypt(CMS_RecipientInfo *ri)
     X509_ALGOR *talg, *wrap_alg = NULL;
     const ASN1_OBJECT *aoid;
     ASN1_BIT_STRING *pubkey;
-    ASN1_STRING *wrap_str;
+    ASN1_STRING *wrap_str = NULL;
     ASN1_OCTET_STRING *ukm;
     unsigned char *penc = NULL;
     int penclen;
@@ -956,12 +956,15 @@ static int ecdh_cms_encrypt(CMS_RecipientInfo *ri)
         goto err;
     ASN1_STRING_set0(wrap_str, penc, penclen);
     penc = NULL;
-    X509_ALGOR_set0(talg, OBJ_nid2obj(kdf_nid), V_ASN1_SEQUENCE, wrap_str);
+    if (!X509_ALGOR_set0(talg, OBJ_nid2obj(kdf_nid), V_ASN1_SEQUENCE, wrap_str))
+        goto err;
+    wrap_str = NULL;
 
     rv = 1;
 
  err:
     OPENSSL_free(penc);
+    ASN1_STRING_free(wrap_str);
     X509_ALGOR_free(wrap_alg);
     return rv;
 }
