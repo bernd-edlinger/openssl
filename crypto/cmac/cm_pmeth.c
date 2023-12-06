@@ -26,18 +26,20 @@ static int pkey_cmac_init(EVP_PKEY_CTX *ctx)
     return 1;
 }
 
+static void pkey_cmac_cleanup(EVP_PKEY_CTX *ctx)
+{
+    CMAC_CTX_free(ctx->data);
+}
+
 static int pkey_cmac_copy(EVP_PKEY_CTX *dst, EVP_PKEY_CTX *src)
 {
     if (!pkey_cmac_init(dst))
         return 0;
-    if (!CMAC_CTX_copy(dst->data, src->data))
+    if (!CMAC_CTX_copy(dst->data, src->data)) {
+        pkey_cmac_cleanup(dst);
         return 0;
+    }
     return 1;
-}
-
-static void pkey_cmac_cleanup(EVP_PKEY_CTX *ctx)
-{
-    CMAC_CTX_free(ctx->data);
 }
 
 static int pkey_cmac_keygen(EVP_PKEY_CTX *ctx, EVP_PKEY *pkey)
