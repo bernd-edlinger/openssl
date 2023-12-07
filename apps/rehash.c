@@ -46,9 +46,6 @@
 # ifndef PATH_MAX
 #  define PATH_MAX 4096
 # endif
-# ifndef NAME_MAX
-#  define NAME_MAX 255
-# endif
 # define MAX_COLLISIONS  256
 
 # if defined(OPENSSL_SYS_VXWORKS)
@@ -345,7 +342,7 @@ static int do_dir(const char *dirname, enum Hash h)
     }
     buflen = strlen(dirname);
     pathsep = (buflen && !ends_with_dirsep(dirname)) ? "/": "";
-    buflen += NAME_MAX + 1 + 1;
+    buflen += PATH_MAX + 1 + 1;
     buf = app_malloc(buflen, "filename buffer");
 
     if (verbose)
