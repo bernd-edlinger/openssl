@@ -73,6 +73,8 @@ static int do_tcreate(const char *value, const char *name)
         goto err;
     for (i = 0; i < sk_CONF_VALUE_num(lst); i++) {
         cnf = sk_CONF_VALUE_value(lst, i);
+        if (cnf->value == NULL)
+            goto err;
         if (strcmp(cnf->name, "min") == 0) {
             tbl_min = strtoul(cnf->value, &eptr, 0);
             if (*eptr)
