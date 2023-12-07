@@ -67,10 +67,8 @@ int PKCS12_key_gen_utf8(const char *pass, int passlen, unsigned char *salt,
     }
     ret = PKCS12_key_gen_uni(unipass, uniplen, salt, saltlen,
                              id, iter, n, out, md_type);
-    if (ret <= 0)
-        return 0;
     OPENSSL_clear_free(unipass, uniplen);
-    return ret;
+    return ret > 0;
 }
 
 int PKCS12_key_gen_uni(unsigned char *pass, int passlen, unsigned char *salt,
