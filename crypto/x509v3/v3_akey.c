@@ -106,7 +106,7 @@ static AUTHORITY_KEYID *v2i_AUTHORITY_KEYID(X509V3_EXT_METHOD *method,
     ASN1_INTEGER *serial = NULL;
     X509_EXTENSION *ext;
     X509 *cert;
-    AUTHORITY_KEYID *akeyid;
+    AUTHORITY_KEYID *akeyid = NULL;
 
     for (i = 0; i < sk_CONF_VALUE_num(values); i++) {
         cnf = sk_CONF_VALUE_value(values, i);
@@ -171,8 +171,6 @@ static AUTHORITY_KEYID *v2i_AUTHORITY_KEYID(X509V3_EXT_METHOD *method,
     }
 
     akeyid->issuer = gens;
-    gen = NULL;
-    gens = NULL;
     akeyid->serial = serial;
     akeyid->keyid = ikeyid;
 
@@ -184,5 +182,6 @@ static AUTHORITY_KEYID *v2i_AUTHORITY_KEYID(X509V3_EXT_METHOD *method,
     X509_NAME_free(isname);
     ASN1_INTEGER_free(serial);
     ASN1_OCTET_STRING_free(ikeyid);
+    AUTHORITY_KEYID_free(akeyid);
     return NULL;
 }
