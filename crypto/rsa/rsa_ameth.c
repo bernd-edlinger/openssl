@@ -567,7 +567,11 @@ static int rsa_md_to_mgf1(X509_ALGOR **palg, const EVP_MD *mgf1md)
     *palg = X509_ALGOR_new();
     if (*palg == NULL)
         goto err;
-    X509_ALGOR_set0(*palg, OBJ_nid2obj(NID_mgf1), V_ASN1_SEQUENCE, stmp);
+    if (!X509_ALGOR_set0(*palg, OBJ_nid2obj(NID_mgf1), V_ASN1_SEQUENCE, stmp)) {
+        X509_ALGOR_free(*palg);
+        *palg = NULL;
+        goto err;
+    }
     stmp = NULL;
  err:
     ASN1_STRING_free(stmp);
@@ -822,7 +826,11 @@ static int rsa_cms_sign(CMS_SignerInfo *si)
     os = rsa_ctx_to_pss_string(pkctx);
     if (!os)
         return 0;
-    X509_ALGOR_set0(alg, OBJ_nid2obj(EVP_PKEY_RSA_PSS), V_ASN1_SEQUENCE, os);
+    if (!X509_ALGOR_set0(alg, OBJ_nid2obj(EVP_PKEY_RSA_PSS),
+                         V_ASN1_SEQUENCE, os)) {
+        ASN1_STRING_free(os);
+        return 0;
+    }
     return 1;
 }
 #endif
@@ -850,11 +858,18 @@ static int rsa_item_sign(EVP_MD_CTX *ctx, const ASN1_ITEM *it, void *asn,
                 ASN1_STRING_free(os1);
                 return 0;
             }
-            X509_ALGOR_set0(alg2, OBJ_nid2obj(EVP_PKEY_RSA_PSS),
-                            V_ASN1_SEQUENCE, os2);
+            if (!X509_ALGOR_set0(alg2, OBJ_nid2obj(EVP_PKEY_RSA_PSS),
+                                 V_ASN1_SEQUENCE, os2)) {
+                ASN1_STRING_free(os1);
+                ASN1_STRING_free(os2);
+                return 0;
+            }
         }
-        X509_ALGOR_set0(alg1, OBJ_nid2obj(EVP_PKEY_RSA_PSS),
-                        V_ASN1_SEQUENCE, os1);
+        if (!X509_ALGOR_set0(alg1, OBJ_nid2obj(EVP_PKEY_RSA_PSS),
+                             V_ASN1_SEQUENCE, os1)) {
+            ASN1_STRING_free(os1);
+            return 0;
+        }
         return 3;
     }
     return 2;
@@ -1037,15 +1052,18 @@ static int rsa_cms_encrypt(CMS_RecipientInfo *ri)
             ASN1_OCTET_STRING_free(los);
             goto err;
         }
-        X509_ALGOR_set0(oaep->pSourceFunc, OBJ_nid2obj(NID_pSpecified),
-                        V_ASN1_OCTET_STRING, los);
+        if (!X509_ALGOR_set0(oaep->pSourceFunc, OBJ_nid2obj(NID_pSpecified),
+                             V_ASN1_OCTET_STRING, los)) {
+            ASN1_OCTET_STRING_free(los);
+            goto err;
+        }
     }
     /* create string with pss parameter encoding. */
     if (!ASN1_item_pack(oaep, ASN1_ITEM_rptr(RSA_OAEP_PARAMS), &os))
          goto err;
-    X509_ALGOR_set0(alg, OBJ_nid2obj(NID_rsaesOaep), V_ASN1_SEQUENCE, os);
-    os = NULL;
-    rv = 1;
+    rv = X509_ALGOR_set0(alg, OBJ_nid2obj(NID_rsaesOaep), V_ASN1_SEQUENCE, os);
+    if (rv)
+        os = NULL;
  err:
     RSA_OAEP_PARAMS_free(oaep);
     ASN1_STRING_free(os);
