@@ -53,38 +53,6 @@ static int pkey_ec_init(EVP_PKEY_CTX *ctx)
     return 1;
 }
 
-static int pkey_ec_copy(EVP_PKEY_CTX *dst, EVP_PKEY_CTX *src)
-{
-    EC_PKEY_CTX *dctx, *sctx;
-    if (!pkey_ec_init(dst))
-        return 0;
-    sctx = src->data;
-    dctx = dst->data;
-    if (sctx->gen_group) {
-        dctx->gen_group = EC_GROUP_dup(sctx->gen_group);
-        if (!dctx->gen_group)
-            return 0;
-    }
-    dctx->md = sctx->md;
-
-    if (sctx->co_key) {
-        dctx->co_key = EC_KEY_dup(sctx->co_key);
-        if (!dctx->co_key)
-            return 0;
-    }
-    dctx->kdf_type = sctx->kdf_type;
-    dctx->kdf_md = sctx->kdf_md;
-    dctx->kdf_outlen = sctx->kdf_outlen;
-    if (sctx->kdf_ukm) {
-        dctx->kdf_ukm = OPENSSL_memdup(sctx->kdf_ukm, sctx->kdf_ukmlen);
-        if (!dctx->kdf_ukm)
-            return 0;
-    } else
-        dctx->kdf_ukm = NULL;
-    dctx->kdf_ukmlen = sctx->kdf_ukmlen;
-    return 1;
-}
-
 static void pkey_ec_cleanup(EVP_PKEY_CTX *ctx)
 {
     EC_PKEY_CTX *dctx = ctx->data;
@@ -95,6 +63,42 @@ static void pkey_ec_cleanup(EVP_PKEY_CTX *ctx)
         OPENSSL_free(dctx);
         ctx->data = NULL;
     }
+}
+
+static int pkey_ec_copy(EVP_PKEY_CTX *dst, EVP_PKEY_CTX *src)
+{
+    EC_PKEY_CTX *dctx, *sctx;
+    if (!pkey_ec_init(dst))
+        return 0;
+    sctx = src->data;
+    dctx = dst->data;
+    if (sctx->gen_group) {
+        dctx->gen_group = EC_GROUP_dup(sctx->gen_group);
+        if (!dctx->gen_group)
+            goto err;
+    }
+    dctx->md = sctx->md;
+
+    if (sctx->co_key) {
+        dctx->co_key = EC_KEY_dup(sctx->co_key);
+        if (!dctx->co_key)
+            goto err;
+    }
+    dctx->kdf_type = sctx->kdf_type;
+    dctx->kdf_md = sctx->kdf_md;
+    dctx->kdf_outlen = sctx->kdf_outlen;
+    if (sctx->kdf_ukm) {
+        dctx->kdf_ukm = OPENSSL_memdup(sctx->kdf_ukm, sctx->kdf_ukmlen);
+        if (!dctx->kdf_ukm)
+            goto err;
+    } else
+        dctx->kdf_ukm = NULL;
+    dctx->kdf_ukmlen = sctx->kdf_ukmlen;
+    return 1;
+
+ err:
+    pkey_ec_cleanup(dst);
+    return 0;
 }
 
 static int pkey_ec_sign(EVP_PKEY_CTX *ctx, unsigned char *sig, size_t *siglen,
