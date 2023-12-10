@@ -72,6 +72,17 @@ static int pkey_rsa_init(EVP_PKEY_CTX *ctx)
     return 1;
 }
 
+static void pkey_rsa_cleanup(EVP_PKEY_CTX *ctx)
+{
+    RSA_PKEY_CTX *rctx = ctx->data;
+    if (rctx) {
+        BN_free(rctx->pub_exp);
+        OPENSSL_free(rctx->tbuf);
+        OPENSSL_free(rctx->oaep_label);
+        OPENSSL_free(rctx);
+    }
+}
+
 static int pkey_rsa_copy(EVP_PKEY_CTX *dst, EVP_PKEY_CTX *src)
 {
     RSA_PKEY_CTX *dctx, *sctx;
@@ -84,19 +95,22 @@ static int pkey_rsa_copy(EVP_PKEY_CTX *dst, EVP_PKEY_CTX *src)
     if (sctx->pub_exp) {
         dctx->pub_exp = BN_dup(sctx->pub_exp);
         if (!dctx->pub_exp)
-            return 0;
+            goto err;
     }
     dctx->pad_mode = sctx->pad_mode;
     dctx->md = sctx->md;
     dctx->mgf1md = sctx->mgf1md;
     if (sctx->oaep_label) {
-        OPENSSL_free(dctx->oaep_label);
         dctx->oaep_label = OPENSSL_memdup(sctx->oaep_label, sctx->oaep_labellen);
         if (!dctx->oaep_label)
-            return 0;
+            goto err;
         dctx->oaep_labellen = sctx->oaep_labellen;
     }
     return 1;
+
+ err:
+    pkey_rsa_cleanup(dst);
+    return 0;
 }
 
 static int setup_tbuf(RSA_PKEY_CTX *ctx, EVP_PKEY_CTX *pk)
@@ -108,17 +122,6 @@ static int setup_tbuf(RSA_PKEY_CTX *ctx, EVP_PKEY_CTX *pk)
         return 0;
     }
     return 1;
-}
-
-static void pkey_rsa_cleanup(EVP_PKEY_CTX *ctx)
-{
-    RSA_PKEY_CTX *rctx = ctx->data;
-    if (rctx) {
-        BN_free(rctx->pub_exp);
-        OPENSSL_free(rctx->tbuf);
-        OPENSSL_free(rctx->oaep_label);
-        OPENSSL_free(rctx);
-    }
 }
 
 static int pkey_rsa_sign(EVP_PKEY_CTX *ctx, unsigned char *sig,
