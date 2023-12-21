@@ -301,7 +301,15 @@ static int send_record(BIO *rbio, unsigned char type, uint64_t seqnr,
 
     /* Append HMAC to data */
     ctx = HMAC_CTX_new();
-    HMAC_Init_ex(ctx, mac_key, 20, EVP_sha1(), NULL);
+    if (ctx == NULL) {
+        OPENSSL_free(enc);
+        return 0;
+    }
+    if (!HMAC_Init_ex(ctx, mac_key, 20, EVP_sha1(), NULL)) {
+        HMAC_CTX_free(ctx);
+        OPENSSL_free(enc);
+        return 0;
+    }
     HMAC_Update(ctx, epoch, 2);
     HMAC_Update(ctx, seq, 6);
     HMAC_Update(ctx, &type, 1);
@@ -322,6 +330,10 @@ static int send_record(BIO *rbio, unsigned char type, uint64_t seqnr,
     /* Generate IV, and encrypt */
     RAND_bytes(iv, sizeof(iv));
     enc_ctx = EVP_CIPHER_CTX_new();
+    if (enc_ctx == NULL) {
+        OPENSSL_free(enc);
+        return 0;
+    }
     EVP_CipherInit_ex(enc_ctx, EVP_aes_128_cbc(), NULL, enc_key, iv, 1);
     EVP_Cipher(enc_ctx, enc, enc, len);
     EVP_CIPHER_CTX_free(enc_ctx);
@@ -483,6 +495,7 @@ static int test_bad_dtls(void)
             || !TEST_true(SSL_set_session(con, sess)))
         goto end;
     SSL_SESSION_free(sess);
+    sess = NULL;
 
     rbio = BIO_new(BIO_s_mem());
     wbio = BIO_new(BIO_s_mem());
@@ -570,6 +583,7 @@ static int test_bad_dtls(void)
     testresult = 1;
 
  end:
+    SSL_SESSION_free(sess);
     BIO_free(rbio);
     BIO_free(wbio);
     SSL_free(con);

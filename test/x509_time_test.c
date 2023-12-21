@@ -282,6 +282,11 @@ static int test_x509_cmp_time_current(void)
 
     asn1_before = ASN1_TIME_adj(NULL, now, -1, 0);
     asn1_after = ASN1_TIME_adj(NULL, now, 1, 0);
+    if (asn1_before == NULL || asn1_after == NULL) {
+        ASN1_TIME_free(asn1_before);
+        ASN1_TIME_free(asn1_after);
+        return 0;
+    }
 
     cmp_result  = X509_cmp_time(asn1_before, NULL);
     if (!TEST_int_eq(cmp_result, -1))

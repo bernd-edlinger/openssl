@@ -334,7 +334,6 @@ static int dtls_listen_test(int i)
         goto err;
     }
     (void)BIO_reset(outbio);
-    inbio = NULL;
     SSL_set0_rbio(ssl, NULL);
     success = 1;
 
@@ -342,7 +341,6 @@ static int dtls_listen_test(int i)
     /* Also frees up outbio */
     SSL_free(ssl);
     SSL_CTX_free(ctx);
-    BIO_free(inbio);
     OPENSSL_free(peer);
     return success;
 }

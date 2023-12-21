@@ -44,7 +44,7 @@ err:
 
 static int test_unsupported(void)
 {
-    STACK_OF(SSL_CIPHER) *sk, *scsv;
+    STACK_OF(SSL_CIPHER) *sk = NULL, *scsv = NULL;
     /* ECDH-RSA-AES256 (unsupported), ECDHE-ECDSA-AES128, <unassigned> */
     const unsigned char bytes[] = {0xc0, 0x0f, 0x00, 0x2f, 0x01, 0x00};
     int ret = 0;
@@ -68,7 +68,7 @@ err:
 
 static int test_v2(void)
 {
-    STACK_OF(SSL_CIPHER) *sk, *scsv;
+    STACK_OF(SSL_CIPHER) *sk = NULL, *scsv = NULL;
     /* ECDHE-ECDSA-AES256GCM, SSL2_RC4_1238_WITH_MD5,
      * ECDHE-ECDSA-CHACHA20-POLY1305 */
     const unsigned char bytes[] = {0x00, 0x00, 0x35, 0x01, 0x00, 0x80,

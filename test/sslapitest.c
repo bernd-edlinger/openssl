@@ -5773,6 +5773,11 @@ static void sslapi_info_callback(const SSL *s, int where, int ret)
 {
     struct info_cb_states_st *state = info_cb_states[info_cb_offset];
 
+    if (info_cb_this_state >= 59) {
+        info_cb_failed = 1;
+        return;
+    }
+
     /* We do not ever expect a connection to fail in this test */
     if (!TEST_false(ret == 0)) {
         info_cb_failed = 1;
@@ -5859,8 +5864,10 @@ static int test_info_callback(int tst)
 
         /* early_data tests */
         if (!TEST_true(setupearly_data_test(&cctx, &sctx, &clientssl,
-                                            &serverssl, &sess, 0)))
+                                            &serverssl, &sess, 0))) {
+            SSL_SESSION_free(sess);
             goto end;
+        }
 
         /* We don't actually need this reference */
         SSL_SESSION_free(sess);
@@ -6812,9 +6819,11 @@ static int test_ca_names_int(int prot, int tst)
 
     if (tst == 0 || tst == 1) {
         if (!TEST_ptr(sk1 = sk_X509_NAME_new_null())
+                || !TEST_true(sk_X509_NAME_reserve(sk1, 2))
                 || !TEST_true(sk_X509_NAME_push(sk1, X509_NAME_dup(name[0])))
                 || !TEST_true(sk_X509_NAME_push(sk1, X509_NAME_dup(name[1])))
                 || !TEST_ptr(sk2 = sk_X509_NAME_new_null())
+                || !TEST_true(sk_X509_NAME_reserve(sk2, 2))
                 || !TEST_true(sk_X509_NAME_push(sk2, X509_NAME_dup(name[0])))
                 || !TEST_true(sk_X509_NAME_push(sk2, X509_NAME_dup(name[1]))))
             goto end;
@@ -6825,9 +6834,11 @@ static int test_ca_names_int(int prot, int tst)
     }
     if (tst == 1 || tst == 2) {
         if (!TEST_ptr(sk1 = sk_X509_NAME_new_null())
+                || !TEST_true(sk_X509_NAME_reserve(sk1, 2))
                 || !TEST_true(sk_X509_NAME_push(sk1, X509_NAME_dup(name[2])))
                 || !TEST_true(sk_X509_NAME_push(sk1, X509_NAME_dup(name[3])))
                 || !TEST_ptr(sk2 = sk_X509_NAME_new_null())
+                || !TEST_true(sk_X509_NAME_reserve(sk2, 2))
                 || !TEST_true(sk_X509_NAME_push(sk2, X509_NAME_dup(name[2])))
                 || !TEST_true(sk_X509_NAME_push(sk2, X509_NAME_dup(name[3]))))
             goto end;
@@ -8495,10 +8506,8 @@ int setup_tests(void)
         return 0;
 
     privkey = test_mk_file_path(certsdir, "serverkey.pem");
-    if (privkey == NULL) {
-        OPENSSL_free(cert);
+    if (privkey == NULL)
         return 0;
-    }
 
     ADD_TEST(test_large_message_tls);
     ADD_TEST(test_large_message_tls_read_ahead);

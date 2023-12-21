@@ -664,8 +664,10 @@ static int configure_handshake_ctx(SSL_CTX *server_ctx, SSL_CTX *server2_ctx,
                                     &alpn_protos, &alpn_protos_len))
                 /* Reversed return value convention... */
                 || !TEST_int_eq(SSL_CTX_set_alpn_protos(client_ctx, alpn_protos,
-                                                        alpn_protos_len), 0))
+                                                        alpn_protos_len), 0)) {
+            OPENSSL_free(alpn_protos);
             goto err;
+        }
         OPENSSL_free(alpn_protos);
     }
 
@@ -1498,6 +1500,10 @@ static HANDSHAKE_RESULT *do_handshake_internal(
     if (!configure_handshake_ctx(server_ctx, server2_ctx, client_ctx,
                                  test_ctx, extra, &server_ctx_data,
                                  &server2_ctx_data, &client_ctx_data)) {
+        ctx_data_free_data(&server_ctx_data);
+        ctx_data_free_data(&server2_ctx_data);
+        ctx_data_free_data(&client_ctx_data);
+        OPENSSL_free(ret);
         TEST_note("configure_handshake_ctx");
         return NULL;
     }
@@ -1551,8 +1557,11 @@ static HANDSHAKE_RESULT *do_handshake_internal(
     }
 
     if (!TEST_ptr(client_to_server)
-            || !TEST_ptr(server_to_client))
+            || !TEST_ptr(server_to_client)) {
+        BIO_free(client_to_server);
+        BIO_free(server_to_client);
         goto err;
+    }
 
     /* Non-blocking bio. */
     BIO_set_nbio(client_to_server, 1);

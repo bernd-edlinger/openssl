@@ -1531,8 +1531,8 @@ static int test_EVP_PKEY_check(int i)
 #ifndef OPENSSL_NO_EC
     case 1:
         if (!TEST_ptr(pubkey = BIO_new_mem_buf(input, input_len))
-            || !TEST_ptr(eckey = d2i_EC_PUBKEY_bio(pubkey, NULL))
             || !TEST_ptr(pkey = EVP_PKEY_new())
+            || !TEST_ptr(eckey = d2i_EC_PUBKEY_bio(pubkey, NULL))
             || !TEST_true(EVP_PKEY_assign_EC_KEY(pkey, eckey)))
             goto done;
         break;
@@ -1540,8 +1540,10 @@ static int test_EVP_PKEY_check(int i)
         if (!TEST_ptr(eckey = d2i_ECParameters(NULL, &p, input_len))
             || !TEST_ptr_eq(p, input + input_len)
             || !TEST_ptr(pkey = EVP_PKEY_new())
-            || !TEST_true(EVP_PKEY_assign_EC_KEY(pkey, eckey)))
+            || !TEST_true(EVP_PKEY_assign_EC_KEY(pkey, eckey))) {
+            EC_KEY_free(eckey);
             goto done;
+        }
         break;
 #endif
     default:
@@ -2035,8 +2037,10 @@ int setup_tests(void)
     EVP_PKEY_meth_set_check(custom_pmeth, pkey_custom_check);
     EVP_PKEY_meth_set_public_check(custom_pmeth, pkey_custom_pub_check);
     EVP_PKEY_meth_set_param_check(custom_pmeth, pkey_custom_param_check);
-    if (!TEST_int_eq(EVP_PKEY_meth_add0(custom_pmeth), 1))
+    if (!TEST_int_eq(EVP_PKEY_meth_add0(custom_pmeth), 1)) {
+        EVP_PKEY_meth_free(custom_pmeth);
         return 0;
+    }
     ADD_ALL_TESTS(test_EVP_PKEY_check, OSSL_NELEM(keycheckdata));
     ADD_TEST(test_HKDF);
 #ifndef OPENSSL_NO_EC

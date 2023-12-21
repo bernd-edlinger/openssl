@@ -164,6 +164,11 @@ static unsigned long int stress_hash(const int *p)
     return *p;
 }
 
+static void stress_free(int *p)
+{
+    OPENSSL_free(p);
+}
+
 static int test_stress(void)
 {
     LHASH_OF(int) *h = lh_int_new(&stress_hash, &int_cmp);
@@ -179,10 +184,17 @@ static int test_stress(void)
         p = OPENSSL_malloc(sizeof(i));
         if (!TEST_ptr(p)) {
             TEST_info("lhash stress out of memory %d", i);
+            lh_int_doall(h, stress_free);
             goto end;
         }
         *p = 3 * i + 1;
         lh_int_insert(h, p);
+        if (!TEST_int_eq(lh_int_error(h), 0)) {
+            TEST_info("lhash stress insert error %d", i);
+            OPENSSL_free(p);
+            lh_int_doall(h, stress_free);
+            goto end;
+        }
     }
 
     /* num_items */

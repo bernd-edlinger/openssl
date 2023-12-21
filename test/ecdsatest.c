@@ -223,13 +223,19 @@ static int test_builtin(int n)
         || !TEST_ptr(eckey = EC_KEY_new_by_curve_name(nid))
         || !TEST_true(EC_KEY_generate_key(eckey))
         || !TEST_ptr(pkey = EVP_PKEY_new())
-        || !TEST_true(EVP_PKEY_assign_EC_KEY(pkey, eckey))
-        /* fake key for negative testing */
-        || !TEST_ptr(eckey_neg = EC_KEY_new_by_curve_name(nid))
+        || !TEST_true(EVP_PKEY_assign_EC_KEY(pkey, eckey))) {
+        EC_KEY_free(eckey);
+        goto err;
+    }
+
+    /* fake key for negative testing */
+    if (!TEST_ptr(eckey_neg = EC_KEY_new_by_curve_name(nid))
         || !TEST_true(EC_KEY_generate_key(eckey_neg))
         || !TEST_ptr(pkey_neg = EVP_PKEY_new())
-        || !TEST_true(EVP_PKEY_assign_EC_KEY(pkey_neg, eckey_neg)))
+        || !TEST_true(EVP_PKEY_assign_EC_KEY(pkey_neg, eckey_neg))) {
+        EC_KEY_free(eckey_neg);
         goto err;
+    }
 
     sig_len = ECDSA_size(eckey);
 

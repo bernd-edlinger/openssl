@@ -1954,8 +1954,7 @@ static int cofactor_range_test(void)
 
     if (!TEST_ptr(group = d2i_ECPKParameters(NULL, &b1, sizeof(params_cf_fail)))
         || !TEST_BN_eq_zero(EC_GROUP_get0_cofactor(group))
-        || !TEST_ptr(group = d2i_ECPKParameters(&group, &b2,
-                                                sizeof(params_cf_pass)))
+        || !TEST_ptr(d2i_ECPKParameters(&group, &b2, sizeof(params_cf_pass)))
         || !TEST_int_gt(BN_hex2bn(&cf, "12bc94785251297abfafddf1565100da"), 0)
         || !TEST_BN_eq(cf, EC_GROUP_get0_cofactor(group)))
         goto err;

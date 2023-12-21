@@ -37,6 +37,7 @@ const BIO_METHOD *BIO_f_tap(void)
             BIO_meth_set_callback_ctrl(tap, tap_callback_ctrl);
         }
     }
+    OPENSSL_assert(tap != NULL);
     return tap;
 }
 

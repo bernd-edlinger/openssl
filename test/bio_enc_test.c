@@ -51,8 +51,10 @@ static int do_bio_cipher(const EVP_CIPHER* cipher, const unsigned char* key,
 
     /* reference output for single-chunk operation */
     b = BIO_new(BIO_f_cipher());
-    if (!TEST_true(BIO_set_cipher(b, cipher, key, iv, ENCRYPT)))
+    if (!TEST_true(BIO_set_cipher(b, cipher, key, iv, ENCRYPT))) {
+        BIO_free(b);
         return 0;
+    }
     BIO_push(b, BIO_new_mem_buf(inp, DATA_SIZE));
     lref = BIO_read(b, ref, sizeof(ref));
     BIO_free_all(b);
@@ -60,8 +62,11 @@ static int do_bio_cipher(const EVP_CIPHER* cipher, const unsigned char* key,
     /* perform split operations and compare to reference */
     for (i = 1; i < lref; i++) {
         b = BIO_new(BIO_f_cipher());
+        if (!TEST_ptr(b))
+            return 0;
         if (!TEST_true(BIO_set_cipher(b, cipher, key, iv, ENCRYPT))) {
             TEST_info("Split encrypt failed @ operation %d", i);
+            BIO_free(b);
             return 0;
         }
         BIO_push(b, BIO_new_mem_buf(inp, DATA_SIZE));
@@ -71,6 +76,7 @@ static int do_bio_cipher(const EVP_CIPHER* cipher, const unsigned char* key,
         /* check for overstep */
         if (!TEST_uchar_eq(out[i], (unsigned char)~ref[i])) {
             TEST_info("Encrypt overstep check failed @ operation %d", i);
+            BIO_free_all(b);
             return 0;
         }
         len += BIO_read(b, out + len, sizeof(out) - len);
@@ -89,6 +95,7 @@ static int do_bio_cipher(const EVP_CIPHER* cipher, const unsigned char* key,
         b = BIO_new(BIO_f_cipher());
         if (!TEST_true(BIO_set_cipher(b, cipher, key, iv, ENCRYPT))) {
             TEST_info("Small chunk encrypt failed @ operation %d", i);
+            BIO_free(b);
             return 0;
         }
         BIO_push(b, BIO_new_mem_buf(inp, DATA_SIZE));
@@ -125,6 +132,7 @@ static int do_bio_cipher(const EVP_CIPHER* cipher, const unsigned char* key,
         b = BIO_new(BIO_f_cipher());
         if (!TEST_true(BIO_set_cipher(b, cipher, key, iv, DECRYPT))) {
             TEST_info("Split decrypt failed @ operation %d", i);
+            BIO_free(b);
             return 0;
         }
         BIO_push(b, BIO_new_mem_buf(ref, lref));
@@ -152,6 +160,7 @@ static int do_bio_cipher(const EVP_CIPHER* cipher, const unsigned char* key,
         b = BIO_new(BIO_f_cipher());
         if (!TEST_true(BIO_set_cipher(b, cipher, key, iv, DECRYPT))) {
             TEST_info("Small chunk decrypt failed @ operation %d", i);
+            BIO_free(b);
             return 0;
         }
         BIO_push(b, BIO_new_mem_buf(ref, lref));

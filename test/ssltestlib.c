@@ -282,6 +282,8 @@ struct mempacket_st {
 
 static void mempacket_free(MEMPACKET *pkt)
 {
+    if (pkt == NULL)
+        return;
     if (pkt->data != NULL)
         OPENSSL_free(pkt->data);
     OPENSSL_free(pkt);
@@ -503,6 +505,9 @@ int mempacket_test_inject(BIO *bio, const char *in, int inl, int pktnum,
         ctx->noinject = 1;
     }
 
+    for (i = 1; i < (duprec ? 3 : 1); i++)
+        allpkts[i] = NULL;
+
     for (i = 0; i < (duprec ? 3 : 1); i++) {
         if (!TEST_ptr(allpkts[i] = OPENSSL_malloc(sizeof(*thispkt))))
             goto err;
@@ -568,6 +573,7 @@ int mempacket_test_inject(BIO *bio, const char *in, int inl, int pktnum,
         if (!sk_MEMPACKET_push(ctx->pkts, thispkt))
             goto err;
 
+        allpkts[i] = NULL;
         if (pktnum < 0)
             ctx->lastpkt++;
     }
@@ -575,7 +581,7 @@ int mempacket_test_inject(BIO *bio, const char *in, int inl, int pktnum,
     return inl;
 
  err:
-    for (i = 0; i < (ctx->duprec > 0 ? 3 : 1); i++)
+    for (i = 0; i < (duprec ? 3 : 1); i++)
         mempacket_free(allpkts[i]);
     return -1;
 }
@@ -851,8 +857,10 @@ int create_ssl_objects(SSL_CTX *serverctx, SSL_CTX *clientctx, SSL **sssl,
     return 1;
 
  error:
-    SSL_free(serverssl);
-    SSL_free(clientssl);
+    if (*sssl == NULL)
+        SSL_free(serverssl);
+    if (*cssl == NULL)
+        SSL_free(clientssl);
     BIO_free(s_to_c_bio);
     BIO_free(c_to_s_bio);
     BIO_free(s_to_c_fbio);

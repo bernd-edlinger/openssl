@@ -306,7 +306,7 @@ static int parse_bin(const char *value, unsigned char **buf, size_t *buflen)
     if (!TEST_ptr(*buf = OPENSSL_hexstr2buf(value, &len))) {
         TEST_info("Can't convert %s", value);
         TEST_openssl_errors();
-        return -1;
+        return 0;
     }
     /* Size of input buffer means we'll never overflow */
     *buflen = len;
@@ -503,6 +503,8 @@ static int cipher_test_init(EVP_TEST *t, const char *alg)
         return 0;
     }
     cdat = OPENSSL_zalloc(sizeof(*cdat));
+    if (cdat == NULL)
+        return 0;
     cdat->cipher = cipher;
     cdat->enc = -1;
     m = EVP_CIPHER_mode(cipher);
@@ -964,8 +966,14 @@ static int mac_test_init(EVP_TEST *t, const char *alg)
         return 0;
 
     mdat = OPENSSL_zalloc(sizeof(*mdat));
+    if (mdat == NULL)
+        return 0;
     mdat->type = type;
     mdat->controls = sk_OPENSSL_STRING_new_null();
+    if (mdat->controls == NULL) {
+        OPENSSL_free(mdat);
+        return 0;
+    }
     t->data = mdat;
     return 1;
 }
@@ -991,6 +999,7 @@ static int mac_test_parse(EVP_TEST *t,
                           const char *keyword, const char *value)
 {
     MAC_DATA *mdata = t->data;
+    char *dup = NULL;
 
     if (strcmp(keyword, "Key") == 0)
         return parse_bin(value, &mdata->key, &mdata->key_len);
@@ -1004,9 +1013,11 @@ static int mac_test_parse(EVP_TEST *t,
         return parse_bin(value, &mdata->input, &mdata->input_len);
     if (strcmp(keyword, "Output") == 0)
         return parse_bin(value, &mdata->output, &mdata->output_len);
-    if (strcmp(keyword, "Ctrl") == 0)
-        return sk_OPENSSL_STRING_push(mdata->controls,
-                                      OPENSSL_strdup(value)) != 0;
+    if (strcmp(keyword, "Ctrl") == 0
+            && (dup = OPENSSL_strdup(value)) != NULL
+            && sk_OPENSSL_STRING_push(mdata->controls, dup))
+        return 1;
+    OPENSSL_free(dup);
     return 0;
 }
 
@@ -1165,13 +1176,10 @@ static int pkey_test_init(EVP_TEST *t, const char *name,
         return 1;
     }
 
-    if (!TEST_ptr(kdata = OPENSSL_zalloc(sizeof(*kdata)))) {
-        EVP_PKEY_free(pkey);
+    if (!TEST_ptr(kdata = OPENSSL_zalloc(sizeof(*kdata))))
         return 0;
-    }
     kdata->keyop = keyop;
     if (!TEST_ptr(kdata->ctx = EVP_PKEY_CTX_new(pkey, NULL))) {
-        EVP_PKEY_free(pkey);
         OPENSSL_free(kdata);
         return 0;
     }
@@ -2659,8 +2667,10 @@ top:
             TEST_info("Duplicate key %s", pp->value);
             return 0;
         }
-        if (!TEST_ptr(key = OPENSSL_malloc(sizeof(*key))))
+        if (!TEST_ptr(key = OPENSSL_malloc(sizeof(*key)))) {
+            EVP_PKEY_free(pkey);
             return 0;
+        }
         key->name = take_value(pp);
 
         /* Hack to detect SM2 keys */

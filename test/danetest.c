@@ -119,12 +119,15 @@ static STACK_OF(X509) *load_chain(BIO *fp, int nelem)
 
             if (!TEST_ptr(cert = d(0, &p, len))
                     || !TEST_long_eq(p - data, len)) {
+                X509_free(cert);
                 TEST_info("Certificate parsing error");
                 goto err;
             }
 
-            if (!TEST_true(sk_X509_push(chain, cert)))
+            if (!TEST_true(sk_X509_push(chain, cert))) {
+                X509_free(cert);
                 goto err;
+            }
         } else {
             TEST_info("Unknown chain file object %s", name);
             goto err;
