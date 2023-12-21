@@ -134,9 +134,12 @@ int test_readstanza(STANZA *s)
                 return 0;
         }
 
-        if (!TEST_int_lt(s->numpairs++, TESTMAXPAIRS)
-                || !TEST_ptr(pp->key = OPENSSL_strdup(key))
-                || !TEST_ptr(pp->value = OPENSSL_strdup(value)))
+        if (!TEST_int_lt(s->numpairs, TESTMAXPAIRS))
+            return 0;
+        s->numpairs++;
+        pp->key = OPENSSL_strdup(key);
+        pp->value = OPENSSL_strdup(value);
+        if (!TEST_ptr(pp->key) || !TEST_ptr(pp->value))
             return 0;
         pp++;
     }

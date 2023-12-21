@@ -358,6 +358,7 @@ sub clientstart
     # Wait for incoming connection from client
     my $fdset = IO::Select->new($self->{proxy_sock});
     if (!$fdset->can_read(60)) {
+        system("pkill", "-P", -3, $self->{real_serverpid});
         kill(3, $self->{real_serverpid});
         die "s_client didn't try to connect\n";
     }
@@ -419,6 +420,7 @@ sub clientstart
     }
 
     if ($ctr >= 10) {
+        system("pkill", "-P", -3, $self->{real_serverpid});
         kill(3, $self->{real_serverpid});
         die "No progress made";
     }
@@ -464,6 +466,13 @@ sub clientstart
     return 1;
 }
 
+my $my_serverpid;
+sub FatalErr
+{
+    system("pkill", "-P", -3, $my_serverpid);
+    kill(3, $my_serverpid);
+}
+
 sub process_packet
 {
     my ($self, $server, $packet) = @_;
@@ -488,6 +497,8 @@ sub process_packet
 
     #Return contains the list of record found in the packet followed by the
     #list of messages in those records and any partial message
+    $my_serverpid = $self->{real_serverpid};
+    local $SIG{__DIE__} = \&FatalErr;
     my @ret = TLSProxy::Record->get_records($server, $self->flight,
                                             $self->{partial}[$server].$packet);
     $self->{partial}[$server] = $ret[2];

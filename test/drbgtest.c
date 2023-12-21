@@ -184,7 +184,10 @@ static int single_kat(DRBG_SELFTEST_DATA *td)
     t.entropylen = td->entropylen;
     t.nonce = td->nonce;
     t.noncelen = td->noncelen;
-    RAND_DRBG_set_ex_data(drbg, app_data_index, &t);
+    if (!TEST_true(RAND_DRBG_set_ex_data(drbg, app_data_index, &t))) {
+        failures++;
+        goto err;
+    }
 
     if (!TEST_true(RAND_DRBG_instantiate(drbg, td->pers, td->perslen))
             || !TEST_true(RAND_DRBG_generate(drbg, buff, td->exlen, 0,
@@ -256,9 +259,9 @@ static int init(RAND_DRBG *drbg, DRBG_SELFTEST_DATA *td, TEST_CTX *t)
 {
     if (!TEST_true(RAND_DRBG_set(drbg, td->nid, td->flags))
             || !TEST_true(RAND_DRBG_set_callbacks(drbg, kat_entropy, NULL,
-                                                  kat_nonce, NULL)))
+                                                  kat_nonce, NULL))
+            || !RAND_DRBG_set_ex_data(drbg, app_data_index, t))
         return 0;
-    RAND_DRBG_set_ex_data(drbg, app_data_index, t);
     t->entropy = td->entropy;
     t->entropylen = td->entropylen;
     t->nonce = td->nonce;
@@ -534,13 +537,15 @@ static size_t get_entropy_hook(RAND_DRBG *drbg, unsigned char **pout,
 }
 
 /* Installs a hook for the get_entropy() callback of the given drbg */
-static void hook_drbg(RAND_DRBG *drbg, HOOK_CTX *ctx)
+static int hook_drbg(RAND_DRBG *drbg, HOOK_CTX *ctx)
 {
     memset(ctx, 0, sizeof(*ctx));
     ctx->drbg = drbg;
     ctx->get_entropy = drbg->get_entropy;
+    if (!RAND_DRBG_set_ex_data(drbg, app_data_index, ctx))
+        return 0;
     drbg->get_entropy = get_entropy_hook;
-    RAND_DRBG_set_ex_data(drbg, app_data_index, ctx);
+    return 1;
 }
 
 /* Installs the hook for the get_entropy() callback of the given drbg */
@@ -746,9 +751,17 @@ static int test_rand_drbg_reseed(void)
 
 
     /* Install hooks for the following tests */
-    hook_drbg(master,  &master_ctx);
-    hook_drbg(public,  &public_ctx);
-    hook_drbg(private, &private_ctx);
+    if (!hook_drbg(master,  &master_ctx))
+        return 0;
+    if (!hook_drbg(public,  &public_ctx)) {
+        unhook_drbg(master);
+        return 0;
+    }
+    if (!hook_drbg(private, &private_ctx)) {
+        unhook_drbg(master);
+        unhook_drbg(public);
+        return 0;
+    }
 
 
     /*

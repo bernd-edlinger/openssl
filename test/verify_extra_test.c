@@ -61,6 +61,7 @@ static STACK_OF(X509) *load_certs_from_file(const char *filename)
     do {
         x = PEM_read_bio_X509(bio, NULL, 0, NULL);
         if (x != NULL && !sk_X509_push(certs, x)) {
+            X509_free(x);
             sk_X509_pop_free(certs, X509_free);
             BIO_free(bio);
             return NULL;
@@ -318,7 +319,7 @@ int setup_tests(void)
             || !TEST_ptr(sroot_cert = test_mk_file_path(certs_dir, "sroot-cert.pem"))
             || !TEST_ptr(ca_cert = test_mk_file_path(certs_dir, "ca-cert.pem"))
             || !TEST_ptr(ee_cert = test_mk_file_path(certs_dir, "ee-cert.pem")))
-        goto err;
+        return 0;
 
     ADD_TEST(test_alt_chains_cert_forgery);
     ADD_TEST(test_store_ctx);
@@ -328,9 +329,6 @@ int setup_tests(void)
     ADD_TEST(test_purpose_ssl_server);
     ADD_TEST(test_purpose_any);
     return 1;
- err:
-    cleanup_tests();
-    return 0;
 }
 
 void cleanup_tests(void)

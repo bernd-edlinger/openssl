@@ -3081,6 +3081,7 @@ static int run_file_tests(int i)
         test_clearstanza(s);
     }
     test_end_file(s);
+    test_clearstanza(s);
     c = s->errors;
     OPENSSL_free(s);
 

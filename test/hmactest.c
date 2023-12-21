@@ -251,6 +251,9 @@ static char *pt(unsigned char *md, unsigned int len)
     unsigned int i;
     static char buf[80];
 
+    if (md == NULL)
+        return "NULL";
+
     for (i = 0; i < len; i++)
         sprintf(&(buf[i * 2]), "%02x", md[i]);
     return buf;

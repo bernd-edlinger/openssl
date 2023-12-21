@@ -97,6 +97,7 @@ static int exdup2(CRYPTO_EX_DATA *to, const CRYPTO_EX_DATA *from,
         || !TEST_ptr(ex_data)
         || !TEST_true(ex_data->new)) {
         gbl_result = 0;
+        *update_ex_data = NULL;
     } else {
         /* Copy hello over */
         ex_data->hello = (*update_ex_data)->hello;
@@ -131,6 +132,9 @@ static MYOBJ *MYOBJ_new(void)
 {
     static int count = 0;
     MYOBJ *obj = OPENSSL_malloc(sizeof(*obj));
+
+    if (obj == NULL)
+        return NULL;
 
     obj->id = ++count;
     obj->st = CRYPTO_new_ex_data(CRYPTO_EX_INDEX_APP, obj, &obj->ex_data);
@@ -170,6 +174,9 @@ static char *MYOBJ_gethello2(MYOBJ *obj)
 
 static void MYOBJ_free(MYOBJ *obj)
 {
+    if (obj == NULL)
+        return;
+
     CRYPTO_free_ex_data(CRYPTO_EX_INDEX_APP, obj, &obj->ex_data);
     OPENSSL_free(obj);
 }
@@ -178,6 +185,9 @@ static MYOBJ *MYOBJ_dup(MYOBJ *in)
 {
     MYOBJ *obj = MYOBJ_new();
 
+    if (obj == NULL)
+        return NULL;
+
     obj->st |= CRYPTO_dup_ex_data(CRYPTO_EX_INDEX_APP, &obj->ex_data,
                                  &in->ex_data);
     return obj;
@@ -185,7 +195,8 @@ static MYOBJ *MYOBJ_dup(MYOBJ *in)
 
 static int test_exdata(void)
 {
-    MYOBJ *t1, *t2, *t3;
+    int result = 0;
+    MYOBJ *t1, *t2, *t3 = NULL;
     MYOBJ_EX_DATA *ex_data;
     const char *cp;
     char *p;
@@ -203,56 +214,61 @@ static int test_exdata(void)
                                          exnew2, exdup2, exfree2);
     t1 = MYOBJ_new();
     t2 = MYOBJ_new();
+    if (!TEST_ptr(t1) || !TEST_ptr(t2))
+        goto err;
     if (!TEST_int_eq(t1->st, 1) || !TEST_int_eq(t2->st, 1))
-        return 0;
+        goto err;
     if (!TEST_ptr(CRYPTO_get_ex_data(&t1->ex_data, saved_idx2)))
-        return 0;
+        goto err;
     if (!TEST_ptr(CRYPTO_get_ex_data(&t2->ex_data, saved_idx2)))
-        return 0;
+        goto err;
 
     MYOBJ_sethello(t1, p);
     cp = MYOBJ_gethello(t1);
     if (!TEST_ptr_eq(cp, p))
-        return 0;
+        goto err;
 
     MYOBJ_sethello2(t1, p);
     cp = MYOBJ_gethello2(t1);
     if (!TEST_ptr_eq(cp, p))
-        return 0;
+        goto err;
 
     cp = MYOBJ_gethello(t2);
     if (!TEST_ptr_null(cp))
-        return 0;
+        goto err;
 
     cp = MYOBJ_gethello2(t2);
     if (!TEST_ptr_null(cp))
-        return 0;
+        goto err;
 
     t3 = MYOBJ_dup(t1);
     if (!TEST_int_eq(t3->st, 1))
-        return 0;
+        goto err;
 
     ex_data = CRYPTO_get_ex_data(&t3->ex_data, saved_idx2);
     if (!TEST_ptr(ex_data))
-        return 0;
+        goto err;
     if (!TEST_int_eq(ex_data->dup, 1))
-        return 0;
+        goto err;
 
     cp = MYOBJ_gethello(t3);
     if (!TEST_ptr_eq(cp, p))
-        return 0;
+        goto err;
 
     cp = MYOBJ_gethello2(t3);
     if (!TEST_ptr_eq(cp, p))
-        return 0;
+        goto err;
 
+    result = 1;
+
+ err:
     MYOBJ_free(t1);
     MYOBJ_free(t2);
     MYOBJ_free(t3);
     OPENSSL_free(saved_argp);
     OPENSSL_free(p);
 
-    if (gbl_result)
+    if (result && gbl_result)
       return 1;
     else
       return 0;

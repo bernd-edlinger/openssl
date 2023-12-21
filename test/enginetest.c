@@ -147,8 +147,15 @@ static int test_engines(void)
         name = OPENSSL_strdup(buf);
         if (!TEST_ptr(block[loop] = ENGINE_new())
                 || !TEST_true(ENGINE_set_id(block[loop], id))
-                || !TEST_true(ENGINE_set_name(block[loop], name)))
+                || !TEST_true(ENGINE_set_name(block[loop], name))) {
+            OPENSSL_free((char *)id);
+            OPENSSL_free((char *)name);
+            while (loop-- > 0) {
+                OPENSSL_free((void *)ENGINE_get_id(block[loop]));
+                OPENSSL_free((void *)ENGINE_get_name(block[loop]));
+            }
             goto end;
+        }
     }
     for (loop = 0; loop < NUMTOADD; loop++) {
         if (!TEST_true(ENGINE_add(block[loop]))) {
@@ -226,6 +233,7 @@ static EVP_PKEY *get_test_pkey(void)
 
     RSA *rsa = RSA_new();
     EVP_PKEY *pk = EVP_PKEY_new();
+    BIGNUM *bn, *be;
 
     if (rsa == NULL || pk == NULL || !EVP_PKEY_assign_RSA(pk, rsa)) {
         RSA_free(rsa);
@@ -233,8 +241,10 @@ static EVP_PKEY *get_test_pkey(void)
         return NULL;
     }
 
-    if (!RSA_set0_key(rsa, BN_bin2bn(n, sizeof(n)-1, NULL),
-                      BN_bin2bn(e, sizeof(e)-1, NULL), NULL)) {
+    if (!RSA_set0_key(rsa, bn = BN_bin2bn(n, sizeof(n)-1, NULL),
+                      be = BN_bin2bn(e, sizeof(e)-1, NULL), NULL)) {
+        BN_free(bn);
+        BN_free(be);
         EVP_PKEY_free(pk);
         return NULL;
     }

@@ -1757,24 +1757,26 @@ int main(int argc, char *argv[])
 
     c_ssl = SSL_new(c_ctx);
     s_ssl = SSL_new(s_ctx);
+    if (c_ssl == NULL || s_ssl == NULL)
+        goto err;
 
     if (sn_client)
         SSL_set_tlsext_host_name(c_ssl, sn_client);
 
     if (!set_protocol_version(server_min_proto, s_ssl, SSL_CTRL_SET_MIN_PROTO_VERSION))
-        goto end;
+        goto err;
     if (!set_protocol_version(server_max_proto, s_ssl, SSL_CTRL_SET_MAX_PROTO_VERSION))
-        goto end;
+        goto err;
     if (!set_protocol_version(client_min_proto, c_ssl, SSL_CTRL_SET_MIN_PROTO_VERSION))
-        goto end;
+        goto err;
     if (!set_protocol_version(client_max_proto, c_ssl, SSL_CTRL_SET_MAX_PROTO_VERSION))
-        goto end;
+        goto err;
 
     if (server_sess) {
         if (SSL_CTX_add_session(s_ctx, server_sess) == 0) {
             BIO_printf(bio_err, "Can't add server session\n");
             ERR_print_errors(bio_err);
-            goto end;
+            goto err;
         }
     }
 
@@ -1783,14 +1785,16 @@ int main(int argc, char *argv[])
         if (!reuse) {
             if (!SSL_set_session(c_ssl, NULL)) {
                 BIO_printf(bio_err, "Failed to set session\n");
-                goto end;
+                ret = EXIT_FAILURE;
+                goto err;
             }
         }
         if (client_sess_in != NULL) {
             if (SSL_set_session(c_ssl, client_sess) == 0) {
                 BIO_printf(bio_err, "Can't set client session\n");
                 ERR_print_errors(bio_err);
-                goto end;
+                ret = EXIT_FAILURE;
+                goto err;
             }
         }
         switch (bio_type) {

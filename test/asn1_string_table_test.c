@@ -28,12 +28,14 @@ static int test_string_tbl(void)
 
     ret = ASN1_STRING_TABLE_add(nid, -1, -1, MBSTRING_ASC, 0);
     if (!TEST_true(ret)) {
+        ASN1_STRING_TABLE_cleanup();
         TEST_info("asn1 string table: add NID(%d) failed", nid);
         goto out;
     }
 
     ret = ASN1_STRING_TABLE_add(nid2, -1, -1, MBSTRING_ASC, 0);
     if (!TEST_true(ret)) {
+        ASN1_STRING_TABLE_cleanup();
         TEST_info("asn1 string table: add NID(%d) failed", nid2);
         goto out;
     }

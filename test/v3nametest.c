@@ -161,7 +161,8 @@ static int set_altname(X509 *crt, ...)
         default:
             abort();
         }
-        sk_GENERAL_NAME_push(gens, gen);
+        if (!sk_GENERAL_NAME_push(gens, gen))
+            goto out;
         gen = NULL;
     }
     if (!X509_add1_ext_i2d(crt, NID_subject_alt_name, gens, 0, 0))
@@ -291,6 +292,9 @@ static int run_cert(X509 *crt, const char *nameincert,
         size_t namelen = strlen(*pname);
         char *name = OPENSSL_malloc(namelen);
         int match, ret;
+
+        if (name == NULL)
+            return 0;
 
         memcpy(name, *pname, namelen);
 
@@ -660,9 +664,9 @@ static struct gennamedata {
 static int test_GENERAL_NAME_cmp(void)
 {
     size_t i, j;
-    GENERAL_NAME **namesa = OPENSSL_malloc(sizeof(*namesa)
+    GENERAL_NAME **namesa = OPENSSL_zalloc(sizeof(*namesa)
                                            * OSSL_NELEM(gennames));
-    GENERAL_NAME **namesb = OPENSSL_malloc(sizeof(*namesb)
+    GENERAL_NAME **namesb = OPENSSL_zalloc(sizeof(*namesb)
                                            * OSSL_NELEM(gennames));
     int testresult = 0;
 

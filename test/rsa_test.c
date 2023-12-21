@@ -31,17 +31,24 @@ int setup_tests(void)
 # include <openssl/rsa.h>
 
 # define SetKey \
-    RSA_set0_key(key,                                           \
-                 BN_bin2bn(n, sizeof(n)-1, NULL),               \
-                 BN_bin2bn(e, sizeof(e)-1, NULL),               \
-                 BN_bin2bn(d, sizeof(d)-1, NULL));              \
-    RSA_set0_factors(key,                                       \
-                     BN_bin2bn(p, sizeof(p)-1, NULL),           \
-                     BN_bin2bn(q, sizeof(q)-1, NULL));          \
-    RSA_set0_crt_params(key,                                    \
-                        BN_bin2bn(dmp1, sizeof(dmp1)-1, NULL),  \
-                        BN_bin2bn(dmq1, sizeof(dmq1)-1, NULL),  \
-                        BN_bin2bn(iqmp, sizeof(iqmp)-1, NULL)); \
+    BIGNUM *bn = BN_bin2bn(n, sizeof(n)-1, NULL);               \
+    BIGNUM *be = BN_bin2bn(e, sizeof(e)-1, NULL);               \
+    BIGNUM *bd = BN_bin2bn(d, sizeof(d)-1, NULL);               \
+    BIGNUM *bp = BN_bin2bn(p, sizeof(p)-1, NULL);               \
+    BIGNUM *bq = BN_bin2bn(q, sizeof(q)-1, NULL);               \
+    BIGNUM *bx = BN_bin2bn(dmp1, sizeof(dmp1)-1, NULL);         \
+    BIGNUM *by = BN_bin2bn(dmq1, sizeof(dmq1)-1, NULL);         \
+    BIGNUM *bz = BN_bin2bn(iqmp, sizeof(iqmp)-1, NULL);         \
+                                                                \
+    if (!bn || !be || !bd || !bp || !bq || !bx || !by || !bz) { \
+        BN_free(bn); BN_free(be); BN_free(bd); BN_free(bp);     \
+        BN_free(bq); BN_free(bx); BN_free(by); BN_free(bz);     \
+        return 0;                                               \
+    }                                                           \
+                                                                \
+    RSA_set0_key(key, bn, be, bd);                              \
+    RSA_set0_factors(key, bp, bq);                              \
+    RSA_set0_crt_params(key, bx, by, bz);                       \
     if (c != NULL)                                              \
         memcpy(c, ctext_ex, sizeof(ctext_ex) - 1);              \
     return sizeof(ctext_ex) - 1;
@@ -247,6 +254,8 @@ static int test_rsa_simple(int idx, int en_pad_type, int de_pad_type,
 
     plen = sizeof(ptext_ex) - 1;
     clentmp = rsa_setkey(&key, ctext_ex, idx);
+    if (clentmp == 0)
+        goto err;
     if (clen != NULL)
         *clen = clentmp;
 

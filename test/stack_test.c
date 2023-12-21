@@ -283,12 +283,16 @@ static int test_SS_stack(void)
         v[i]->c = 'A' + i;
         if (!TEST_int_eq(sk_SS_num(s), i)) {
             TEST_info("SS stack size %d", i);
+            OPENSSL_free(v[i]);
+            OPENSSL_free(v[i-1]);
             goto end;
         }
         sk_SS_push(s, v[i]);
     }
-    if (!TEST_int_eq(sk_SS_num(s), n))
+    if (!TEST_int_eq(sk_SS_num(s), n)) {
+        OPENSSL_free(v[n-1]);
         goto end;
+    }
 
     /* deepcopy */
     r = sk_SS_deep_copy(s, &SS_copy, &SS_free);

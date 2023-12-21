@@ -124,8 +124,10 @@ static int test_bio_rdonly_mem_buf(void)
     (void)BIO_set_close(bio, BIO_NOCLOSE);
 
     bio2 = BIO_new(BIO_s_mem());
-    if (!TEST_ptr(bio2))
+    if (!TEST_ptr(bio2)) {
+        OPENSSL_free(bufmem);
         goto finish;
+    }
     BIO_set_mem_buf(bio2, bufmem, BIO_CLOSE);
     BIO_set_flags(bio2, BIO_FLAGS_MEM_RDONLY);
 

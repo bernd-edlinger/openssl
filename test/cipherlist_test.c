@@ -210,9 +210,13 @@ static int test_default_cipherlist_explicit(void)
         return 0;
     if (!TEST_true(SSL_CTX_set_cipher_list(fixture->server, "DEFAULT"))
             || !TEST_true(SSL_CTX_set_cipher_list(fixture->client, "DEFAULT")))
-        tear_down(fixture);
+        goto err;
     EXECUTE_CIPHERLIST_TEST();
     return result;
+
+ err:
+    tear_down(fixture);
+    return 0;
 }
 
 /* SSL_CTX_set_cipher_list() should fail if it clears all TLSv1.2 ciphers. */

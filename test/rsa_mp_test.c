@@ -132,23 +132,28 @@ static int key2048p3(RSA *key)
 
     BIGNUM **pris = NULL, **exps = NULL, **coeffs = NULL;
     int rv = 256; /* public key length */
+    BIGNUM *bn = BN_bin2bn(n, sizeof(n) - 1, NULL);
+    BIGNUM *be = BN_bin2bn(e, sizeof(e) - 1, NULL);
+    BIGNUM *bd = BN_bin2bn(d, sizeof(d) - 1, NULL);
+    BIGNUM *bp = BN_bin2bn(p, sizeof(p) - 1, NULL);
+    BIGNUM *bq = BN_bin2bn(q, sizeof(q) - 1, NULL);
+    BIGNUM *bx = BN_bin2bn(dmp1, sizeof(dmp1) - 1, NULL);
+    BIGNUM *by = BN_bin2bn(dmq1, sizeof(dmq1) - 1, NULL);
+    BIGNUM *bz = BN_bin2bn(iqmp, sizeof(iqmp) - 1, NULL);
 
-    if (!TEST_int_eq(RSA_set0_key(key,
-                                  BN_bin2bn(n, sizeof(n) - 1, NULL),
-                                  BN_bin2bn(e, sizeof(e) - 1, NULL),
-                                  BN_bin2bn(d, sizeof(d) - 1, NULL)), 1))
+    if (!bn || !be || !bd || !bp || !bq || !bx || !by || !bz) {
+        BN_free(bn); BN_free(be); BN_free(bd); BN_free(bp);
+        BN_free(bq); BN_free(bx); BN_free(by); BN_free(bz);
+        goto err;
+    }
+
+    if (!TEST_int_eq(RSA_set0_key(key, bn, be, bd), 1))
         goto err;
 
-    if (!TEST_int_eq(RSA_set0_factors(key,
-                                      BN_bin2bn(p, sizeof(p) - 1, NULL),
-                                      BN_bin2bn(q, sizeof(q) - 1, NULL)), 1))
+    if (!TEST_int_eq(RSA_set0_factors(key, bp, bq), 1))
         goto err;
 
-    if (!TEST_int_eq(RSA_set0_crt_params(key,
-                                         BN_bin2bn(dmp1, sizeof(dmp1) - 1, NULL),
-                                         BN_bin2bn(dmq1, sizeof(dmq1) - 1, NULL),
-                                         BN_bin2bn(iqmp, sizeof(iqmp) - 1,
-                                                   NULL)), 1))
+    if (!TEST_int_eq(RSA_set0_crt_params(key, bx, by, bz), 1))
         return 0;
 
     pris = OPENSSL_zalloc(sizeof(BIGNUM *));
@@ -211,6 +216,9 @@ static int test_rsa_mp(void)
         goto err;
 
     num = RSA_private_decrypt(num, ctext, ptext, key, RSA_PKCS1_PADDING);
+    if (!TEST_int_ge(num, 0))
+        goto err;
+
     if (!TEST_mem_eq(ptext, num, ptext_ex, plen))
         goto err;
 
