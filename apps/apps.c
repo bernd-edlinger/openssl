@@ -2524,8 +2524,10 @@ BIO *dup_bio_out(int format)
     if (istext(format) && (prefix = getenv("HARNESS_OSSL_PREFIX")) != NULL) {
         if (prefix_method == NULL)
             prefix_method = apps_bf_prefix();
-        b = BIO_push(BIO_new(prefix_method), b);
-        BIO_ctrl(b, PREFIX_CTRL_SET_PREFIX, 0, prefix);
+        if (prefix_method != NULL) {
+            b = BIO_push(BIO_new(prefix_method), b);
+            BIO_ctrl(b, PREFIX_CTRL_SET_PREFIX, 0, prefix);
+        }
     }
 
     return b;

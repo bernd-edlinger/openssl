@@ -23,13 +23,11 @@ static int prefix_create(BIO *b);
 static int prefix_destroy(BIO *b);
 static long prefix_callback_ctrl(BIO *b, int cmd, BIO_info_cb *fp);
 
-static BIO_METHOD *prefix_meth = NULL;
-
 BIO_METHOD *apps_bf_prefix(void)
 {
-    if (prefix_meth == NULL) {
-        if ((prefix_meth =
-             BIO_meth_new(BIO_TYPE_FILTER, "Prefix filter")) == NULL
+    BIO_METHOD *prefix_meth;
+
+    if ((prefix_meth = BIO_meth_new(BIO_TYPE_FILTER, "Prefix filter")) == NULL
             || !BIO_meth_set_create(prefix_meth, prefix_create)
             || !BIO_meth_set_destroy(prefix_meth, prefix_destroy)
             || !BIO_meth_set_write_ex(prefix_meth, prefix_write)
@@ -38,9 +36,8 @@ BIO_METHOD *apps_bf_prefix(void)
             || !BIO_meth_set_gets(prefix_meth, prefix_gets)
             || !BIO_meth_set_ctrl(prefix_meth, prefix_ctrl)
             || !BIO_meth_set_callback_ctrl(prefix_meth, prefix_callback_ctrl)) {
-            BIO_meth_free(prefix_meth);
-            prefix_meth = NULL;
-        }
+        BIO_meth_free(prefix_meth);
+        prefix_meth = NULL;
     }
     return prefix_meth;
 }
