@@ -387,9 +387,9 @@ static void x509v3_cache_extensions(X509 *x)
         return;
 #endif
 
-    CRYPTO_THREAD_write_lock(x->lock);
+    CRYPTO_THREAD_write_lock(x->xlock);
     if (x->ex_flags & EXFLAG_SET) {
-        CRYPTO_THREAD_unlock(x->lock);
+        CRYPTO_THREAD_unlock(x->xlock);
         return;
     }
 
@@ -561,7 +561,7 @@ static void x509v3_cache_extensions(X509 *x)
      * all stores are visible on all processors. Hence the release fence.
      */
 #endif
-    CRYPTO_THREAD_unlock(x->lock);
+    CRYPTO_THREAD_unlock(x->xlock);
 }
 
 /*-

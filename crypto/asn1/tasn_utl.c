@@ -57,6 +57,7 @@ int asn1_set_choice_selector(ASN1_VALUE **pval, int value,
  */
 int asn1_do_lock(ASN1_VALUE **pval, int op, const ASN1_ITEM *it)
 {
+    void **xx;
     const ASN1_AUX *aux;
     CRYPTO_REF_COUNT *lck;
     CRYPTO_RWLOCK **lock;
@@ -79,12 +80,23 @@ int asn1_do_lock(ASN1_VALUE **pval, int op, const ASN1_ITEM *it)
             ASN1err(ASN1_F_ASN1_DO_LOCK, ERR_R_MALLOC_FAILURE);
             return -1;
         }
+        *(void**)(lock+1) = NULL;
         break;
     case 1:
         if (!CRYPTO_UP_REF(lck, &ret, *lock))
             return -1;
+        xx = malloc(sizeof(void*));
+        CRYPTO_THREAD_write_lock(*lock);
+        *xx = *(void**)(lock+1);
+        *(void**)(lock+1) = xx;
+        CRYPTO_THREAD_unlock(*lock);
         break;
     case -1:
+        xx = malloc(sizeof(void*));
+        CRYPTO_THREAD_write_lock(*lock);
+        *xx = *(void**)(lock+1);
+        *(void**)(lock+1) = xx;
+        CRYPTO_THREAD_unlock(*lock);
         if (!CRYPTO_DOWN_REF(lck, &ret, *lock))
             return -1;  /* failed */
 #ifdef REF_PRINT
@@ -94,6 +106,11 @@ int asn1_do_lock(ASN1_VALUE **pval, int op, const ASN1_ITEM *it)
         if (ret == 0) {
             CRYPTO_THREAD_lock_free(*lock);
             *lock = NULL;
+            while (xx) {
+               *(void**)(lock+1) = *xx;
+               free(xx);
+               xx = *(void**)(lock+1);
+            }
         }
         break;
     }

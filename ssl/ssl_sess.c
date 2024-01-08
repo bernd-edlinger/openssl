@@ -138,6 +138,7 @@ SSL_SESSION *ssl_session_dup(SSL_SESSION *src, int ticket)
     dest->next = NULL;
 
     dest->references = 1;
+    dest->xuprefs = NULL;
 
     dest->lock = CRYPTO_THREAD_lock_new();
     if (dest->lock == NULL) {
@@ -759,14 +760,28 @@ static int remove_session_lock(SSL_CTX *ctx, SSL_SESSION *c, int lck)
 void SSL_SESSION_free(SSL_SESSION *ss)
 {
     int i;
+    void **xx;
 
     if (ss == NULL)
         return;
+
+    xx = malloc(sizeof(void*));
+    CRYPTO_THREAD_write_lock(ss->lock);
+    *xx = ss->xuprefs;
+    ss->xuprefs = xx;
+    CRYPTO_THREAD_unlock(ss->lock);
+
     CRYPTO_DOWN_REF(&ss->references, &i, ss->lock);
     REF_PRINT_COUNT("SSL_SESSION", ss);
     if (i > 0)
         return;
     REF_ASSERT_ISNT(i < 0);
+
+    while (xx) {
+       ss->xuprefs = *xx;
+       free(xx);
+       xx = ss->xuprefs;
+    }
 
     CRYPTO_free_ex_data(CRYPTO_EX_INDEX_SSL_SESSION, ss, &ss->ex_data);
 
@@ -792,10 +807,16 @@ void SSL_SESSION_free(SSL_SESSION *ss)
 int SSL_SESSION_up_ref(SSL_SESSION *ss)
 {
     int i;
+    void **xx;
 
     if (CRYPTO_UP_REF(&ss->references, &i, ss->lock) <= 0)
         return 0;
 
+    xx = malloc(sizeof(void*));
+    CRYPTO_THREAD_write_lock(ss->lock);
+    *xx = ss->xuprefs;
+    ss->xuprefs = xx;
+    CRYPTO_THREAD_unlock(ss->lock);
     REF_PRINT_COUNT("SSL_SESSION", ss);
     REF_ASSERT_ISNT(i < 2);
     return ((i > 1) ? 1 : 0);

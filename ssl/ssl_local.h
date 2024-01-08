@@ -587,6 +587,7 @@ struct ssl_session_st {
     size_t ticket_appdata_len;
     uint32_t flags;
     CRYPTO_RWLOCK *lock;
+    void **xuprefs;
 };
 
 /* Extended master secret support */

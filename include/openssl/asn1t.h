@@ -160,7 +160,7 @@ extern "C" {
         ASN1_SEQUENCE(tname)
 
 # define ASN1_SEQUENCE_ref(tname, cb) \
-        static const ASN1_AUX tname##_aux = {NULL, ASN1_AFLG_REFCOUNT, offsetof(tname, references), offsetof(tname, lock), cb, 0}; \
+        static const ASN1_AUX tname##_aux = {NULL, ASN1_AFLG_REFCOUNT, offsetof(tname, xreferences), offsetof(tname, xlock), cb, 0}; \
         ASN1_SEQUENCE(tname)
 
 # define ASN1_SEQUENCE_enc(tname, enc, cb) \
