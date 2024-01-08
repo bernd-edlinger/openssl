@@ -71,8 +71,9 @@ struct X509_req_st {
     X509_REQ_INFO req_info;     /* signed certificate request data */
     X509_ALGOR sig_alg;         /* signature algorithm */
     ASN1_BIT_STRING *signature; /* signature */
-    CRYPTO_REF_COUNT references;
-    CRYPTO_RWLOCK *lock;
+    CRYPTO_REF_COUNT xreferences;
+    CRYPTO_RWLOCK *xlock;
+    void **xuprefs;
 };
 
 struct X509_crl_info_st {
@@ -90,7 +91,7 @@ struct X509_crl_st {
     X509_CRL_INFO crl;          /* signed CRL data */
     X509_ALGOR sig_alg;         /* CRL signature algorithm */
     ASN1_BIT_STRING signature;  /* CRL signature */
-    CRYPTO_REF_COUNT references;
+    CRYPTO_REF_COUNT xreferences;
     int flags;
     /*
      * Cached copies of decoded extension values, since extensions
@@ -110,7 +111,8 @@ struct X509_crl_st {
     /* alternative method to handle this CRL */
     const X509_CRL_METHOD *meth;
     void *meth_data;
-    CRYPTO_RWLOCK *lock;
+    CRYPTO_RWLOCK *xlock;
+    void **xuprefs;
 };
 
 struct x509_revoked_st {
@@ -162,7 +164,7 @@ struct x509_st {
     X509_ALGOR sig_alg;
     ASN1_BIT_STRING signature;
     X509_SIG_INFO siginf;
-    CRYPTO_REF_COUNT references;
+    CRYPTO_REF_COUNT xreferences;
     CRYPTO_EX_DATA ex_data;
     /* These contain copies of various extension values */
     long ex_pathlen;
@@ -183,7 +185,8 @@ struct x509_st {
 # endif
     unsigned char sha1_hash[SHA_DIGEST_LENGTH];
     X509_CERT_AUX *aux;
-    CRYPTO_RWLOCK *lock;
+    CRYPTO_RWLOCK *xlock;
+    void **xuprefs;
     volatile int ex_cached;
 } /* X509 */ ;
 

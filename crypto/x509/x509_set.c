@@ -99,10 +99,16 @@ int X509_set_pubkey(X509 *x, EVP_PKEY *pkey)
 int X509_up_ref(X509 *x)
 {
     int i;
+    void **xx;
 
-    if (CRYPTO_UP_REF(&x->references, &i, x->lock) <= 0)
+    if (CRYPTO_UP_REF(&x->xreferences, &i, x->xlock) <= 0)
         return 0;
 
+    xx = malloc(sizeof(void*));
+    CRYPTO_THREAD_write_lock(x->xlock);
+    *xx = x->xuprefs;
+    x->xuprefs = xx;
+    CRYPTO_THREAD_unlock(x->xlock);
     REF_PRINT_COUNT("X509", x);
     REF_ASSERT_ISNT(i < 2);
     return ((i > 1) ? 1 : 0);

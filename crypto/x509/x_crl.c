@@ -422,9 +422,9 @@ static int def_crl_lookup(X509_CRL *crl,
      * under a lock to avoid race condition.
      */
     if (!sk_X509_REVOKED_is_sorted(crl->crl.revoked)) {
-        CRYPTO_THREAD_write_lock(crl->lock);
+        CRYPTO_THREAD_write_lock(crl->xlock);
         sk_X509_REVOKED_sort(crl->crl.revoked);
-        CRYPTO_THREAD_unlock(crl->lock);
+        CRYPTO_THREAD_unlock(crl->xlock);
     }
     rtmp.serialNumber = *serial;
     idx = sk_X509_REVOKED_find(crl->crl.revoked, &rtmp);

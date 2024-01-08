@@ -67,10 +67,16 @@ int X509_CRL_sort(X509_CRL *c)
 int X509_CRL_up_ref(X509_CRL *crl)
 {
     int i;
+    void **xx;
 
-    if (CRYPTO_UP_REF(&crl->references, &i, crl->lock) <= 0)
+    if (CRYPTO_UP_REF(&crl->xreferences, &i, crl->xlock) <= 0)
         return 0;
 
+    xx = malloc(sizeof(void*));
+    CRYPTO_THREAD_write_lock(crl->xlock);
+    *xx = crl->xuprefs;
+    crl->xuprefs = xx;
+    CRYPTO_THREAD_unlock(crl->xlock);
     REF_PRINT_COUNT("X509_CRL", crl);
     REF_ASSERT_ISNT(i < 2);
     return ((i > 1) ? 1 : 0);
