@@ -15,7 +15,7 @@ use OpenSSL::Test qw/:DEFAULT srctop_file/;
 
 setup("test_req");
 
-plan tests => 18;
+plan tests => 19;
 
 require_ok(srctop_file('test','recipes','tconversion.pl'));
 
@@ -49,6 +49,7 @@ ok(!run(app([@addext_args, "-addext", $val, "-addext", $val])));
 ok(!run(app([@addext_args, "-addext", $val, "-addext", $val2])));
 ok(!run(app([@addext_args, "-addext", $val, "-addext", $val3])));
 ok(!run(app([@addext_args, "-addext", $val2, "-addext", $val3])));
+ok(run(app([@addext_args, "-addext", "SXNetID=1:one, 2:two, 3:three"])));
 
 subtest "generating certificate requests with RSA" => sub {
     plan tests => 6;
