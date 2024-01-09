@@ -227,6 +227,7 @@ int SXNET_add_id_INTEGER(SXNET **psx, ASN1_INTEGER *zone, char *user,
         goto err;
     if (!sk_SXNETID_push(sx->ids, id))
         goto err;
+    ASN1_INTEGER_free(id->zone);
     id->zone = zone;
     return 1;
 
