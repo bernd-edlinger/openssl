@@ -570,6 +570,10 @@ STACK_OF(X509) *X509_STORE_CTX_get1_certs(X509_STORE_CTX *ctx, X509_NAME *nm)
     }
 
     sk = sk_X509_new_null();
+    if (sk == NULL) {
+        X509_STORE_unlock(store);
+        return NULL;
+    }
     for (i = 0; i < cnt; i++, idx++) {
         obj = sk_X509_OBJECT_value(store->objs, idx);
         x = obj->data.x509;
