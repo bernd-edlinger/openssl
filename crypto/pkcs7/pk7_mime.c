@@ -112,10 +112,13 @@ int SMIME_write_PKCS7(BIO *bio, PKCS7 *p7, BIO *data, int flags)
 {
     STACK_OF(X509_ALGOR) *mdalgs;
     int ctype_nid = OBJ_obj2nid(p7->type);
-    if (ctype_nid == NID_pkcs7_signed)
+    if (ctype_nid == NID_pkcs7_signed) {
+        if (p7->d.sign == NULL)
+            return 0;
         mdalgs = p7->d.sign->md_algs;
-    else
+    } else {
         mdalgs = NULL;
+    }
 
     return int_smime_write_ASN1(bio, (ASN1_VALUE *)p7, data, flags,
                                 ctype_nid, NID_undef, mdalgs,

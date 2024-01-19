@@ -124,8 +124,9 @@ static int newpass_p12(PKCS12 *p12, char *oldpass, char *newpass)
             bags = PKCS12_unpack_p7data(p7);
         } else if (bagnid == NID_pkcs7_encrypted) {
             bags = PKCS12_unpack_p7encdata(p7, oldpass, -1);
-            if (!alg_get(p7->d.encrypted->enc_data->algorithm,
-                         &pbe_nid, &pbe_iter, &pbe_saltlen)) {
+            if (p7->d.encrypted == NULL
+                    || !alg_get(p7->d.encrypted->enc_data->algorithm,
+                                &pbe_nid, &pbe_iter, &pbe_saltlen)) {
                 sk_PKCS12_SAFEBAG_pop_free(bags, PKCS12_SAFEBAG_free);
                 bags = NULL;
             }
