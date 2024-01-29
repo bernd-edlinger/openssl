@@ -7,6 +7,7 @@
 
   Major changes between OpenSSL 0.9.8zh and OpenSSL 0.9.8zi [under development]
 
+      o Fixed PKCS12 Decoding crashes (CVE-2024-0727)
       o Fix DH_check() excessive time with over sized modulus (CVE-2023-3446)
       o Mitigate for very slow `OBJ_obj2txt()` performance with gigantic
         OBJECT IDENTIFIER sub-identities.  (CVE-2023-2650)
