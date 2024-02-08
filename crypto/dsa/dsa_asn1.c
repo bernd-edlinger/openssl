@@ -112,12 +112,17 @@ int DSA_sign(int type, const unsigned char *dgst, int dlen,
 {
     DSA_SIG *s;
 
+    if (sig == NULL) {
+        *siglen = DSA_size(dsa);
+        return 1;
+    }
+
     s = DSA_do_sign(dgst, dlen, dsa);
     if (s == NULL) {
         *siglen = 0;
         return 0;
     }
-    *siglen = i2d_DSA_SIG(s, sig != NULL ? &sig : NULL);
+    *siglen = i2d_DSA_SIG(s, &sig);
     DSA_SIG_free(s);
     return 1;
 }

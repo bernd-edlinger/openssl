@@ -414,6 +414,11 @@ int sm2_sign(const unsigned char *dgst, int dgstlen,
     int sigleni;
     int ret = -1;
 
+    if (sig == NULL) {
+        SM2err(SM2_F_SM2_SIGN, ERR_R_PASSED_NULL_PARAMETER);
+        goto done;
+    }
+
     e = BN_bin2bn(dgst, dgstlen, NULL);
     if (e == NULL) {
        SM2err(SM2_F_SM2_SIGN, ERR_R_BN_LIB);
@@ -422,7 +427,7 @@ int sm2_sign(const unsigned char *dgst, int dgstlen,
 
     s = sm2_sig_gen(eckey, e);
 
-    sigleni = i2d_ECDSA_SIG(s, sig != NULL ? &sig : NULL);
+    sigleni = i2d_ECDSA_SIG(s, &sig);
     if (sigleni < 0) {
        SM2err(SM2_F_SM2_SIGN, ERR_R_INTERNAL_ERROR);
        goto done;
