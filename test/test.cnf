@@ -86,3 +86,9 @@ commonName_value		= Eric Young
 
 emailAddress			= Email Address
 emailAddress_value		= eay@mincom.oz.au
+
+[ dirname_sec ]
+C  = UK
+O  = My Organization
+OU = My Unit
+CN = My Name

@@ -503,7 +503,7 @@ int req_main(int argc, char **argv)
         /* Check syntax of command line extensions */
         X509V3_CTX ctx;
         X509V3_set_ctx_test(&ctx);
-        X509V3_set_nconf(&ctx, addext_conf);
+        X509V3_set_nconf(&ctx, req_conf);
         if (!X509V3_EXT_add_nconf(addext_conf, &ctx, "default", NULL)) {
             BIO_printf(bio_err, "Error Loading command line extensions\n");
             goto end;
