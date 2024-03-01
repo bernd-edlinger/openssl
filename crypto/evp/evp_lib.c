@@ -179,6 +179,7 @@ int EVP_CIPHER_block_size(const EVP_CIPHER *e)
     return e->block_size;
 }
 
+#undef EVP_CIPHER_CTX_block_size
 int EVP_CIPHER_CTX_block_size(const EVP_CIPHER_CTX *ctx)
 {
     return ctx->cipher->block_size;
@@ -200,6 +201,7 @@ const EVP_CIPHER *EVP_CIPHER_CTX_cipher(const EVP_CIPHER_CTX *ctx)
     return ctx->cipher;
 }
 
+#undef EVP_CIPHER_CTX_encrypting
 int EVP_CIPHER_CTX_encrypting(const EVP_CIPHER_CTX *ctx)
 {
     return ctx->encrypt;
@@ -220,6 +222,7 @@ void EVP_CIPHER_CTX_set_app_data(EVP_CIPHER_CTX *ctx, void *data)
     ctx->app_data = data;
 }
 
+#undef EVP_CIPHER_CTX_get_cipher_data
 void *EVP_CIPHER_CTX_get_cipher_data(const EVP_CIPHER_CTX *ctx)
 {
     return ctx->cipher_data;
@@ -262,6 +265,7 @@ const unsigned char *EVP_CIPHER_CTX_iv(const EVP_CIPHER_CTX *ctx)
     return ctx->iv;
 }
 
+#undef EVP_CIPHER_CTX_iv_noconst
 unsigned char *EVP_CIPHER_CTX_iv_noconst(EVP_CIPHER_CTX *ctx)
 {
     return ctx->iv;
@@ -486,6 +490,7 @@ void EVP_MD_CTX_set_pkey_ctx(EVP_MD_CTX *ctx, EVP_PKEY_CTX *pctx)
     }
 }
 
+#undef EVP_MD_CTX_md_data
 void *EVP_MD_CTX_md_data(const EVP_MD_CTX *ctx)
 {
     return ctx->md_data;

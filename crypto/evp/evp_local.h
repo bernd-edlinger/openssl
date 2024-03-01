@@ -130,3 +130,9 @@ int is_partially_overlapping(const void *out, const void *in, int inl,
     return is_any_overlapping(in, inl, out, outl)
            & !is_pointer_offset(in, out, i);
 }
+
+#define EVP_CIPHER_CTX_block_size(ctx)      (ctx)->cipher->block_size
+#define EVP_CIPHER_CTX_encrypting(ctx)      (ctx)->encrypt
+#define EVP_CIPHER_CTX_get_cipher_data(ctx) (ctx)->cipher_data
+#define EVP_CIPHER_CTX_iv_noconst(ctx)      (ctx)->iv
+#define EVP_MD_CTX_md_data(ctx)             (ctx)->md_data
