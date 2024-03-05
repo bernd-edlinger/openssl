@@ -195,6 +195,7 @@ SSL_SESSION *ssl_session_dup(SSL_SESSION *src, int ticket)
     } else {
         dest->ext.tick_lifetime_hint = 0;
         dest->ext.ticklen = 0;
+        dest->not_resumable &= ticket;
     }
 
     if (src->ext.alpn_selected != NULL) {
