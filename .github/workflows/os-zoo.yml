@@ -35,6 +35,9 @@ jobs:
           extra_cflags="-Wno-sign-compare"
         fi
 
+        ls --full-time ./config
+        find ./* -type f -exec touch {} \;
+        ls --full-time ./config
         CC=${{ matrix.cc }} ./config no-shared \
             --strict-warnings -DOPENSSL_USE_IPV6=0 ${extra_cflags}
 
