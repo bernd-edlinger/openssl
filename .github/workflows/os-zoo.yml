@@ -54,6 +54,8 @@ jobs:
         os: [
           macos-11,
           macos-12,
+          macos-13,
+          macos-14,
           ubuntu-20.04,
         ]
     runs-on: ${{ matrix.os }}
