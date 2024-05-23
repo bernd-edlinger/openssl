@@ -10,8 +10,8 @@
 #include <openssl/opensslconf.h>
 
 #ifdef OPENSSL_SYS_VMS
-# define _XOPEN_SOURCE_EXTENDED/* So fd_set and friends get properly defined
-                                 * on OpenVMS */
+  /* So fd_set and friends get properly defined on OpenVMS */
+# define _XOPEN_SOURCE_EXTENDED 1
 #endif
 
 #include <stdio.h>
