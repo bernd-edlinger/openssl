@@ -1663,11 +1663,23 @@ int SSL_select_next_proto(unsigned char **out, unsigned char *outlen,
     const unsigned char *result;
     int status = OPENSSL_NPN_UNSUPPORTED;
 
+    if (client_len == 0 || client[0] == 0 || client[0] >= client_len) {
+        *out = NULL;
+        *outlen = 0;
+        return OPENSSL_NPN_NO_OVERLAP;
+    }
+
     /*
      * For each protocol in server preference order, see if we support it.
      */
-    for (i = 0; i < server_len;) {
+    for (i = 0; i < server_len; i++) {
+        if (server[i] >= server_len - i)
+            break; /* Ignore spurious trailing bytes in the server list */
+        if (server[i] == 0)
+            continue; /* Invalid - ignore it */
         for (j = 0; j < client_len;) {
+            if (client[j] >= client_len - j)
+                break; /* Ignore spurious trailing bytes in the client list */
             if (server[i] == client[j] &&
                 memcmp(&server[i + 1], &client[j + 1], server[i]) == 0) {
                 /* We found a match */
@@ -1679,7 +1691,6 @@ int SSL_select_next_proto(unsigned char **out, unsigned char *outlen,
             j++;
         }
         i += server[i];
-        i++;
     }
 
     /* There's no overlap between our protocols and the server's list. */
