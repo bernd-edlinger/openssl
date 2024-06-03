@@ -9,6 +9,28 @@
 
  Changes between 1.1.1w and 1.1.1x [xx XXX xxxx]
 
+ *) Fixed potential use after free after SSL_free_buffers() is called.
+
+    The SSL_free_buffers function is used to free the internal OpenSSL
+    buffer used when processing an incoming record from the network.
+    The call is only expected to succeed if the buffer is not currently
+    in use. However, two scenarios have been identified where the buffer
+    is freed even when still in use.
+
+    The first scenario occurs where a record header has been received
+    from the network and processed by OpenSSL, but the full record body
+    has not yet arrived. In this case calling SSL_free_buffers will succeed
+    even though a record has only been partially processed and the buffer
+    is still in use.
+
+    The second scenario occurs where a full record containing application
+    data has been received and processed by OpenSSL but the application has
+    only read part of this data. Again a call to SSL_free_buffers will
+    succeed even though the buffer is still in use.
+
+    (CVE-2024-4741)
+    [Matt Caswell]
+
  *) Fixed an issue where some non-default TLS server configurations can cause
     unbounded memory growth when processing TLSv1.3 sessions. An attacker may
     exploit certain server configurations to trigger unbounded memory growth
@@ -23,8 +45,8 @@
     for this failure to force a Denial of Service. It may also happen by
     accident in normal operation.
 
-   (CVE-2024-2511)
-   [Matt Caswell]
+    (CVE-2024-2511)
+    [Matt Caswell]
 
  *) A file in PKCS12 format can contain certificates and keys and may come from
     an untrusted source. The PKCS12 specification allows certain fields to be
@@ -42,8 +64,8 @@
     this function is related to writing data we do not consider it security
     significant.
 
-   (CVE-2024-0727)
-   [Matt Caswell]
+    (CVE-2024-0727)
+    [Matt Caswell]
 
  *) Fix excessive time spent in DH check / generation with large Q parameter
     value.
