@@ -7,6 +7,7 @@
  * https://www.openssl.org/source/license.html
  */
 
+#include "e_os.h"
 #include "internal/cryptlib.h"
 
 #include <errno.h>
@@ -201,8 +202,16 @@ int RAND_write_file(const char *file)
          * should be restrictive from the start
          */
         int fd = open(file, O_WRONLY | O_CREAT | O_BINARY, 0600);
-        if (fd != -1)
+
+        if (fd != -1) {
             out = fdopen(fd, "wb");
+            if (out == NULL) {
+                close(fd);
+                RANDerr(RAND_F_RAND_WRITE_FILE, RAND_R_CANNOT_OPEN_FILE);
+                ERR_add_error_data(2, "Filename=", file);
+                return -1;
+            }
+        }
     }
 #endif
 
