@@ -9,6 +9,15 @@
 
  Changes between 1.0.2u and 1.0.2v [xx XXX xxxx]
 
+ *) Fixed possible buffer overread in SSL_select_next_proto().
+
+    Calling the OpenSSL API function SSL_select_next_proto with an empty
+    supported client protocols buffer may cause a crash or memory contents
+    to be sent to the peer.
+
+    (CVE-2024-5535)
+    [Matt Caswell]
+
  *) A file in PKCS12 format can contain certificates and keys and may come from
     an untrusted source. The PKCS12 specification allows certain fields to be
     NULL, but OpenSSL did not correctly check for this case. A fix has been
@@ -25,9 +34,8 @@
     this function is related to writing data we do not consider it security
     significant.
 
-   (CVE-2024-0727)
-
-   *Matt Caswell*
+    (CVE-2024-0727)
+    [Matt Caswell]
 
  *) Fix excessive time spent in DH check / generation with large Q parameter
     value.
@@ -40,8 +48,7 @@
     an untrusted source this may lead to a Denial of Service.
 
     (CVE-2023-5678)
-
-    *Richard Levitte*
+    [Richard Levitte]
 
  *) Fix excessive time spent checking DH q parameter value.
 

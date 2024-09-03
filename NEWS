@@ -7,6 +7,8 @@
 
   Major changes between OpenSSL 1.0.2u and OpenSSL 1.0.2v [under development]
 
+      o Fixed possible buffer overread in SSL_select_next_proto()
+        (CVE-2024-5535)
       o Fixed PKCS12 Decoding crashes (CVE-2024-0727)
       o Fix excessive time spent in DH check / generation with large Q parameter
         value (CVE-2023-5678)
