@@ -7,6 +7,8 @@
 
   Major changes between OpenSSL 1.1.1w and OpenSSL 1.1.1x [under development]
 
+      o Fixed possible buffer overread in SSL_select_next_proto()
+        (CVE-2024-5535)
       o Fixed potential use after free after SSL_free_buffers() is called
         (CVE-2024-4741)
       o Fixed unbounded memory growth with session handling in TLSv1.3
