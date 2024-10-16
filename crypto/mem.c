@@ -259,8 +259,9 @@ void *CRYPTO_realloc(void *str, size_t num, const char *file, int line)
     if (call_malloc_debug) {
         void *ret;
         CRYPTO_mem_debug_realloc(str, NULL, num, 0, file, line);
+        CRYPTO_mem_debug_realloc(str, &ret, num, 1, file, line);
         ret = realloc(str, num);
-        CRYPTO_mem_debug_realloc(str, ret, num, 1, file, line);
+        CRYPTO_mem_debug_realloc(&ret, ret, num, 1, file, line);
         return ret;
     }
 #else
@@ -308,8 +309,8 @@ void CRYPTO_free(void *str, const char *file, int line)
 #ifndef OPENSSL_NO_CRYPTO_MDEBUG
     if (call_malloc_debug) {
         CRYPTO_mem_debug_free(str, 0, file, line);
-        free(str);
         CRYPTO_mem_debug_free(str, 1, file, line);
+        free(str);
     } else {
         free(str);
     }
