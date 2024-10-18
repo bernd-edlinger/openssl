@@ -1038,8 +1038,30 @@ int tls_check_sigalg_curve(const SSL *s, int curve)
             continue;
         if (lu->sig == EVP_PKEY_EC
                 && lu->curve != NID_undef
-                && curve == lu->curve)
+                && curve == lu->curve) {
+            /*
+             * In case of a brainpool curves, if TLS1.2 is not disabled,
+             * and the supported groups contain the brainpool id,
+             * but the TLS1.3 brainpool sigalg is only from the default
+             * sigalgs list, and was not explicitly specified, it is clear
+             * that this configuration is intended to be useful for TLS1.2,
+             * so don't try to negotiate TLS1.3, which might fail.
+             */
+            if (sigs == tls12_sigalgs
+                    && (curve == NID_brainpoolP256r1
+                        || curve == NID_brainpoolP384r1
+                        || curve == NID_brainpoolP512r1)
+                    && s->method->version == TLS_ANY_VERSION
+                    && s->s3->tmp.min_ver <= TLS1_2_VERSION) {
+                const uint16_t id = tls1_nid2group_id(curve);
+                size_t j;
+
+                for (j = 0; j < s->ext.supportedgroups_len; j++)
+                    if (s->ext.supportedgroups[j] == id)
+                        return 0;
+            }
             return 1;
+        }
     }
 
     return 0;

@@ -858,7 +858,7 @@ my @tests_tls_1_3 = (
             "Certificate" => test_pem("server-ecdsa-brainpoolP256r1-cert.pem"),
             "PrivateKey" => test_pem("server-ecdsa-brainpoolP256r1-key.pem"),
             "Groups" => "brainpoolP256r1",
-            "MaxProtocol" => "TLSv1.2"
+            "MaxProtocol" => "TLSv1.3"
         },
         client => {
             "RequestCAFile" => test_pem("root-cert.pem"),
@@ -876,6 +876,7 @@ my @tests_tls_1_3 = (
             "Certificate" => test_pem("server-ecdsa-brainpoolP256r1-cert.pem"),
             "PrivateKey" => test_pem("server-ecdsa-brainpoolP256r1-key.pem"),
             "Groups" => "brainpoolP256r1",
+            "SignatureAlgorithms" => "ECDSA+SHA256:ecdsa_brainpoolP256r1_sha256",
             "MaxProtocol" => "TLSv1.3"
         },
         client => {
