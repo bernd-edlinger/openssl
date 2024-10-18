@@ -1667,6 +1667,19 @@ static int tls12_sigalg_allowed(const SSL *s, int op, const SIGALG_LOOKUP *lu)
     if (ssl_cert_is_disabled(lu->sig_idx))
         return 0;
 
+    if (lu->sigalg == TLSEXT_SIGALG_ecdsa_brainpoolP256r1_sha256
+            || lu->sigalg == TLSEXT_SIGALG_ecdsa_brainpoolP384r1_sha384
+            || lu->sigalg == TLSEXT_SIGALG_ecdsa_brainpoolP512r1_sha512) {
+        /* We never allow ecdsa_brainpool sig algs with TLSv1.2 */
+        if (s->server && !SSL_IS_TLS13(s))
+            return 0;
+        if (!s->server
+                && (s->method->version == TLS_ANY_VERSION
+                    ? s->s3->tmp.max_ver < TLS1_3_VERSION
+                    : !SSL_IS_TLS13(s)))
+            return 0;
+    }
+
     if (lu->sig == NID_id_GostR3410_2012_256
             || lu->sig == NID_id_GostR3410_2012_512
             || lu->sig == NID_id_GostR3410_2001) {
