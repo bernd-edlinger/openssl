@@ -9,6 +9,21 @@
 
  Changes between 1.1.0l and 1.1.0m [xx XXX xxxx]
 
+ *) Fixed possible OOB memory access with invalid low-level GF(2^m) elliptic
+    curve parameters.
+
+    Use of the low-level GF(2^m) elliptic curve APIs with untrusted
+    explicit values for the field polynomial can lead to out-of-bounds memory
+    reads or writes.
+    Applications working with "exotic" explicit binary (GF(2^m)) curve
+    parameters, that make it possible to represent invalid field polynomials
+    with a zero constant term, via the above or similar APIs, may terminate
+    abruptly as a result of reading or writing outside of array bounds. Remote
+    code execution cannot easily be ruled out.
+
+    (CVE-2024-9143)
+    [Viktor Dukhovni]
+
  *) Fixed possible buffer overread in SSL_select_next_proto().
 
     Calling the OpenSSL API function SSL_select_next_proto with an empty

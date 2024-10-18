@@ -7,6 +7,9 @@
 
   Major changes between OpenSSL 1.1.0l and OpenSSL 1.1.0m [under development]
 
+      o Fixed possible OOB memory access with invalid low-level GF(2^m) elliptic
+        curve parameters.
+        (CVE-2024-9143)
       o Fixed possible buffer overread in SSL_select_next_proto()
         (CVE-2024-5535)
       o Fixed PKCS12 Decoding crashes (CVE-2024-0727)
