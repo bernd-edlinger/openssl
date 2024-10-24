@@ -232,22 +232,22 @@ static const char *get_sigtype(int nid)
     case EVP_PKEY_DSA:
         return "DSA";
 
-     case EVP_PKEY_EC:
+    case EVP_PKEY_EC:
         return "ECDSA";
 
-     case NID_ED25519:
-        return "Ed25519";
+    case NID_ED25519:
+        return "ed25519";
 
-     case NID_ED448:
-        return "Ed448";
+    case NID_ED448:
+        return "ed448";
 
-     case NID_id_GostR3410_2001:
+    case NID_id_GostR3410_2001:
         return "gost2001";
 
-     case NID_id_GostR3410_2012_256:
+    case NID_id_GostR3410_2012_256:
         return "gost2012_256";
 
-     case NID_id_GostR3410_2012_512:
+    case NID_id_GostR3410_2012_512:
         return "gost2012_512";
 
     default:
@@ -283,6 +283,26 @@ static int do_print_sigalgs(BIO *out, SSL *s, int shared)
             SSL_get_sigalgs(s, i, &sign_nid, &hash_nid, NULL, &rsign, &rhash);
         if (i)
             BIO_puts(out, ":");
+        switch (rsign | rhash << 8) {
+        case 0x0809:
+            BIO_puts(out, "rsa_pss_pss_sha256");
+            continue;
+        case 0x080a:
+            BIO_puts(out, "rsa_pss_pss_sha384");
+            continue;
+        case 0x080b:
+            BIO_puts(out, "rsa_pss_pss_sha512");
+            continue;
+        case 0x081a:
+            BIO_puts(out, "ecdsa_brainpoolP256r1_sha256");
+            continue;
+        case 0x081b:
+            BIO_puts(out, "ecdsa_brainpoolP384r1_sha384");
+            continue;
+        case 0x081c:
+            BIO_puts(out, "ecdsa_brainpoolP512r1_sha512");
+            continue;
+        }
         sstr = get_sigtype(sign_nid);
         if (sstr)
             BIO_printf(out, "%s", sstr);
