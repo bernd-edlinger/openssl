@@ -180,8 +180,10 @@ PKCS12_SAFEBAG *PKCS12_add_key(STACK_OF(PKCS12_SAFEBAG) **pbags,
     /* Make a PKCS#8 structure */
     if ((p8 = EVP_PKEY2PKCS8(key)) == NULL)
         goto err;
-    if (key_usage && !PKCS8_add_keyusage(p8, key_usage))
+    if (key_usage && !PKCS8_add_keyusage(p8, key_usage)) {
+        PKCS8_PRIV_KEY_INFO_free(p8);
         goto err;
+    }
     if (nid_key != -1) {
         bag = PKCS12_SAFEBAG_create_pkcs8_encrypt(nid_key, pass, -1, NULL, 0,
                                                   iter, p8);
