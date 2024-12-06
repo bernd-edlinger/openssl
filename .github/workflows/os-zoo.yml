@@ -52,9 +52,9 @@ jobs:
       fail-fast: false
       matrix:
         os: [
-          macos-12,
           macos-13,
           macos-14,
+          macos-15,
           ubuntu-20.04,
           ubuntu-22.04,
           ubuntu-24.04,
