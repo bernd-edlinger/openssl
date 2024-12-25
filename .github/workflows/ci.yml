@@ -114,7 +114,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: config
-      run: CC=clang ./config --debug -fsanitize=memory no-asm no-afalgeng enable-rc5 enable-md2 enable-ec_nistp_64_gcc_128
+      run: CC=clang ./config --debug -O1 -fsanitize=memory -fno-optimize-sibling-calls no-asm no-afalgeng enable-rc5 enable-md2 enable-ec_nistp_64_gcc_128
     - name: make
       run: make -s -j4
     - name: make test
