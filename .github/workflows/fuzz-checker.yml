@@ -25,7 +25,7 @@ jobs:
             cc: afl-clang-fast
           }, {
             name: libFuzzer,
-            config: enable-fuzz-libfuzzer enable-asan enable-ubsan,
+            config: enable-fuzz-libfuzzer enable-asan enable-ubsan -fno-sanitize=function,
             libs: --with-fuzzer-lib=/usr/lib/llvm-18/lib/libFuzzer.a --with-fuzzer-include=/usr/include/clang/18/include/fuzzer,
             install: libfuzzer-18-dev,
             cc: clang-18,
@@ -33,7 +33,7 @@ jobs:
             tests: -test_memleak
           }, {
             name: libFuzzer+,
-            config: enable-fuzz-libfuzzer enable-asan enable-ubsan -fsanitize-coverage=trace-cmp -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION,
+            config: enable-fuzz-libfuzzer enable-asan enable-ubsan -fno-sanitize=function -fsanitize-coverage=trace-cmp -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION,
             libs: --with-fuzzer-lib=/usr/lib/llvm-18/lib/libFuzzer.a --with-fuzzer-include=/usr/include/clang/18/include/fuzzer,
             extra: enable-fips enable-ec_nistp_64_gcc_128 -fno-sanitize=alignment enable-tls1_3 enable-weak-ssl-ciphers enable-rc5 enable-md2 enable-ssl3 enable-ssl3-method enable-nextprotoneg,
             install: libfuzzer-18-dev,
