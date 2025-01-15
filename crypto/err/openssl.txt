@@ -1,4 +1,4 @@
-# Copyright 1999-2023 The OpenSSL Project Authors. All Rights Reserved.
+# Copyright 1999-2025 The OpenSSL Project Authors. All Rights Reserved.
 #
 # Licensed under the OpenSSL license (the "License").  You may not use
 # this file except in compliance with the License.  You can obtain a copy
@@ -214,6 +214,7 @@ BN_F_BN_LSHIFT:145:BN_lshift
 BN_F_BN_MOD_EXP2_MONT:118:BN_mod_exp2_mont
 BN_F_BN_MOD_EXP_MONT:109:BN_mod_exp_mont
 BN_F_BN_MOD_EXP_MONT_CONSTTIME:124:BN_mod_exp_mont_consttime
+BN_F_BN_MOD_EXP_MONT_FIXED_TOP:151:bn_mod_exp_mont_fixed_top
 BN_F_BN_MOD_EXP_MONT_WORD:117:BN_mod_exp_mont_word
 BN_F_BN_MOD_EXP_RECP:125:BN_mod_exp_recp
 BN_F_BN_MOD_EXP_SIMPLE:126:BN_mod_exp_simple
