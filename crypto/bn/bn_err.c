@@ -98,6 +98,7 @@ static ERR_STRING_DATA BN_str_functs[] = {
     {ERR_FUNC(BN_F_BN_MOD_EXP2_MONT), "BN_mod_exp2_mont"},
     {ERR_FUNC(BN_F_BN_MOD_EXP_MONT), "BN_mod_exp_mont"},
     {ERR_FUNC(BN_F_BN_MOD_EXP_MONT_CONSTTIME), "BN_mod_exp_mont_consttime"},
+    {ERR_FUNC(BN_F_BN_MOD_EXP_MONT_FIXED_TOP), "bn_mod_exp_mont_fixed_top"},
     {ERR_FUNC(BN_F_BN_MOD_EXP_MONT_WORD), "BN_mod_exp_mont_word"},
     {ERR_FUNC(BN_F_BN_MOD_EXP_RECP), "BN_mod_exp_recp"},
     {ERR_FUNC(BN_F_BN_MOD_EXP_SIMPLE), "BN_mod_exp_simple"},

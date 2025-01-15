@@ -207,8 +207,7 @@ static int ecdsa_sign_setup(EC_KEY *eckey, BN_CTX *ctx_in, BIGNUM **kinvp,
             ECDSAerr(ECDSA_F_ECDSA_SIGN_SETUP, ERR_R_BN_LIB);
             goto err;
         }
-        BN_set_flags(X, BN_FLG_CONSTTIME);
-        if (!BN_mod_exp_mont_consttime
+        if (!bn_mod_exp_mont_fixed_top
             (k, k, X, order, ctx, EC_GROUP_get_mont_data(group))) {
             ECDSAerr(ECDSA_F_ECDSA_SIGN_SETUP, ERR_R_BN_LIB);
             goto err;
