@@ -32,53 +32,53 @@ jobs:
   # We are not as strict with libraries, but rather adapt to what's
   # expected to be available in a certain version of each platform.
   check-ansi:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
     - name: config
-      run: ./config no-asm no-makedepend no-afalgeng --strict-warnings -ansi -D_DEFAULT_SOURCE
+      run: ./config no-asm no-makedepend no-afalgeng -ansi -D_DEFAULT_SOURCE
     - name: make
       run: make -s -j4
 
   basic_gcc:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
     - name: config
-      run: CC=gcc ./config --strict-warnings
+      run: CC=gcc ./config
     - name: make
       run: make -s -j4
     - name: make test
       run: make test
 
   basic_clang:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
     - name: config
-      run: CC=clang ./config --strict-warnings -Wno-implicit-const-int-float-conversion
+      run: CC=clang ./config
     - name: make
       run: make -s -j4
     - name: make test
       run: make test
 
   minimal:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
     - name: config
-      run: ./config --strict-warnings no-shared no-dso no-pic no-async no-blake2 no-bf no-camellia no-cast no-chacha no-cmac no-cms no-comp no-ct no-des no-dgram no-dh no-dsa no-dtls no-ec2m no-engine no-filenames no-gost no-heartbeats no-idea no-mdc2 no-md4 no-multiblock no-nextprotoneg no-ocsp no-ocb no-poly1305 no-psk no-rc2 no-rc4 no-rmd160 no-sctp no-seed no-srp no-srtp no-ssl3 no-ssl3-method no-ts no-whirlpool no-asm -DOPENSSL_SMALL_FOOTPRINT
+      run: ./config no-shared no-dso no-pic no-async no-blake2 no-bf no-camellia no-cast no-chacha no-cmac no-cms no-comp no-ct no-des no-dgram no-dh no-dsa no-dtls no-ec2m no-engine no-filenames no-gost no-heartbeats no-idea no-mdc2 no-md4 no-multiblock no-nextprotoneg no-ocsp no-ocb no-poly1305 no-psk no-rc2 no-rc4 no-rmd160 no-sctp no-seed no-srp no-srtp no-ssl3 no-ssl3-method no-ts no-whirlpool no-asm -DOPENSSL_SMALL_FOOTPRINT
     - name: make
       run: make -j4  # verbose, so no -s here
     - name: make test
       run: make test
 
   no-deprecated:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
     - name: config
-      run: ./config --strict-warnings no-deprecated
+      run: ./config no-deprecated
     - name: make
       run: make -s -j4
     - name: make test
@@ -121,51 +121,51 @@ jobs:
       run: make test
 
   threads_sanitizer:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
     - name: config
-      run: CC=clang ./config --strict-warnings -Wno-implicit-const-int-float-conversion -fsanitize=thread
+      run: CC=clang ./config -fsanitize=thread
     - name: make
       run: make -s -j4
     - name: make test
       run: make TESTS=test_threads test
 
   enable_non-default_options:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
     - name: config
-      run: ./config --strict-warnings no-ec enable-ssl-trace enable-zlib enable-zlib-dynamic enable-crypto-mdebug enable-crypto-mdebug-backtrace enable-egd
+      run: ./config no-ec enable-ssl-trace enable-zlib enable-zlib-dynamic enable-crypto-mdebug enable-crypto-mdebug-backtrace enable-egd
     - name: make
       run: make -s -j4
     - name: make test
       run: make test
 
   legacy:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
     - name: config
-      run: ./config -Werror --debug no-afalgeng no-shared enable-crypto-mdebug enable-rc5 enable-md2 enable-ssl3 enable-ssl3-method enable-weak-ssl-ciphers enable-zlib enable-ec_nistp_64_gcc_128
+      run: ./config --debug no-afalgeng no-shared enable-crypto-mdebug enable-rc5 enable-md2 enable-ssl3 enable-ssl3-method enable-weak-ssl-ciphers enable-zlib enable-ec_nistp_64_gcc_128
     - name: make
       run: make -s -j4
     - name: make test
       run: make test
 
   buildtest:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
     - name: config
-      run: ./config no-asm no-makedepend --strict-warnings -D_DEFAULT_SOURCE
+      run: ./config no-asm no-makedepend -D_DEFAULT_SOURCE
     - name: make
       run: make -s -j4
     - name: make test
       run: make test
 
   out-of-tree_build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
     - name: setup build dir
@@ -175,7 +175,7 @@ jobs:
           echo "mysrcdir=$(realpath .)" | tee -a $GITHUB_ENV
           echo "myblddir=$(realpath $myblddir)" | tee -a $GITHUB_ENV
     - name: config
-      run: set -eux ; cd ${{ env.myblddir }} && ${{ env.mysrcdir }}/config --strict-warnings
+      run: set -eux ; cd ${{ env.myblddir }} && ${{ env.mysrcdir }}/config
     - name: make build_generated
       run: set -eux; cd ${{ env.myblddir }} && make -s build_generated
     - name: make

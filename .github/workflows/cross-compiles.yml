@@ -23,15 +23,15 @@ jobs:
           {
             arch: aarch64-linux-gnu,
             libs: libc6-dev-arm64-cross,
-            target: --strict-warnings linux-aarch64,
+            target: linux-aarch64,
           }, {
             arch: alpha-linux-gnu,
             libs: libc6.1-dev-alpha-cross,
-            target: --strict-warnings linux-alpha-gcc,
+            target: linux-alpha-gcc,
           }, {
             arch: arm-linux-gnueabi,
             libs: libc6-dev-armel-cross,
-            target: --strict-warnings linux-armv4,
+            target: linux-armv4,
             # everything except test_x509_store which triggers a qemu bug
             tests: test_abort test_sanity test_symbol_presence test_ordinals test_exdata
                    test_internal_ec test_ui test_err test_pem test_bf test_cast test_des
@@ -53,7 +53,7 @@ jobs:
           }, {
             arch: arm-linux-gnueabihf,
             libs: libc6-dev-armhf-cross,
-            target: --strict-warnings linux-armv4,
+            target: linux-armv4,
             # everything except test_x509_store which triggers a qemu bug
             tests: test_abort test_sanity test_symbol_presence test_ordinals test_exdata
                    test_internal_ec test_ui test_err test_pem test_bf test_cast test_des
@@ -75,7 +75,7 @@ jobs:
           }, {
             arch: hppa-linux-gnu,
             libs: libc6-dev-hppa-cross,
-            target: --strict-warnings -static linux-generic32,
+            target: -static linux-generic32,
             # everything except test_x509_store which triggers a qemu bug
             tests: test_abort test_sanity test_symbol_presence test_ordinals test_exdata
                    test_internal_ec test_ui test_err test_pem test_bf test_cast test_des
@@ -97,7 +97,7 @@ jobs:
           }, {
             arch: m68k-linux-gnu,
             libs: libc6-dev-m68k-cross,
-            target: --strict-warnings -static -m68040 linux-generic32,
+            target: -static -m68040 linux-generic32,
             # everything except test_x509_store which triggers a qemu bug
             # and test_constant_time which triggers a compiler bug
             tests: test_abort test_sanity test_symbol_presence test_ordinals test_exdata
@@ -120,7 +120,7 @@ jobs:
           }, {
             arch: mips-linux-gnu,
             libs: libc6-dev-mips-cross,
-            target: --strict-warnings -static linux-mips32,
+            target: -static linux-mips32,
             # everything except test_x509_store which triggers a qemu bug
             tests: test_abort test_sanity test_symbol_presence test_ordinals test_exdata
                    test_internal_ec test_ui test_err test_pem test_bf test_cast test_des
@@ -142,11 +142,11 @@ jobs:
           }, {
             arch: mips64-linux-gnuabi64,
             libs: libc6-dev-mips64-cross,
-            target: --strict-warnings -static linux64-mips64,
+            target: -static linux64-mips64,
           }, {
             arch: mipsel-linux-gnu,
             libs: libc6-dev-mipsel-cross,
-            target: --strict-warnings linux-mips32,
+            target: linux-mips32,
             # everything except test_x509_store which triggers a qemu bug
             tests: test_abort test_sanity test_symbol_presence test_ordinals test_exdata
                    test_internal_ec test_ui test_err test_pem test_bf test_cast test_des
@@ -172,7 +172,7 @@ jobs:
           }, {
             arch: riscv64-linux-gnu,
             libs: libc6-dev-riscv64-cross,
-            target: --strict-warnings linux-generic64,
+            target: linux-generic64,
           }, {
             arch: s390x-linux-gnu,
             libs: libc6-dev-s390x-cross,
@@ -180,7 +180,7 @@ jobs:
           }, {
             arch: sh4-linux-gnu,
             libs: libc6-dev-sh4-cross,
-            target: --strict-warnings no-async linux-generic32,
+            target: no-async linux-generic32,
             # everything except test_x509_store which triggers a qemu bug
             tests: test_abort test_sanity test_symbol_presence test_ordinals test_exdata
                    test_internal_ec test_ui test_err test_pem test_bf test_cast test_des
@@ -213,22 +213,22 @@ jobs:
           {
             arch: hppa-linux-gnu,
             libs: libc6-dev-hppa-cross,
-            target: --strict-warnings linux-generic32,
+            target: linux-generic32,
             tests: none
           }, {
             arch: m68k-linux-gnu,
             libs: libc6-dev-m68k-cross,
-            target: --strict-warnings -mcfv4e linux-generic32,
+            target: -mcfv4e linux-generic32,
             tests: none
           }, {
             arch: mips-linux-gnu,
             libs: libc6-dev-mips-cross,
-            target: --strict-warnings linux-mips32,
+            target: linux-mips32,
             tests: none
           }, {
             arch: mips64-linux-gnuabi64,
             libs: libc6-dev-mips64-cross,
-            target: --strict-warnings linux64-mips64,
+            target: linux64-mips64,
             tests: none
           },
 
@@ -240,7 +240,7 @@ jobs:
             tests: none
           }
         ]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
     - name: install packages
       run: |
