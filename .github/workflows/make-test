@@ -40,4 +40,5 @@ echo "::endgroup::"
 echo "Archive artifacts"
 tar -czf artifacts.tar.gz $OSSL_CI_ARTIFACTS_PATH
 
+RESULT=1
 exit $RESULT
