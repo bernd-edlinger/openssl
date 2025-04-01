@@ -755,7 +755,7 @@ static int devcrypto_unload(ENGINE *e)
  * This engine is always built into libcrypto, so it doesn't offer any
  * ability to be dynamically loadable.
  */
-void engine_load_devcrypto_int()
+void engine_load_devcrypto_int(void)
 {
     ENGINE *e = NULL;
     int fd;
