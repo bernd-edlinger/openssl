@@ -572,6 +572,7 @@ fmtfp(char **sbuffer,
         signvalue = '+';
     else if (flags & DP_F_SPACE)
         signvalue = ' ';
+    ufvalue = abs_val(fvalue);
 
     /*
      * G_FORMAT sometimes prints like E_FORMAT and sometimes like F_FORMAT
@@ -579,12 +580,12 @@ fmtfp(char **sbuffer,
      * that from here on.
      */
     if (style == G_FORMAT) {
-        if (fvalue == 0.0) {
+        if (ufvalue == 0.0) {
             realstyle = F_FORMAT;
-        } else if (fvalue < 0.0001) {
+        } else if (ufvalue < 0.0001) {
             realstyle = E_FORMAT;
-        } else if ((max == 0 && fvalue >= 10)
-                    || (max > 0 && fvalue >= pow_10(max))) {
+        } else if ((max == 0 && ufvalue >= 10)
+                   || (max > 0 && ufvalue >= pow_10(max))) {
             realstyle = E_FORMAT;
         } else {
             realstyle = F_FORMAT;
@@ -594,9 +595,9 @@ fmtfp(char **sbuffer,
     }
 
     if (style != F_FORMAT) {
-        tmpvalue = fvalue;
+        tmpvalue = ufvalue;
         /* Calculate the exponent */
-        if (fvalue != 0.0) {
+        if (ufvalue != 0.0) {
             while (tmpvalue < 1) {
                 tmpvalue *= 10;
                 exp--;
@@ -632,9 +633,8 @@ fmtfp(char **sbuffer,
             }
         }
         if (realstyle == E_FORMAT)
-            fvalue = tmpvalue;
+            ufvalue = tmpvalue;
     }
-    ufvalue = abs_val(fvalue);
     if (ufvalue > ULONG_MAX) {
         /* Number too big */
         return 0;
