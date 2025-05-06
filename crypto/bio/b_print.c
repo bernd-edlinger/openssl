@@ -618,9 +618,9 @@ fmtfp(char **sbuffer,
     int padlen = 0;
     int zpadlen = 0;
     int caps = 0;
-    long intpart;
-    long fracpart;
-    long max10;
+    unsigned long intpart;
+    unsigned long fracpart;
+    unsigned long max10;
 
     if (max < 0)
         max = 6;
@@ -632,7 +632,7 @@ fmtfp(char **sbuffer,
     else if (flags & DP_F_SPACE)
         signvalue = ' ';
 
-    intpart = (long)ufvalue;
+    intpart = (unsigned long)ufvalue;
 
     /*
      * sorry, we only support 9 digits past the decimal because of our
