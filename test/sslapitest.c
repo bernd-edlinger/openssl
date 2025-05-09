@@ -1462,6 +1462,79 @@ end:
 }
 #endif /* !defined(OPENSSL_NO_TLS1_2) && !defined(OPENSSL_NO_DYNAMIC_ENGINE) */
 
+static int test_no_renegotiation(int idx)
+{
+    SSL_CTX *sctx = NULL, *cctx = NULL;
+    SSL *serverssl = NULL, *clientssl = NULL;
+    int testresult = 0, ret;
+    int max_proto;
+    const SSL_METHOD *sm, *cm;
+    unsigned char buf[5];
+
+    if (idx == 0) {
+#ifndef OPENSSL_NO_TLS1_2
+        max_proto = TLS1_2_VERSION;
+        sm = TLS_server_method();
+        cm = TLS_client_method();
+#else
+        return 1;
+#endif
+    } else {
+#ifndef OPENSSL_NO_DTLS1_2
+        max_proto = DTLS1_2_VERSION;
+        sm = DTLS_server_method();
+        cm = DTLS_client_method();
+#else
+        return 1;
+#endif
+    }
+    if (!(create_ssl_ctx_pair(sm, cm, 0, max_proto,
+                              &sctx, &cctx, cert, privkey)))
+        goto end;
+
+    SSL_CTX_set_options(sctx, SSL_OP_NO_RENEGOTIATION);
+
+    if (!(create_ssl_objects(sctx, cctx, &serverssl,
+                             &clientssl, NULL, NULL)))
+        goto end;
+
+    if (!(create_ssl_connection(serverssl, clientssl)))
+        goto end;
+
+    if (!(SSL_renegotiate(clientssl) > 0)
+            || !((ret = SSL_connect(clientssl)) <= 0)
+            || !(SSL_get_error(clientssl, ret) == SSL_ERROR_WANT_READ))
+        goto end;
+
+    /*
+     * We've not sent any application data, so we expect this to fail. It should
+     * also read the renegotiation attempt, and send back a no_renegotiation
+     * warning alert because we have renegotiation disabled.
+     */
+    if (!((ret = SSL_read(serverssl, buf, sizeof(buf))) <= 0))
+        goto end;
+    if (!(SSL_get_error(serverssl, ret) == SSL_ERROR_WANT_READ))
+        goto end;
+
+    /*
+     * The client should now see the no_renegotiation warning and fail the
+     * connection
+     */
+    if (!((ret = SSL_connect(clientssl)) <= 0)
+            || !(SSL_get_error(clientssl, ret) == SSL_ERROR_SSL)
+            || !(ERR_GET_REASON(ERR_get_error()) == SSL_R_NO_RENEGOTIATION))
+        goto end;
+
+    testresult = 1;
+ end:
+    SSL_free(serverssl);
+    SSL_free(clientssl);
+    SSL_CTX_free(sctx);
+    SSL_CTX_free(cctx);
+
+    return testresult;
+}
+
 int main(int argc, char *argv[])
 {
     BIO *err = NULL;
@@ -1503,6 +1576,7 @@ int main(int argc, char *argv[])
     && !defined(OPENSSL_NO_DYNAMIC_ENGINE)
     ADD_ALL_TESTS(test_pipelining, 6);
 #endif
+    ADD_ALL_TESTS(test_no_renegotiation, 2);
 
     testresult = run_tests(argv[0]);
 
