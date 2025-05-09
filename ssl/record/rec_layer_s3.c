@@ -1383,10 +1383,10 @@ int ssl3_read_bytes(SSL *s, int type, int *recvd_type, unsigned char *buf,
             /*
              * This is a warning but we receive it if we requested
              * renegotiation and the peer denied it. Terminate with a fatal
-             * alert because if application tried to renegotiate it
+             * alert because if the application tried to renegotiate it
              * presumably had a good reason and expects it to succeed. In
-             * future we might have a renegotiation where we don't care if
-             * the peer refused it where we carry on.
+             * the future we might have a renegotiation where we don't care
+             * if the peer refused it where we carry on.
              */
             else if (alert_descr == SSL_AD_NO_RENEGOTIATION) {
                 al = SSL_AD_HANDSHAKE_FAILURE;
