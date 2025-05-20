@@ -851,9 +851,12 @@ static int ess_add_signing_cert(PKCS7_SIGNER_INFO *si, ESS_SIGNING_CERT *sc)
     }
     OPENSSL_free(pp);
     pp = NULL;
-    return PKCS7_add_signed_attribute(si,
-                                      NID_id_smime_aa_signingCertificate,
-                                      V_ASN1_SEQUENCE, seq);
+    if (!PKCS7_add_signed_attribute(si,
+                                    NID_id_smime_aa_signingCertificate,
+                                    V_ASN1_SEQUENCE, seq))
+        goto err;
+    return 1;
+
  err:
     ASN1_STRING_free(seq);
     OPENSSL_free(pp);
@@ -976,9 +979,12 @@ static int ess_add_signing_cert_v2(PKCS7_SIGNER_INFO *si,
 
     OPENSSL_free(pp);
     pp = NULL;
-    return PKCS7_add_signed_attribute(si,
-                                      NID_id_smime_aa_signingCertificateV2,
-                                      V_ASN1_SEQUENCE, seq);
+    if (!PKCS7_add_signed_attribute(si,
+                                    NID_id_smime_aa_signingCertificateV2,
+                                    V_ASN1_SEQUENCE, seq))
+        goto err;
+    return 1;
+
  err:
     ASN1_STRING_free(seq);
     OPENSSL_free(pp);
