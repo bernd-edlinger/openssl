@@ -191,6 +191,7 @@ static int enc_read(BIO *b, char *out, int outl)
             /* Should be continue next time we are called? */
             if (!BIO_should_retry(b->next_bio)) {
                 ctx->cont = i;
+                ctx->finished = 1;
                 i = EVP_CipherFinal_ex(&(ctx->cipher),
                                        (unsigned char *)ctx->buf,
                                        &(ctx->buf_len));
