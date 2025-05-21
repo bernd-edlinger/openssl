@@ -237,9 +237,9 @@ static long mem_ctrl(BIO *b, int cmd, long num, void *ptr)
         bm = bbm->buf;
         if (bm->data != NULL) {
             /* For read only case reset to the start again */
-            if ((b->flags & BIO_FLAGS_MEM_RDONLY) || (b->flags & BIO_FLAGS_NONCLEAR_RST)) {
+            if (b->flags & BIO_FLAGS_MEM_RDONLY) {
                 bm->length = bm->max;
-            } else {
+            } else if (!(b->flags & BIO_FLAGS_NONCLEAR_RST)) {
                 memset(bm->data, 0, bm->max);
                 bm->length = 0;
             }
@@ -270,7 +270,8 @@ static long mem_ctrl(BIO *b, int cmd, long num, void *ptr)
         break;
     case BIO_C_GET_BUF_MEM_PTR:
         if (ptr != NULL) {
-            mem_buf_sync(b);
+            if (!(b->flags & BIO_FLAGS_MEM_RDONLY))
+                mem_buf_sync(b);
             bm = bbm->readp;
             pptr = (char **)ptr;
             *pptr = (char *)bm;
