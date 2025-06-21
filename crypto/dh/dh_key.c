@@ -104,7 +104,7 @@ static int generate_key(DH *dh)
 {
     int ok = 0;
     int generate_new_key = 0;
-    unsigned l;
+    int l;
     BN_CTX *ctx = NULL;
     BN_MONT_CTX *mont = NULL;
     BIGNUM *pub_key = NULL, *priv_key = NULL;
@@ -153,8 +153,10 @@ static int generate_key(DH *dh)
             }
             while (BN_is_zero(priv_key) || BN_is_one(priv_key));
         } else {
-            /* secret exponent length */
-            l = dh->length ? dh->length : BN_num_bits(dh->p) - 1;
+            /* secret exponent length, must satisfy 2^l < (p-1)/2 */
+            l = BN_num_bits(dh->p) - 2;
+            if (dh->length != 0 && dh->length < l)
+                l = dh->length;
             if (!BN_priv_rand(priv_key, l, BN_RAND_TOP_ONE, BN_RAND_BOTTOM_ANY))
                 goto err;
             /*
