@@ -9,8 +9,8 @@ jobs:
     strategy:
       matrix:
         os:
-        - windows-2019
         - windows-2022
+        - windows-2025
         platform:
         - arch: win64
           config: VC-WIN64A
@@ -49,8 +49,8 @@ jobs:
     strategy:
       matrix:
         os:
-        - windows-2019
         - windows-2022
+        - windows-2025
     runs-on: ${{matrix.os}}
     steps:
     - uses: actions/checkout@v4
@@ -72,8 +72,8 @@ jobs:
     strategy:
       matrix:
         os:
-        - windows-2019
         - windows-2022
+        - windows-2025
     runs-on: ${{matrix.os}}
     steps:
     - uses: actions/checkout@v4
