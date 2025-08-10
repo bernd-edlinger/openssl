@@ -39,6 +39,15 @@ my @smime_pkcs7_tests = (
 	"-CAfile", catfile($smdir, "smroot.pem"), "-out", "smtst.txt" ]
     ],
 
+    [ "signed text content DER format, RSA key",
+      [ "-sign", "-in", $smcont, "-outform", "DER", "-nodetach",
+	"-certfile", catfile($smdir, "smroot.pem"),
+	"-signer", catfile($smdir, "smrsa1.pem"), "-text",
+	"-out", "test.cms" ],
+      [ "-verify", "-in", "test.cms", "-inform", "DER", "-text",
+	"-CAfile", catfile($smdir, "smroot.pem"), "-out", "smtst.txt" ]
+    ],
+
     [ "signed detached content DER format, RSA key",
       [ "-sign", "-in", $smcont, "-outform", "DER",
 	"-signer", catfile($smdir, "smrsa1.pem"), "-out", "test.cms" ],
@@ -146,6 +155,14 @@ my @smime_pkcs7_tests = (
 	catfile($smdir, "smrsa3.pem") ],
       [ "-decrypt", "-recip", catfile($smdir, "smrsa1.pem"),
 	"-in", "test.cms", "-out", "smtst.txt" ]
+    ],
+
+    [ "enveloped text content streaming S/MIME format, DES, 1 recipient",
+      [ "-encrypt", "-in", $smcont,
+	"-stream", "-text", "-out", "test.cms",
+	catfile($smdir, "smrsa1.pem") ],
+      [ "-decrypt", "-recip", catfile($smdir, "smrsa1.pem"),
+	"-in", "test.cms", "-text", "-out", "smtst.txt" ]
     ],
 
     [ "enveloped content test streaming S/MIME format, DES, 3 recipients, 3rd used",
