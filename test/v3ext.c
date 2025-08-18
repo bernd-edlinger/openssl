@@ -12,6 +12,7 @@
 #include <openssl/x509.h>
 #include <openssl/x509v3.h>
 #include <openssl/pem.h>
+#include <openssl/rsa.h>
 #include <openssl/err.h>
 #include "internal/nelem.h"
 
@@ -36,6 +37,100 @@ static int test_pathlen(void)
 end:
     BIO_free(b);
     X509_free(x);
+    return ret;
+}
+
+static int test_custom_ext(void)
+{
+    EVP_PKEY_CTX *ctx = NULL;
+    EVP_PKEY *pkey = NULL;
+    X509 *x509 = NULL;
+    X509_NAME *name = NULL;
+    X509_EXTENSION *ex = NULL;
+    int nid = 0;
+    int ret = 0;
+
+    if (!TEST_ptr(ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_RSA, NULL))
+            || !TEST_int_gt(EVP_PKEY_keygen_init(ctx), 0)
+            || !TEST_int_gt(EVP_PKEY_CTX_set_rsa_keygen_bits(ctx, 512), 0)
+            || !TEST_int_gt(EVP_PKEY_keygen(ctx, &pkey), 0)
+            || !TEST_ptr(x509 = X509_new()))
+        goto err;
+
+    if (!TEST_true(X509_set_version(x509, 2)) /* version 3 certificate */
+            || !TEST_true(ASN1_INTEGER_set(X509_get_serialNumber(x509), 12345))
+            || !TEST_true(X509_gmtime_adj(X509_getm_notBefore(x509), 0))
+            || !TEST_true(X509_gmtime_adj(X509_getm_notAfter(x509),
+                                          (long)60 * 60 * 34 * 365))
+            || !TEST_true(X509_set_pubkey(x509, pkey)))
+        goto err;
+
+    if (!TEST_ptr(name = X509_get_subject_name(x509))
+            || !TEST_true(X509_NAME_add_entry_by_txt(name, "C", MBSTRING_ASC,
+                                                     (unsigned char *)"EU",
+                                                     -1, -1, 0))
+            || !TEST_true(X509_NAME_add_entry_by_txt(name, "O", MBSTRING_ASC,
+                                                     (unsigned char *)"Test",
+                                                     -1, -1, 0))
+            || !TEST_true(X509_NAME_add_entry_by_txt(name, "CN", MBSTRING_ASC,
+                                                     (unsigned char *)"MyCA",
+                                                     -1, -1, 0))
+            || !TEST_true(X509_set_issuer_name(x509, name)))
+        goto err;
+
+    /*
+     * Add extension using V3 code: we can set the config file as NULL
+     * because we wont reference any other sections. We can also set the
+     * context to NULL because none of these extensions below will need to
+     * access it.
+     */
+    if (!TEST_ptr(ex = X509V3_EXT_conf_nid(NULL, NULL, NID_netscape_cert_type,
+                                           "server"))
+            || !TEST_true(X509_add_ext(x509, ex, -1)))
+        goto err;
+
+    X509_EXTENSION_free(ex);
+    ex = NULL;
+
+    if (!TEST_ptr(ex = X509V3_EXT_conf_nid(NULL, NULL, NID_netscape_comment,
+                                           "example comment extension"))
+            || !TEST_true(X509_add_ext(x509, ex, -1)))
+        goto err;
+
+    X509_EXTENSION_free(ex);
+    ex = NULL;
+
+    if (!TEST_ptr(ex = X509V3_EXT_conf_nid(NULL, NULL, NID_basic_constraints,
+                                           "critical,CA:TRUE"))
+            || !TEST_true(X509_add_ext(x509, ex, -1)))
+        goto err;
+
+    X509_EXTENSION_free(ex);
+    ex = NULL;
+
+    if (!TEST_true(nid = OBJ_create("1.2.3.4.5.6", "MyAlias",
+                                    "My Test Alias Extension"))
+            || !TEST_true(X509V3_EXT_add_alias(nid, NID_netscape_comment))
+            || !TEST_ptr(ex = X509V3_EXT_conf_nid(NULL, NULL, nid,
+                                                  "example comment alias"))
+            || !TEST_true(X509_add_ext(x509, ex, -1)))
+        goto err;
+
+    if (!TEST_true(X509_sign(x509, pkey, EVP_sha1()))
+            || !TEST_true(X509_print_fp(stdout, x509))
+            || !TEST_true(PEM_write_X509(stdout, x509))
+            || !TEST_true(PEM_write_PrivateKey(stdout, pkey, NULL, NULL,
+                                               0, NULL, NULL)))
+        goto err;
+
+    ret = 1;
+
+err:
+    X509_EXTENSION_free(ex);
+    X509_free(x509);
+    EVP_PKEY_free(pkey);
+    EVP_PKEY_CTX_free(ctx);
+    X509V3_EXT_cleanup();
     return ret;
 }
 
@@ -331,6 +426,7 @@ int setup_tests(void)
         return 0;
 
     ADD_TEST(test_pathlen);
+    ADD_TEST(test_custom_ext);
 #ifndef OPENSSL_NO_RFC3779
     ADD_TEST(test_asid);
     ADD_TEST(test_addr_ranges);

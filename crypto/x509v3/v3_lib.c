@@ -33,6 +33,8 @@ int X509V3_EXT_add(X509V3_EXT_METHOD *ext)
         X509V3err(X509V3_F_X509V3_EXT_ADD, ERR_R_MALLOC_FAILURE);
         return 0;
     }
+    /* Ideally, this would be done under a lock */
+    sk_X509V3_EXT_METHOD_sort(ext_list);
     return 1;
 }
 
