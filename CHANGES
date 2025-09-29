@@ -9,6 +9,22 @@
 
  Changes between 1.1.0l and 1.1.0m [xx XXX xxxx]
 
+ * Fix Out-of-bounds read & write in RFC 3211 KEK Unwrap
+
+   Issue summary: An application trying to decrypt CMS messages encrypted using
+   password based encryption can trigger an out-of-bounds read and write.
+
+   Impact summary: This out-of-bounds read may trigger a crash which leads to
+   Denial of Service for an application. The out-of-bounds write can cause
+   a memory corruption which can have various consequences including
+   a Denial of Service or Execution of attacker-supplied code.
+
+   The issue was reported by Stanislav Fort (Aisle Research).
+
+   (CVE-2025-9230)
+
+   [Viktor Dukhovni]
+
  *) Fixed timing side-channel in ECDSA signature computation.
 
     There is a timing signal of around 300 nanoseconds when the top word of
