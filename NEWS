@@ -7,6 +7,8 @@
 
   Major changes between OpenSSL 1.1.1w and OpenSSL 1.1.1x [under development]
 
+      o Fix Out-of-bounds read & write in RFC 3211 KEK Unwrap.
+        (CVE-2025-9230)
       o Fixed timing side-channel in ECDSA signature computation.
         (CVE-2024-13176)
       o Fixed possible OOB memory access with invalid low-level GF(2^m) elliptic
