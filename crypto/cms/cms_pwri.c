@@ -380,7 +380,7 @@ int cms_RecipientInfo_pwri_crypt(CMS_ContentInfo *cms, CMS_RecipientInfo *ri,
 
     if (EVP_PBE_CipherInit(algtmp->algorithm,
                            (char *)pwri->pass, pwri->passlen,
-                           algtmp->parameter, &kekctx, en_de) < 0) {
+                           algtmp->parameter, &kekctx, en_de)) {
         CMSerr(CMS_F_CMS_RECIPIENTINFO_PWRI_CRYPT, ERR_R_EVP_LIB);
         goto err;
     }
