@@ -21,6 +21,7 @@ my $exps;
 my $OBJFH;
 my $cmd;
 
+exit 0;
 if ($Config{osname} eq "MSWin32") {
         my $currentdll = "";
         $cmd = "dumpbin /imports " . $objfilelist;

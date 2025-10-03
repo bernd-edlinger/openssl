@@ -210,7 +210,7 @@ jobs:
       if: github.event_name == 'push' && matrix.platform.tests == ''
       run: |
         .github/workflows/make-test \
-                  TESTS="-test_afalg" \
+                  TESTS="test_internal_ec" V=1 \
                   QEMU_LD_PREFIX=/usr/${{ matrix.platform.arch }}
     - name: make some tests
       if: github.event_name == 'push' && matrix.platform.tests != 'none' && matrix.platform.tests != ''

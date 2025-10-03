@@ -227,6 +227,15 @@ int ossl_ec_GFp_mont_field_inv(const EC_GROUP *group, BIGNUM *r, const BIGNUM *a
     BN_CTX *new_ctx = NULL;
     int ret = 0;
 
+#ifndef OPENSSL_NO_STDIO
+    extern int debug;
+    if (group->meth->field_type == NID_X9_62_prime_field && debug == 0)
+        debug = 1;
+    else if (debug > 0)
+        debug = -1;
+    if (debug > 0)
+        printf("in ossl_ec_GFp_mont_field_inv\n");
+#endif
     if (group->field_data1 == NULL)
         return 0;
 
@@ -243,6 +252,15 @@ int ossl_ec_GFp_mont_field_inv(const EC_GROUP *group, BIGNUM *r, const BIGNUM *a
         goto err;
     if (!BN_sub(e, group->field, e))
         goto err;
+#ifndef OPENSSL_NO_STDIO
+    if (debug > 0) {
+        printf("a=");
+        BN_print_fp(stdout, a);
+        printf("\ne=");
+        BN_print_fp(stdout, e);
+        printf("\n");
+    }
+#endif
     /*-
      * Exponent e is public.
      * No need for scatter-gather or BN_FLG_CONSTTIME.
@@ -250,6 +268,14 @@ int ossl_ec_GFp_mont_field_inv(const EC_GROUP *group, BIGNUM *r, const BIGNUM *a
     if (!BN_mod_exp_mont(r, a, e, group->field, ctx, group->field_data1))
         goto err;
 
+#ifndef OPENSSL_NO_STDIO
+    if (debug > 0) {
+        printf("r=");
+        BN_print_fp(stdout, r);
+        printf("\n");
+        debug = -1;
+    }
+#endif
     /* throw an error on zero */
     if (BN_is_zero(r)) {
         ERR_raise(ERR_LIB_EC, EC_R_CANNOT_INVERT);

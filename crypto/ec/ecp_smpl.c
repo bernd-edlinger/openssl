@@ -1387,6 +1387,15 @@ int ossl_ec_GFp_simple_field_inv(const EC_GROUP *group, BIGNUM *r,
     BN_CTX *new_ctx = NULL;
     int ret = 0;
 
+#ifndef OPENSSL_NO_STDIO
+    extern int debug;
+    if (group->meth->field_type == NID_X9_62_prime_field && debug == 0)
+        debug = 1;
+    else if (debug > 0)
+        debug = -1;
+    if (debug > 0)
+        printf("in ossl_ec_GFp_simple_field_inv\n");
+#endif
     if (ctx == NULL
             && (ctx = new_ctx = BN_CTX_secure_new_ex(group->libctx)) == NULL)
         return 0;
@@ -1400,17 +1409,48 @@ int ossl_ec_GFp_simple_field_inv(const EC_GROUP *group, BIGNUM *r,
         goto err;
     } while (BN_is_zero(e));
 
+#ifndef OPENSSL_NO_STDIO
+    if (debug > 0) {
+        printf("a=");
+        BN_print_fp(stdout, a);
+        printf("\ne=");
+        BN_print_fp(stdout, e);
+        printf("\n");
+    }
+#endif
     /* r := a * e */
     if (!group->meth->field_mul(group, r, a, e, ctx))
         goto err;
+#ifndef OPENSSL_NO_STDIO
+    if (debug > 0) {
+        printf("a*e=");
+        BN_print_fp(stdout, r);
+        printf("\n");
+    }
+#endif
     /* r := 1/(a * e) */
     if (!BN_mod_inverse(r, r, group->field, ctx)) {
         ERR_raise(ERR_LIB_EC, EC_R_CANNOT_INVERT);
         goto err;
     }
+#ifndef OPENSSL_NO_STDIO
+    if (debug > 0) {
+        printf("1/(a*e)=");
+        BN_print_fp(stdout, r);
+        printf("\n");
+    }
+#endif
     /* r := e/(a * e) = 1/a */
     if (!group->meth->field_mul(group, r, r, e, ctx))
         goto err;
+#ifndef OPENSSL_NO_STDIO
+    if (debug > 0) {
+        printf("r=");
+        BN_print_fp(stdout, r);
+        printf("\n");
+        debug = -1;
+    }
+#endif
 
     ret = 1;
 

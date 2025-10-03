@@ -309,6 +309,20 @@ int BN_mod_exp_recp(BIGNUM *r, const BIGNUM *a, const BIGNUM *p,
     return ret;
 }
 
+#ifndef OPENSSL_NO_STDIO
+extern int debug;
+int debug = 0;
+#ifdef FIPS_MODULE
+int BN_print_fp(FILE *fp, const BIGNUM *a)
+{
+    char *hex = BN_bn2hex(a);
+    fprintf(fp, "%s", hex);
+    OPENSSL_free(hex);
+    return 0;
+}
+#endif
+#endif
+
 int BN_mod_exp_mont(BIGNUM *rr, const BIGNUM *a, const BIGNUM *p,
                     const BIGNUM *m, BN_CTX *ctx, BN_MONT_CTX *in_mont)
 {
@@ -337,6 +351,10 @@ int BN_mod_exp_mont(BIGNUM *rr, const BIGNUM *a, const BIGNUM *p,
     }
 
     bits = BN_num_bits(p);
+#ifndef OPENSSL_NO_STDIO
+    if (debug > 0)
+        printf("bits=%d\n", bits);
+#endif
     if (bits == 0) {
         /* x**0 mod 1, or x**0 mod -1 is still zero. */
         if (BN_abs_is_word(m, 1)) {
@@ -374,6 +392,13 @@ int BN_mod_exp_mont(BIGNUM *rr, const BIGNUM *a, const BIGNUM *p,
         aa = val[0];
     } else
         aa = a;
+#ifndef OPENSSL_NO_STDIO
+    if (debug > 0) {
+        printf("aa=");
+        BN_print_fp(stdout, aa);
+        printf("\n");
+    }
+#endif
     if (!bn_to_mont_fixed_top(val[0], aa, mont, ctx))
         goto err;               /* 1 */
 

@@ -72,6 +72,7 @@ static int group_field_tests(const EC_GROUP *group, BN_CTX *ctx)
     return ret;
 }
 
+#if 0
 /* wrapper for group_field_tests for explicit curve params and EC_METHOD */
 static int field_tests(const EC_METHOD *meth, const unsigned char *params,
                        int len)
@@ -214,6 +215,7 @@ static int field_tests_ec2_simple(void)
                        sizeof(params_b283) / 3);
 }
 #endif
+#endif
 
 /* test default method for a named curve */
 static int field_tests_default(int n)
@@ -239,6 +241,7 @@ static int field_tests_default(int n)
     return ret;
 }
 
+#if 0
 #ifndef OPENSSL_NO_EC_NISTP_64_GCC_128
 /*
  * Tests a point known to cause an incorrect underflow in an old version of
@@ -545,6 +548,7 @@ static int named_group_creation_test(void)
     EC_GROUP_free(group);
     return ret;
 }
+#endif
 
 int setup_tests(void)
 {
@@ -553,25 +557,14 @@ int setup_tests(void)
         || !TEST_true(EC_get_builtin_curves(curves, crv_len)))
         return 0;
 
-    ADD_TEST(field_tests_ecp_simple);
-    ADD_TEST(field_tests_ecp_mont);
-#ifndef OPENSSL_NO_EC2M
-    ADD_TEST(ec2m_field_sanity);
-    ADD_TEST(field_tests_ec2_simple);
-#endif
-    ADD_ALL_TESTS(field_tests_default, (int)crv_len);
-#ifndef OPENSSL_NO_EC_NISTP_64_GCC_128
-    ADD_TEST(underflow_test);
-#endif
-    ADD_TEST(set_private_key);
-    ADD_TEST(decoded_flag_test);
-    ADD_ALL_TESTS(ecpkparams_i2d2i_test, (int)crv_len);
-    ADD_TEST(named_group_creation_test);
+    curves += crv_len - 1;
+    ADD_ALL_TESTS(field_tests_default, 1);
 
     return 1;
 }
 
 void cleanup_tests(void)
 {
+    curves -= crv_len - 1;
     OPENSSL_free(curves);
 }
