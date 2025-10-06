@@ -210,6 +210,5 @@ jobs:
 #      run: bash -c "pwd && git clone --branch ${{ github.ref_name }} --depth 1 https://github.com/${{ github.repository }}.git"
     - name: Full build
       run: bash -c "gcc --version && ./config ${{ matrix.platform.config }} && make $MAKE_PARAMS"
-# Disable testing for now. TBD: Need local cygwin installation to debug .
-#    - name: Run openssl tests
-#      run: bash -c "cd openssl && make V=1 test"
+    - name: Run openssl tests
+      run: bash -c "make test HARNESS_JOBS=4"
