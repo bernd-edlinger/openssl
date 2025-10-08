@@ -603,7 +603,7 @@ int DTLSv1_listen(SSL *s, BIO_ADDR *client)
         }
 
         /* Message sequence number can only be 0 or 1 */
-        if (msgseq > 2) {
+        if (msgseq > 1) {
             SSLerr(SSL_F_DTLSV1_LISTEN, SSL_R_INVALID_SEQUENCE_NUMBER);
             goto end;
         }
