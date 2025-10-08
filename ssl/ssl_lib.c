@@ -1434,17 +1434,19 @@ char *SSL_get_shared_ciphers(const SSL *s, char *buf, int size)
             continue;
 
         n = strlen(c->name);
-        if (n + 1 > size) {
-            if (p != buf)
-                --p;
-            *p = '\0';
-            return buf;
-        }
-        strcpy(p, c->name);
+        if (n >= size)
+            break;
+
+        memcpy(p, c->name, n);
         p += n;
         *(p++) = ':';
         size -= n + 1;
     }
+
+    /* No overlap */
+    if (p == buf)
+        return NULL;
+
     p[-1] = '\0';
     return (buf);
 }
