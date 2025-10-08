@@ -1258,17 +1258,19 @@ char *SSL_get_shared_ciphers(const SSL *s, char *buf, int len)
 
         c = sk_SSL_CIPHER_value(sk, i);
         n = strlen(c->name);
-        if (n + 1 > len) {
-            if (p != buf)
-                --p;
-            *p = '\0';
-            return buf;
-        }
-        strcpy(p, c->name);
+        if (n >= len)
+            break;
+
+        memcpy(p, c->name, n);
         p += n;
         *(p++) = ':';
         len -= n + 1;
     }
+
+    /* No overlap */
+    if (p == buf)
+        return NULL;
+
     p[-1] = '\0';
     return (buf);
 }
