@@ -425,7 +425,8 @@ static long acpt_ctrl(BIO *b, int cmd, long num, void *ptr)
                                          BIO_PARSE_PRIO_SERV);
                 if (hold_serv != data->param_serv)
                     OPENSSL_free(hold_serv);
-                b->init = 1;
+                if (ret > 0)
+                    b->init = 1;
             } else if (num == 1) {
                 OPENSSL_free(data->param_serv);
                 data->param_serv = BUF_strdup(ptr);
