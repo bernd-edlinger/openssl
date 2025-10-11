@@ -239,6 +239,8 @@ static int acpt_state(BIO *b, BIO_ACCEPT *c)
                                 BIO_ADDRINFO_address(c->addr_iter),
                                 c->bind_mode)) {
                     BIO_closesocket(c->accept_sock);
+                    c->accept_sock = (int)INVALID_SOCKET;
+                    b->num = (int)INVALID_SOCKET;
                     goto exit_loop;
                 }
             }
@@ -250,6 +252,8 @@ static int acpt_state(BIO *b, BIO_ACCEPT *c)
                 if (!BIO_sock_info(c->accept_sock, BIO_SOCK_INFO_ADDRESS,
                                    &info)) {
                     BIO_closesocket(c->accept_sock);
+                    c->accept_sock = (int)INVALID_SOCKET;
+                    b->num = (int)INVALID_SOCKET;
                     goto exit_loop;
                 }
             }
