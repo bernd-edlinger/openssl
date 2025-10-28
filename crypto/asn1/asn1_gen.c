@@ -226,6 +226,8 @@ static ASN1_TYPE *generate_v3(char *str, X509V3_CTX *cnf, int depth,
          * it will mess up if indefinite length
          */
         len = ASN1_object_size(0, hdr_len, asn1_tags.imp_tag);
+        if (len == -1)
+            goto err;
     } else
         len = cpy_len;
 
@@ -238,6 +240,8 @@ static ASN1_TYPE *generate_v3(char *str, X509V3_CTX *cnf, int depth,
         etmp->exp_len = len;
         /* Total object length: length including new header */
         len = ASN1_object_size(0, len, etmp->exp_tag);
+        if (len == -1)
+            goto err;
     }
 
     /* Allocate buffer for new encoding */
