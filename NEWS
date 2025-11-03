@@ -83,7 +83,8 @@
 
   Major changes between OpenSSL 1.1.1l and OpenSSL 1.1.1m [14 Dec 2021]
 
-      o None
+      o Fixed carry bug in BN_mod_exp which may produce incorrect results
+        on MIPS (CVE-2021-4160)
 
   Major changes between OpenSSL 1.1.1k and OpenSSL 1.1.1l [24 Aug 2021]
 
