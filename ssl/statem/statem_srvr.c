@@ -4085,7 +4085,11 @@ int tls_construct_new_session_ticket(SSL *s, WPACKET *pkt)
     if (SSL_IS_TLS13(s)) {
         size_t i, hashlen;
         uint64_t nonce;
+#ifdef CHARSET_EBCDIC
+        static const unsigned char nonce_label[] = { 0x72, 0x65, 0x73, 0x75, 0x6D, 0x70, 0x74, 0x69, 0x6F, 0x6E, 0x00 };
+#else
         static const unsigned char nonce_label[] = "resumption";
+#endif
         const EVP_MD *md = ssl_handshake_md(s);
         int hashleni = EVP_MD_size(md);
 

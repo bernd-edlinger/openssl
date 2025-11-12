@@ -2721,7 +2721,11 @@ MSG_PROCESS_RETURN tls_process_new_session_ticket(SSL *s, PACKET *pkt)
         const EVP_MD *md = ssl_handshake_md(s);
         int hashleni = EVP_MD_size(md);
         size_t hashlen;
+#ifdef CHARSET_EBCDIC
+        static const unsigned char nonce_label[] = { 0x72, 0x65, 0x73, 0x75, 0x6D, 0x70, 0x74, 0x69, 0x6F, 0x6E, 0x00 };
+#else
         static const unsigned char nonce_label[] = "resumption";
+#endif
 
         /* Ensure cast to size_t is safe */
         if (!ossl_assert(hashleni >= 0)) {
