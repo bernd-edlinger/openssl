@@ -880,9 +880,14 @@ static int check_cert(X509_STORE_CTX *ctx)
         unsigned int last_reasons = ctx->current_reasons;
 
         /* Try to retrieve relevant CRL */
-        if (ctx->get_crl)
+        if (ctx->get_crl) {
             ok = ctx->get_crl(ctx, &crl, x);
-        else
+            if (crl)
+                ctx->current_crl_score = get_crl_score(ctx,
+                                                       &ctx->current_issuer,
+                                                       &ctx->current_reasons,
+                                                       crl, x);
+	} else
             ok = get_crl_delta(ctx, &crl, &dcrl, x);
         /*
          * If error looking up CRL, nothing we can do except notify callback
