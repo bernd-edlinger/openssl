@@ -218,10 +218,15 @@ static int parse_bag(PKCS12_SAFEBAG *bag, const char *pass, int passlen,
     ASN1_TYPE *attrib;
     ASN1_BMPSTRING *fname = NULL;
 
-    if ((attrib = PKCS12_get_attr(bag, NID_friendlyName)))
+    if ((attrib = PKCS12_get_attr(bag, NID_friendlyName))) {
+        if (attrib->type != V_ASN1_BMPSTRING)
+            return 0;
         fname = attrib->value.bmpstring;
+    }
 
     if ((attrib = PKCS12_get_attr(bag, NID_localKeyID))) {
+        if (attrib->type != V_ASN1_OCTET_STRING)
+            return 0;
         lkey = attrib->value.octet_string;
         ckid = lkey;
     }
