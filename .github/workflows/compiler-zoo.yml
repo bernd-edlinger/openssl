@@ -58,6 +58,12 @@ jobs:
           }, {
             cc: clang-18,
             distro: ubuntu-24.04
+          }, {
+            cc: clang-19,
+            distro: ubuntu-24.04
+          }, {
+            cc: clang-20,
+            distro: ubuntu-24.04
           }
         ]
     # We set per-compiler now to allow testing with both older and newer sets
