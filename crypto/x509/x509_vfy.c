@@ -1036,6 +1036,7 @@ static int check_cert(X509_STORE_CTX *ctx)
                 goto err;
         }
 
+        ctx->current_crl = NULL;
         X509_CRL_free(crl);
         X509_CRL_free(dcrl);
         crl = NULL;
