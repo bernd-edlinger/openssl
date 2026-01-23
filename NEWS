@@ -66,6 +66,8 @@
       o Fixed an overflow in the EVP_CipherUpdate, EVP_EncryptUpdate and
         EVP_DecryptUpdate functions (CVE-2021-23840)
       o Fixed NULL pointer deref in GENERAL_NAME_cmp (CVE-2020-1971)
+      o Fixed an overflow bug in the x86_64 Montgomery squaring procedure
+        used in exponentiation with 512-bit moduli (CVE-2019-1551)
 
   Major changes between OpenSSL 1.1.0k and OpenSSL 1.1.0l [10 Sep 2019]
 
