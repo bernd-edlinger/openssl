@@ -9,21 +9,143 @@
 
  Changes between 1.1.1w and 1.1.1x [xx XXX xxxx]
 
- * Fix Out-of-bounds read & write in RFC 3211 KEK Unwrap
+ *) Fixed Heap out-of-bounds write in `BIO_f_linebuffer` on short writes.
 
-   Issue summary: An application trying to decrypt CMS messages encrypted using
-   password based encryption can trigger an out-of-bounds read and write.
+    Severity: Low
 
-   Impact summary: This out-of-bounds read may trigger a crash which leads to
-   Denial of Service for an application. The out-of-bounds write can cause
-   a memory corruption which can have various consequences including
-   a Denial of Service or Execution of attacker-supplied code.
+    Issue summary: Writing large, newline-free data into a BIO chain using the
+    line-buffering filter where the next BIO performs short writes can trigger
+    a heap-based out-of-bounds write.
 
-   The issue was reported by Stanislav Fort (Aisle Research).
+    Impact summary: This out-of-bounds write can cause memory corruption
+    which typically results in a crash, leading to Denial of Service for
+    an application.
 
-   (CVE-2025-9230)
+    Reported by: Petr Simecek (Aisle Research) and Stanislav Fort (Aisle
+    Research)
 
-   [Viktor Dukhovni]
+    (CVE-2025-68160)
+    [Stanislav Fort and Neil Horman]
+
+ *) Fixed Unauthenticated/unencrypted trailing bytes with low-level OCB
+    function calls.
+
+    Severity: Low
+
+    Issue summary: When using the low-level OCB API directly with AES-NI or
+    other hardware-accelerated code paths, inputs whose length is not a multiple
+    of 16 bytes can leave the final partial block unencrypted and
+    unauthenticated.
+
+    Impact summary: The trailing 1-15 bytes of a message may be exposed in
+    cleartext on encryption and are not covered by the authentication tag,
+    allowing an attacker to read or tamper with those bytes without detection.
+
+    Reported by: Stanislav Fort (Aisle Research)
+
+    (CVE-2025-69418)
+    [Stanislav Fort]
+
+ *) Fixed Out of bounds write in `PKCS12_get_friendlyname()` UTF-8 conversion.
+
+    Severity: Low
+
+    Issue summary: Calling `PKCS12_get_friendlyname()` function on a maliciously
+    crafted PKCS#12 file with a `BMPString` (UTF-16BE) friendly name containing
+    non-ASCII BMP code point can trigger a one byte write before the allocated
+    buffer.
+
+    Impact summary: The out-of-bounds write can cause a memory corruption
+    which can have various consequences including a Denial of Service.
+
+    Reported by: Stanislav Fort (Aisle Research)
+
+    (CVE-2025-69419)
+    [Norbert Pócs]
+
+ *) Fixed Missing `ASN1_TYPE` validation in `TS_RESP_verify_response()` function.
+
+    Severity: Low
+
+    Issue summary: A type confusion vulnerability exists in the TimeStamp
+    Response verification code where an `ASN1_TYPE` union member is accessed
+    without first validating the type, causing an invalid or NULL pointer
+    dereference when processing a malformed `TimeStamp` Response file.
+
+    Impact summary: An application calling `TS_RESP_verify_response()`
+    with a malformed TimeStamp Response can be caused to dereference an invalid
+    or NULL pointer when reading, resulting in a Denial of Service.
+
+    Reported by: Luigino Camastra (Aisle Research)
+
+    (CVE-2025-69420)
+    [Bob Beck]
+
+ *) Fixed NULL Pointer Dereference in `PKCS12_item_decrypt_d2i_ex()` function.
+
+    Severity: Low
+
+    Issue summary: Processing a malformed PKCS#12 file can trigger a NULL
+    pointer dereference in the `PKCS12_item_decrypt_d2i_ex()` function.
+
+    Impact summary: A NULL pointer dereference can trigger a crash which leads
+    to Denial of Service for an application processing PKCS#12 files.
+
+    Reported by: Luigino Camastra (Aisle Research)
+
+    (CVE-2025-69421)
+    [Luigino Camastra]
+
+ *) Fixed Missing `ASN1_TYPE` validation in PKCS#12 parsing.
+
+    Severity: Low
+
+    Issue summary: An invalid or NULL pointer dereference can happen in
+    an application processing a malformed PKCS#12 file.
+
+    Impact summary: An application processing a malformed PKCS#12 file can be
+    caused to dereference an invalid or NULL pointer on memory read, resulting
+    in a Denial of Service.
+
+    Reported by: Luigino Camastra (Aisle Research)
+
+    (CVE-2026-22795)
+    [Bob Beck]
+
+ *) Fixed `ASN1_TYPE` Type Confusion in the `PKCS7_digest_from_attributes()`
+    function.
+
+    Severity: Low
+
+    Issue summary: A type confusion vulnerability exists in the signature
+    verification of signed PKCS#7 data where an `ASN1_TYPE` union member
+    is accessed without first validating the type, causing an invalid or NULL
+    pointer dereference when processing malformed PKCS#7 data.
+
+    Impact summary: An application performing signature verification of PKCS#7
+    data or calling directly the `PKCS7_digest_from_attributes()` function can be
+    caused to dereference an invalid or NULL pointer when reading, resulting in
+    a Denial of Service.
+
+    Reported by: Luigino Camastra (Aisle Research)
+
+    (CVE-2026-22796)
+    [Bob Beck]
+
+ *) Fix Out-of-bounds read & write in RFC 3211 KEK Unwrap
+
+    Issue summary: An application trying to decrypt CMS messages encrypted using
+    password based encryption can trigger an out-of-bounds read and write.
+
+    Impact summary: This out-of-bounds read may trigger a crash which leads to
+    Denial of Service for an application. The out-of-bounds write can cause
+    a memory corruption which can have various consequences including
+    a Denial of Service or Execution of attacker-supplied code.
+
+    The issue was reported by Stanislav Fort (Aisle Research).
+
+    (CVE-2025-9230)
+    [Viktor Dukhovni]
 
  *) Fixed timing side-channel in ECDSA signature computation.
 
