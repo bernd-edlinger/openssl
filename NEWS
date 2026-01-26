@@ -7,6 +7,12 @@
 
   Major changes between OpenSSL 0.9.8zh and OpenSSL 0.9.8zi [under development]
 
+      o Fixed Heap out-of-bounds write in `BIO_f_linebuffer` on short writes.
+        (CVE-2025-68160)
+      o Fixed NULL Pointer Dereference in `PKCS12_item_decrypt_d2i_ex()`
+        function.  (CVE-2025-69421)
+      o Fixed `ASN1_TYPE` Type Confusion in the `PKCS7_digest_from_attributes()`
+        function.  (CVE-2026-22796)
       o Fixed PKCS12 Decoding crashes (CVE-2024-0727)
       o Fix DH_check() excessive time with over sized modulus (CVE-2023-3446)
       o Mitigate for very slow `OBJ_obj2txt()` performance with gigantic
