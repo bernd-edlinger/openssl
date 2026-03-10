@@ -66,6 +66,7 @@ static const ERR_STRING_DATA PKCS7_str_functs[] = {
      "PKCS7_sign_add_signer"},
     {ERR_PACK(ERR_LIB_PKCS7, PKCS7_F_PKCS7_SIMPLE_SMIMECAP, 0),
      "PKCS7_simple_smimecap"},
+    {ERR_PACK(ERR_LIB_PKCS7, PKCS7_F_PKCS7_STREAM, 0), "PKCS7_stream"},
     {ERR_PACK(ERR_LIB_PKCS7, PKCS7_F_PKCS7_VERIFY, 0), "PKCS7_verify"},
     {0, NULL}
 };
