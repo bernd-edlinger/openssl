@@ -627,6 +627,10 @@ int PKCS7_stream(unsigned char ***boundary, PKCS7 *p7)
         break;
 
     case NID_pkcs7_signed:
+        if (p7->d.sign == NULL || p7->d.sign->contents == NULL) {
+            PKCS7err(PKCS7_F_PKCS7_STREAM, PKCS7_R_NO_CONTENT);
+            break;
+        }
         os = p7->d.sign->contents->d.data;
         break;
 

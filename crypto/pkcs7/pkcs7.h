@@ -380,7 +380,6 @@ void ERR_load_PKCS7_strings(void);
 # define PKCS7_F_B64_READ_PKCS7                           120
 # define PKCS7_F_B64_WRITE_PKCS7                          121
 # define PKCS7_F_DO_PKCS7_SIGNED_ATTRIB                   136
-# define PKCS7_F_I2D_PKCS7_BIO_STREAM                     140
 # define PKCS7_F_PKCS7_ADD0_ATTRIB_SIGNING_TIME           135
 # define PKCS7_F_PKCS7_ADD_ATTRIB_SMIMECAP                118
 # define PKCS7_F_PKCS7_ADD_CERTIFICATE                    100
@@ -414,6 +413,7 @@ void ERR_load_PKCS7_strings(void);
 # define PKCS7_F_PKCS7_SIGNER_INFO_SIGN                   139
 # define PKCS7_F_PKCS7_SIGN_ADD_SIGNER                    137
 # define PKCS7_F_PKCS7_SIMPLE_SMIMECAP                    119
+# define PKCS7_F_PKCS7_STREAM                             140
 # define PKCS7_F_PKCS7_VERIFY                             117
 # define PKCS7_F_SMIME_READ_PKCS7                         122
 # define PKCS7_F_SMIME_TEXT                               123
