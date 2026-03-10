@@ -356,6 +356,7 @@ int ERR_load_PKCS7_strings(void);
 # define PKCS7_F_PKCS7_SIGNER_INFO_SIGN                   139
 # define PKCS7_F_PKCS7_SIGN_ADD_SIGNER                    137
 # define PKCS7_F_PKCS7_SIMPLE_SMIMECAP                    119
+# define PKCS7_F_PKCS7_STREAM                             140
 # define PKCS7_F_PKCS7_VERIFY                             117
 
 /* Reason codes. */

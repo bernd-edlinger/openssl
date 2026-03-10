@@ -55,6 +55,7 @@ static ERR_STRING_DATA PKCS7_str_functs[] = {
     {ERR_FUNC(PKCS7_F_PKCS7_SIGNER_INFO_SIGN), "PKCS7_SIGNER_INFO_sign"},
     {ERR_FUNC(PKCS7_F_PKCS7_SIGN_ADD_SIGNER), "PKCS7_sign_add_signer"},
     {ERR_FUNC(PKCS7_F_PKCS7_SIMPLE_SMIMECAP), "PKCS7_simple_smimecap"},
+    {ERR_FUNC(PKCS7_F_PKCS7_STREAM), "PKCS7_stream"},
     {ERR_FUNC(PKCS7_F_PKCS7_VERIFY), "PKCS7_verify"},
     {0, NULL}
 };
