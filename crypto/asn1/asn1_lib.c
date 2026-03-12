@@ -174,8 +174,15 @@ static int asn1_get_length(const unsigned char **pp, int *inf, long *rl,
     } else {
         *inf = 0;
         i = *p & 0x7f;
-        if (*(p++) & 0x80) {
-            if (i > sizeof(ret) || max < (long)i)
+        if (*p++ & 0x80) {
+            if (max < (long)i)
+                return 0;
+            /* Skip leading zeroes */
+            while (i && *p == 0) {
+                p++;
+                i--;
+            }
+            if (i > sizeof(long))
                 return 0;
             while (i-- > 0) {
                 ret <<= 8L;
