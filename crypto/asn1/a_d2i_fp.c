@@ -89,7 +89,7 @@ void *ASN1_item_d2i_fp(const ASN1_ITEM *it, FILE *in, void *x)
 }
 #endif
 
-#define HEADER_SIZE   8
+#define HEADER_SIZE   2
 #define ASN1_CHUNK_INITIAL_SIZE (16 * 1024)
 int asn1_d2i_read_bio(BIO *in, BUF_MEM **pb)
 {
@@ -100,6 +100,7 @@ int asn1_d2i_read_bio(BIO *in, BUF_MEM **pb)
     uint32_t eos = 0;
     size_t off = 0;
     size_t len = 0;
+    size_t diff;
 
     const unsigned char *q;
     long slen;
@@ -113,15 +114,16 @@ int asn1_d2i_read_bio(BIO *in, BUF_MEM **pb)
 
     ERR_clear_error();
     for (;;) {
-        if (want >= (len - off)) {
-            want -= (len - off);
+        diff = len - off;
+        if (want >= diff) {
+            want -= diff;
 
             if (len + want < len || !BUF_MEM_grow_clean(b, len + want)) {
                 ASN1err(ASN1_F_ASN1_D2I_READ_BIO, ERR_R_MALLOC_FAILURE);
                 goto err;
             }
             i = BIO_read(in, &(b->data[len]), want);
-            if ((i < 0) && ((len - off) == 0)) {
+            if (i <= 0) {
                 ASN1err(ASN1_F_ASN1_D2I_READ_BIO, ASN1_R_NOT_ENOUGH_DATA);
                 goto err;
             }
@@ -131,13 +133,72 @@ int asn1_d2i_read_bio(BIO *in, BUF_MEM **pb)
                     goto err;
                 }
                 len += i;
+                if ((size_t)i < want)
+                    continue;
             }
         }
         /* else data already loaded */
 
+        /* make sure there is enough data for a complete header */
         p = (unsigned char *)&(b->data[off]);
         q = p;
-        inf = ASN1_get_object(&q, &slen, &tag, &xclass, len - off);
+        diff = len - off;
+        if (diff < 2) {
+            /* Failed sanity check */
+            ASN1err(ASN1_F_ASN1_D2I_READ_BIO, ASN1_R_NOT_ENOUGH_DATA);
+            goto err;
+        }
+
+        diff--;
+        if ((*(q++) & V_ASN1_PRIMITIVE_TAG) == V_ASN1_PRIMITIVE_TAG) {
+            unsigned int n = 0;
+            /* Multi-byte tag.  See if we have the whole thing yet */
+            do {
+                if (n > 4) {
+                    /* The tag value must fit into int */
+                    ASN1err(ASN1_F_ASN1_D2I_READ_BIO,
+                            ASN1_R_HEADER_TOO_LONG);
+                    goto err;
+                }
+                ++n;
+                diff--;
+            } while (diff > 0 && *(q++) & 0x80);
+
+            if (diff == 0) {
+                /*
+                 * End of current data, will need at least 1 more byte for
+                 * length.  2 if the tag is still incomplete
+                 */
+                want = q - p + 2;
+                if (*q & 0x80) {
+                    want++;
+                }
+                continue;
+            }
+        }
+
+        /* Check the length.  This should also work for indefinite length */
+        diff--;
+        if (*q & 0x80) {
+            unsigned int n = *q & 0x7f;
+
+            if (n > sizeof(long)) {
+                ASN1err(ASN1_F_ASN1_D2I_READ_BIO, ASN1_R_TOO_LONG);
+                goto err;
+            }
+            if (n > diff) {
+                want = q - p + n + 1;
+                continue;
+            }
+        }
+
+        /*
+         * We have a complete header now, assuming we didn't hit EOF. Parse the
+         * tag and length
+         */
+        q = p;
+        diff = len - off;
+        inf = ASN1_get_object(&q, &slen, &tag, &xclass, (int)diff);
         if (inf & 0x80) {
             unsigned long e;
 
@@ -147,8 +208,7 @@ int asn1_d2i_read_bio(BIO *in, BUF_MEM **pb)
             else
                 ERR_clear_error(); /* clear error */
         }
-        i = q - p;            /* header length */
-        off += i;               /* end of data */
+        off += q - p; /* end of data */
 
         if (inf & 1) {
             /* no data body so go round again */
