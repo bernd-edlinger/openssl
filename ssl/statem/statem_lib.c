@@ -447,9 +447,24 @@ int tls_get_message_header(SSL *s, int *mt)
     return 0;
 }
 
+static int grow_init_buf(SSL *s, size_t size)
+{
+    size_t msg_offset = (char *)s->init_msg - s->init_buf->data;
+
+    if (!BUF_MEM_grow_clean(s->init_buf, size))
+        return 0;
+
+    if (size < msg_offset)
+        return 0;
+
+    s->init_msg = s->init_buf->data + msg_offset;
+
+    return 1;
+}
+
 int tls_get_message_body(SSL *s, unsigned long *len)
 {
-    long n;
+    size_t toread;
     unsigned char *p;
     int i;
 
@@ -459,18 +474,33 @@ int tls_get_message_body(SSL *s, unsigned long *len)
         return 1;
     }
 
-    p = s->init_msg;
-    n = s->s3->tmp.message_size - s->init_num;
-    while (n > 0) {
+    toread = s->s3->tmp.message_size - s->init_num;
+    while (toread > 0) {
+        size_t chunk = toread > SSL3_RT_MAX_PLAIN_LENGTH
+                       ? SSL3_RT_MAX_PLAIN_LENGTH : toread;
+
+        /*
+         * We incrementally allocate the buffer to guard against the peer
+         * claiming a very large message size and then not sending it.
+         */
+        if (!grow_init_buf(s, s->init_num + chunk + SSL3_HM_HEADER_LENGTH)) {
+            SSLerr(SSL_F_TLS_GET_MESSAGE_BODY, ERR_R_BUF_LIB);
+            ssl3_send_alert(s, SSL3_AL_FATAL, SSL_AD_INTERNAL_ERROR);
+            *len = 0;
+            return 0;
+        }
+
+        /* init_msg location can change after grow_init_buf */
+        p = s->init_msg;
         i = s->method->ssl_read_bytes(s, SSL3_RT_HANDSHAKE, NULL,
-                                      &p[s->init_num], n, 0);
+                                      &p[s->init_num], chunk, 0);
         if (i <= 0) {
             s->rwstate = SSL_READING;
             *len = 0;
             return 0;
         }
         s->init_num += i;
-        n -= i;
+        toread -= i;
     }
 
     /*
