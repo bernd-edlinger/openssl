@@ -699,7 +699,7 @@ int ocsp_main(int argc, char **argv)
 
         i = OCSP_basic_verify(bs, verify_other, store, verify_flags);
         if (i <= 0 && issuers) {
-            i = OCSP_basic_verify(bs, issuers, store, OCSP_TRUSTOTHER);
+            i = OCSP_basic_verify(bs, issuers, store, verify_flags);
             if (i > 0)
                 ERR_clear_error();
         }
