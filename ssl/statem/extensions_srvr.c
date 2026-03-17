@@ -1231,14 +1231,14 @@ int tls_parse_ctos_psk(SSL *s, PACKET *pkt, unsigned int context, X509 *x,
             if (ret == SSL_TICKET_EMPTY) {
                 SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_F_TLS_PARSE_CTOS_PSK,
                          SSL_R_BAD_EXTENSION);
-                return 0;
+                goto err;
             }
 
             if (ret == SSL_TICKET_FATAL_ERR_MALLOC
                     || ret == SSL_TICKET_FATAL_ERR_OTHER) {
                 SSLfatal(s, SSL_AD_INTERNAL_ERROR,
                          SSL_F_TLS_PARSE_CTOS_PSK, ERR_R_INTERNAL_ERROR);
-                return 0;
+                goto err;
             }
             if (ret == SSL_TICKET_NONE || ret == SSL_TICKET_NO_DECRYPT)
                 continue;
