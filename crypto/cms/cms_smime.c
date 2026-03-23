@@ -407,8 +407,10 @@ int CMS_verify(CMS_ContentInfo *cms, STACK_OF(X509) *certs,
     } else {
         if (dcont && (tmpin == dcont))
             do_free_upto(cmsbio, dcont);
-        else
+        else if (cmsbio != NULL)
             BIO_free_all(cmsbio);
+        else
+            BIO_free(tmpin);
     }
 
     if (out != tmpout)
