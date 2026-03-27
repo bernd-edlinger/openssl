@@ -18,7 +18,7 @@ jobs:
           config: VC-WIN32
     runs-on: ${{matrix.os}}
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - uses: ilammy/msvc-dev-cmd@v1
       with:
         arch: ${{ matrix.platform.arch }}
@@ -51,7 +51,7 @@ jobs:
         - windows-2025
     runs-on: ${{matrix.os}}
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - uses: ilammy/msvc-dev-cmd@v1
     - name: prepare the build directory
       run: mkdir _build
@@ -73,7 +73,7 @@ jobs:
         - windows-2025
     runs-on: ${{matrix.os}}
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - uses: ilammy/msvc-dev-cmd@v1
     - name: prepare the build directory
       run: mkdir _build
