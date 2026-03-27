@@ -20,7 +20,7 @@ jobs:
   check_update:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
       with:
         fetch-depth: 0
     - name: config
@@ -35,7 +35,7 @@ jobs:
   check_docs:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: config
       run: ./config --strict-warnings && perl configdata.pm --dump
     - name: make build_generated
@@ -49,7 +49,7 @@ jobs:
   check-ansi:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: config
       run: CPPFLAGS=-ansi ./config no-asm no-makedepend enable-buildtest-c++ --strict-warnings -D_DEFAULT_SOURCE && perl configdata.pm --dump
     - name: make
@@ -58,7 +58,7 @@ jobs:
   basic_gcc:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: config
       run: CC=gcc ./config --strict-warnings && perl configdata.pm --dump
     - name: make
@@ -69,7 +69,7 @@ jobs:
   basic_clang:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: config
       run: CC=clang ./config --strict-warnings && perl configdata.pm --dump
     - name: make
@@ -80,7 +80,7 @@ jobs:
   linux-arm64:
     runs-on: ubuntu-24.04-arm
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: config
       run: ./config --strict-warnings enable-ec_nistp_64_gcc_128 enable-md2 enable-rc5 enable-ssl3 enable-ssl3-method && perl configdata.pm --dump
     - name: make
@@ -91,7 +91,7 @@ jobs:
   freebsd-x86_64:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: config
       uses: cross-platform-actions/action@v0.26.0
       with:
@@ -118,7 +118,7 @@ jobs:
   minimal:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: config
       run: ./config --strict-warnings no-shared no-dso no-pic no-aria no-async no-autoload-config no-blake2 no-bf no-camellia no-cast no-chacha no-cmac no-cms no-comp no-ct no-des no-dgram no-dh no-dsa no-dtls no-ec2m no-engine no-filenames no-gost no-idea no-mdc2 no-md4 no-multiblock no-nextprotoneg no-ocsp no-ocb no-poly1305 no-psk no-rc2 no-rc4 no-rmd160 no-seed no-siphash no-sm2 no-sm3 no-sm4 no-srp no-srtp no-ssl3 no-ssl3-method no-ts no-ui-console no-whirlpool no-asm -DOPENSSL_NO_SECURE_MEMORY -DOPENSSL_SMALL_FOOTPRINT && perl configdata.pm --dump
     - name: make
@@ -129,7 +129,7 @@ jobs:
   no-deprecated:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: config
       run: ./config --strict-warnings no-deprecated && perl configdata.pm --dump
     - name: make
@@ -143,7 +143,7 @@ jobs:
         os: [ ubuntu-latest, macos-latest ]
     runs-on: ${{matrix.os}}
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: config
       run: ./config --strict-warnings no-shared && perl configdata.pm --dump
     - name: make
@@ -154,7 +154,7 @@ jobs:
   address_ub_sanitizer:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: config
       run: ./config --debug enable-asan enable-ubsan enable-rc5 enable-md2 enable-ec_nistp_64_gcc_128 -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION && perl configdata.pm --dump
     - name: make
@@ -165,7 +165,7 @@ jobs:
   memory_sanitizer:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: config
       run: CC=clang ./config --debug -O1 -fsanitize=memory -fno-optimize-sibling-calls no-asm no-afalgeng enable-rc5 enable-md2 enable-ec_nistp_64_gcc_128 && perl configdata.pm --dump
     - name: make
@@ -176,7 +176,7 @@ jobs:
   threads_sanitizer:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: config
       run: CC=clang ./config --strict-warnings -fsanitize=thread && perl configdata.pm --dump
     - name: make
@@ -187,7 +187,7 @@ jobs:
   enable_non-default_options:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: config
       run: ./config --strict-warnings no-ec enable-ssl-trace enable-zlib enable-zlib-dynamic enable-crypto-mdebug enable-crypto-mdebug-backtrace enable-egd && perl configdata.pm --dump
     - name: make
@@ -198,7 +198,7 @@ jobs:
   legacy:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: config
       run: ./config -Werror --debug no-afalgeng no-shared enable-crypto-mdebug enable-rc5 enable-md2 enable-ssl3 enable-ssl3-method enable-weak-ssl-ciphers enable-zlib enable-ec_nistp_64_gcc_128 && perl configdata.pm --dump
     - name: make
@@ -209,7 +209,7 @@ jobs:
   buildtest:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: config
       run: ./config no-asm no-makedepend enable-buildtest-c++ --strict-warnings -D_DEFAULT_SOURCE && perl configdata.pm --dump
     - name: make
@@ -220,7 +220,7 @@ jobs:
   aes-const-time:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: config
       run: ./config --strict-warnings no-asm -DOPENSSL_AES_CONST_TIME && perl configdata.pm --dump
     - name: make
@@ -231,7 +231,7 @@ jobs:
   out-of-tree_build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: setup build dir
       run: |
           set -eux
@@ -255,7 +255,7 @@ jobs:
         os: [ubuntu-latest, macos-latest ]
     runs-on: ${{matrix.os}}
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: extra preparations
       run: |
         mkdir ./build
@@ -276,7 +276,7 @@ jobs:
   external-tests:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
       with:
         submodules: recursive
     - name: package installs
@@ -308,7 +308,7 @@ jobs:
         PYTHON:
           - 3.9
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
       with:
         submodules: recursive
     - name: Configure OpenSSL
