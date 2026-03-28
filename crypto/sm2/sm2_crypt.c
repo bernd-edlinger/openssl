@@ -228,8 +228,19 @@ int sm2_encrypt(const EC_KEY *key,
         goto done;
     }
 
-    ciphertext_leni = i2d_SM2_Ciphertext(&ctext_struct, &ciphertext_buf);
+    ciphertext_leni = i2d_SM2_Ciphertext(&ctext_struct, NULL);
     /* Ensure cast to size_t is safe */
+    if (ciphertext_leni < 0) {
+        SM2err(SM2_F_SM2_ENCRYPT, ERR_R_INTERNAL_ERROR);
+        goto done;
+    }
+
+    if (*ciphertext_len < (size_t)ciphertext_leni) {
+        SM2err(SM2_F_SM2_ENCRYPT, SM2_R_BUFFER_TOO_SMALL);
+        goto done;
+    }
+
+    ciphertext_leni = i2d_SM2_Ciphertext(&ctext_struct, &ciphertext_buf);
     if (ciphertext_leni < 0) {
         SM2err(SM2_F_SM2_ENCRYPT, ERR_R_INTERNAL_ERROR);
         goto done;
