@@ -803,6 +803,10 @@ static int rsa_cms_decrypt(CMS_RecipientInfo *ri)
     const EVP_MD *mgf1md = NULL, *md = NULL;
     RSA_OAEP_PARAMS *oaep;
     X509_ALGOR *maskHash;
+    ASN1_OBJECT *aoid;
+    void *parameter = NULL;
+    int ptype = 0;
+
     pkctx = CMS_RecipientInfo_get0_pkey_ctx(ri);
     if (!pkctx)
         return 0;
@@ -830,21 +834,20 @@ static int rsa_cms_decrypt(CMS_RecipientInfo *ri)
     if (!md)
         goto err;
 
-    if (oaep->pSourceFunc) {
-        X509_ALGOR *plab = oaep->pSourceFunc;
-        if (OBJ_obj2nid(plab->algorithm) != NID_pSpecified) {
+    if (oaep->pSourceFunc != NULL) {
+        X509_ALGOR_get0(&aoid, &ptype, &parameter, oaep->pSourceFunc);
+
+        if (OBJ_obj2nid(aoid) != NID_pSpecified) {
             RSAerr(RSA_F_RSA_CMS_DECRYPT, RSA_R_UNSUPPORTED_LABEL_SOURCE);
             goto err;
         }
-        if (plab->parameter->type != V_ASN1_OCTET_STRING) {
+        if (ptype != V_ASN1_OCTET_STRING) {
             RSAerr(RSA_F_RSA_CMS_DECRYPT, RSA_R_INVALID_LABEL);
             goto err;
         }
 
-        label = plab->parameter->value.octet_string->data;
-        /* Stop label being freed when OAEP parameters are freed */
-        plab->parameter->value.octet_string->data = NULL;
-        labellen = plab->parameter->value.octet_string->length;
+        label = ASN1_STRING_data(parameter);
+        labellen = ASN1_STRING_length(parameter);
     }
 
     if (EVP_PKEY_CTX_set_rsa_padding(pkctx, RSA_PKCS1_OAEP_PADDING) <= 0)
@@ -853,8 +856,19 @@ static int rsa_cms_decrypt(CMS_RecipientInfo *ri)
         goto err;
     if (EVP_PKEY_CTX_set_rsa_mgf1_md(pkctx, mgf1md) <= 0)
         goto err;
-    if (EVP_PKEY_CTX_set0_rsa_oaep_label(pkctx, label, labellen) <= 0)
-        goto err;
+    if (label != NULL) {
+        unsigned char *dup_label = OPENSSL_malloc(labellen);
+
+        if (dup_label == NULL)
+            goto err;
+
+        memcpy(dup_label, label, labellen);
+
+        if (EVP_PKEY_CTX_set0_rsa_oaep_label(pkctx, dup_label, labellen) <= 0) {
+            OPENSSL_free(dup_label);
+            goto err;
+        }
+    }
     /* Carry on */
     rv = 1;
 
