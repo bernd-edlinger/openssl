@@ -7,6 +7,14 @@
 
   Major changes between OpenSSL 1.0.2u and OpenSSL 1.0.2v [under development]
 
+      o Fixed NULL pointer dereference when processing a delta CRL.
+        (CVE-2026-28388)
+      o Fixed possible NULL dereference when processing CMS
+        KeyAgreeRecipientInfo.
+        (CVE-2026-28389)
+      o Fixed possible NULL dereference when processing CMS
+        KeyTransportRecipientInfo.
+        (CVE-2026-28390)
       o Fixed Heap out-of-bounds write in `BIO_f_linebuffer` on short writes.
         (CVE-2025-68160)
       o Fixed NULL Pointer Dereference in `PKCS12_item_decrypt_d2i_ex()`
