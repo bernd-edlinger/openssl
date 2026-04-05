@@ -75,8 +75,13 @@ int RAND_query_egd_bytes(const char *path, unsigned char *buf, int bytes)
     strcpy(addr.sun_path, path);
     i = offsetof(struct sockaddr_un, sun_path) + strlen(path);
     fd = socket(AF_UNIX, SOCK_STREAM, 0);
-    if (fd == -1 || (fp = fdopen(fd, "r+")) == NULL)
+    if (fd == -1)
         return -1;
+    fp = fdopen(fd, "r+");
+    if (fp == NULL) {
+        close(fd);
+        return -1;
+    }
     setbuf(fp, NULL);
 
     /* Try to connect */
