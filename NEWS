@@ -7,6 +7,16 @@
 
   Major changes between OpenSSL 1.1.1w and OpenSSL 1.1.1x [under development]
 
+      o Fixed potential use-after-free in DANE client code.
+        (CVE-2026-28387)
+      o Fixed NULL pointer dereference when processing a delta CRL.
+        (CVE-2026-28388)
+      o Fixed possible NULL dereference when processing CMS
+        KeyAgreeRecipientInfo.
+        (CVE-2026-28389)
+      o Fixed possible NULL dereference when processing CMS
+        KeyTransportRecipientInfo.
+        (CVE-2026-28390)
       o Fixed Heap out-of-bounds write in `BIO_f_linebuffer` on short writes.
         (CVE-2025-68160)
       o Fixed Unauthenticated/unencrypted trailing bytes with low-level OCB
