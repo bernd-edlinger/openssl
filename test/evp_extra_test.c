@@ -1275,9 +1275,10 @@ static int test_EVP_SM2(void)
 
     uint8_t ciphertext[128];
     size_t ctext_len = sizeof(ciphertext);
-
+    size_t ctext_len_param = 0;
     uint8_t plaintext[8];
     size_t ptext_len = sizeof(plaintext);
+    size_t ptext_len_param = 0;
 
     uint8_t sm2_id[] = {1, 2, 3, 4, 'l', 'e', 't', 't', 'e', 'r'};
 
@@ -1360,16 +1361,20 @@ static int test_EVP_SM2(void)
     if (!TEST_true(EVP_PKEY_encrypt_init(cctx)))
         goto done;
 
-    if (!TEST_true(EVP_PKEY_encrypt(cctx, ciphertext, &ctext_len, kMsg, sizeof(kMsg))))
+    ctext_len_param = ctext_len;
+    if (!TEST_true(EVP_PKEY_encrypt(cctx, ciphertext, &ctext_len_param, kMsg,
+                                    sizeof(kMsg))))
         goto done;
 
     if (!TEST_true(EVP_PKEY_decrypt_init(cctx)))
         goto done;
 
-    if (!TEST_true(EVP_PKEY_decrypt(cctx, plaintext, &ptext_len, ciphertext, ctext_len)))
+    ptext_len_param = ptext_len;
+    if (!TEST_true(EVP_PKEY_decrypt(cctx, plaintext, &ptext_len_param, ciphertext,
+                                    ctext_len_param)))
         goto done;
 
-    if (!TEST_true(ptext_len == sizeof(kMsg)))
+    if (!TEST_true(ptext_len_param == sizeof(kMsg)))
         goto done;
 
     if (!TEST_true(memcmp(plaintext, kMsg, sizeof(kMsg)) == 0))
