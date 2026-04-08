@@ -1661,20 +1661,28 @@ int MAIN(int argc, char **argv)
         BIO_printf(sbio, "<stream:stream "
                    "xmlns:stream='http://etherx.jabber.org/streams' "
                    "xmlns='jabber:client' to='%s' version='1.0'>", host);
-        seen = BIO_read(sbio, mbuf, BUFSIZZ);
+        seen = BIO_read(sbio, mbuf, BUFSIZZ - 1);
+        if (seen < 0) {
+            BIO_printf(bio_err, "BIO_read failed\n");
+            goto end;
+        }
         mbuf[seen] = 0;
         while (!strstr
                (mbuf, "<starttls xmlns='urn:ietf:params:xml:ns:xmpp-tls'")) {
             if (strstr(mbuf, "/stream:features>"))
                 goto shut;
-            seen = BIO_read(sbio, mbuf, BUFSIZZ);
+            seen = BIO_read(sbio, mbuf, BUFSIZZ - 1);
             if (seen <= 0)
                 goto shut;
             mbuf[seen] = 0;
         }
         BIO_printf(sbio,
                    "<starttls xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>");
-        seen = BIO_read(sbio, sbuf, BUFSIZZ);
+        seen = BIO_read(sbio, sbuf, BUFSIZZ - 1);
+        if (seen < 0) {
+            BIO_printf(bio_err, "BIO_read failed\n");
+            goto shut;
+        }
         sbuf[seen] = 0;
         if (!strstr(sbuf, "<proceed"))
             goto shut;
