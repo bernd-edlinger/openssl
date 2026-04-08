@@ -660,7 +660,7 @@ my $smrsakey = catfile($smdir, "smrsa3-key.pem");
 with({ exit_checker => sub { my $ret = shift; return $ret == 4 || $ret == 0; } },
     sub {
         ok(run(app(["openssl", "cms", "-decrypt", "-in", $smcont_malformed, "-inform",
-                   "DER", "-recip", $smrsacert, "-inkey", $smrsakey, "-out", "{output}.cms"])),
+                   "DER", "-recip", $smrsacert, "-inkey", $smrsakey, "-out", "output.cms"])),
            "Must not crash on malformed cms inputs with RSA key");
     });
 
