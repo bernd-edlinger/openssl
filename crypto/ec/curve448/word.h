@@ -18,6 +18,7 @@
 # include <stdlib.h>
 # include <openssl/e_os2.h>
 # include "curve448utils.h"
+# include "internal/constant_time.h"
 # if C448_WORD_BITS == 64
 #  include "arch_64/arch_intrinsics.h"
 # else
@@ -51,6 +52,12 @@ typedef int64_t dsword_t;
 # else
 #  error "For now we only support 32- and 64-bit architectures."
 # endif
+
+#if C448_WORD_BITS == 64
+#define value_barrier_c448(x) value_barrier_64(x)
+#elif C448_WORD_BITS == 32
+#define value_barrier_c448(x) value_barrier_32(x)
+#endif
 
 /*
  * The plan on booleans: The external interface uses c448_bool_t, but this
