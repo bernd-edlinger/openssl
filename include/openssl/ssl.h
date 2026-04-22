@@ -1849,7 +1849,7 @@ void SSL_set_not_resumable_session_callback(SSL *ssl,
 __owur int SSL_session_reused(SSL *s);
 __owur int SSL_is_server(const SSL *s);
 
-__owur __owur SSL_CONF_CTX *SSL_CONF_CTX_new(void);
+__owur SSL_CONF_CTX *SSL_CONF_CTX_new(void);
 int SSL_CONF_CTX_finish(SSL_CONF_CTX *cctx);
 void SSL_CONF_CTX_free(SSL_CONF_CTX *cctx);
 unsigned int SSL_CONF_CTX_set_flags(SSL_CONF_CTX *cctx, unsigned int flags);
