@@ -2017,6 +2017,70 @@ static int test_cipher_with_engine(void)
 }
 #endif /* !defined(OPENSSL_NO_ENGINE) && !defined(OPENSSL_NO_DYNAMIC_ENGINE) */
 
+#ifndef OPENSSL_NO_DES
+static int test_EVP_CIPHER_get_type_des_ede3(void)
+{
+    const EVP_CIPHER *cipher = NULL;
+    int base_type, variant_type, nid;
+    int ret = 0;
+
+    /* Get the base type from CFB64 (should be NID_des_ede3_cfb64) */
+    cipher = EVP_des_ede3_cfb64();
+    base_type = EVP_CIPHER_type(cipher);
+
+    /* Test CFB64 - should map to the same base_type */
+    variant_type = EVP_CIPHER_type(cipher);
+    nid = EVP_CIPHER_nid(cipher);
+
+    /* Verify the returned type */
+    if (!TEST_int_eq(variant_type, base_type))
+        goto end;
+
+    /* Verify that variant_type and nid are same for 64-bit variants */
+    if (!TEST_int_eq(variant_type, nid))
+        goto end;
+
+    if (!TEST_int_eq(NID_des_ede3_cfb64, variant_type))
+        goto end;
+
+    /* Test CFB8 - should map to the same base_type */
+    cipher = EVP_des_ede3_cfb8();
+    variant_type = EVP_CIPHER_type(cipher);
+    nid = EVP_CIPHER_nid(cipher);
+
+    /* Verify the returned type */
+    if (!TEST_int_eq(variant_type, base_type))
+        goto end;
+
+    /* Verify that variant_type and nid are different for variants */
+    if (!TEST_int_ne(variant_type, nid))
+        goto end;
+
+    if (!TEST_int_eq(NID_des_ede3_cfb64, variant_type))
+        goto end;
+
+    /* Test CFB1 - should map to the same base_type */
+    cipher = EVP_des_ede3_cfb1();
+    variant_type = EVP_CIPHER_type(cipher);
+    nid = EVP_CIPHER_nid(cipher);
+
+    /* Verify the returned type */
+    if (!TEST_int_eq(variant_type, base_type))
+        goto end;
+
+    /* Verify that variant_type and nid are different for variants */
+    if (!TEST_int_ne(variant_type, nid))
+        goto end;
+
+    if (!TEST_int_eq(NID_des_ede3_cfb64, variant_type))
+        goto end;
+
+    ret = 1;
+end:
+    return ret;
+}
+#endif /*OPENSSL_NO_DES */
+
 int setup_tests(void)
 {
 #if !defined(OPENSSL_NO_ENGINE) && !defined(OPENSSL_NO_DYNAMIC_ENGINE)
@@ -2055,6 +2119,9 @@ int setup_tests(void)
 #ifndef OPENSSL_NO_DH
     ADD_TEST(test_EVP_PKEY_set1_DH);
 #endif
+#ifndef OPENSSL_NO_DES
+    ADD_TEST(test_EVP_CIPHER_get_type_des_ede3);
+#endif /* OPENSSL_NO_DES */
 
     ADD_ALL_TESTS(test_evp_init_seq, OSSL_NELEM(evp_init_tests));
     ADD_ALL_TESTS(test_evp_reset, OSSL_NELEM(evp_reset_tests));
