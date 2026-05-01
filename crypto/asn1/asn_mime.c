@@ -612,13 +612,14 @@ static int multi_split(BIO *bio, const char *bound, STACK_OF(BIO) **ret)
                 if (bpart == NULL)
                     return 0;
                 BIO_set_mem_eof_return(bpart, 0);
-            } else if (eol)
-                BIO_write(bpart, "\r\n", 2);
+            } else if (eol && BIO_write(bpart, "\r\n", 2) < 2)
+                goto err;
             eol = next_eol;
-            if (len)
-                BIO_write(bpart, linebuf, len);
+            if (len > 0 && BIO_write(bpart, linebuf, len) < len)
+                goto err;
         }
     }
+ err:
     BIO_free(bpart);
     return 0;
 }
