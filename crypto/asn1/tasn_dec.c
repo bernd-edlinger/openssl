@@ -865,19 +865,24 @@ static int asn1_d2i_ex_primitive(ASN1_VALUE **pval,
 
 /* Translate ASN1 content octets into a structure */
 
-int asn1_ex_c2i(ASN1_VALUE **pval, const unsigned char *cont, int len,
+int asn1_ex_c2i(ASN1_VALUE **pval, const unsigned char *cont, long len,
                 int utype, char *free_cont, const ASN1_ITEM *it)
 {
     ASN1_VALUE **opval = NULL;
     ASN1_STRING *stmp;
     ASN1_TYPE *typ = NULL;
     int ret = 0;
+    int ilen = (int)len;
     const ASN1_PRIMITIVE_FUNCS *pf;
     ASN1_INTEGER **tint;
     pf = it->funcs;
 
-    if (pf && pf->prim_c2i)
-        return pf->prim_c2i(pval, cont, len, utype, free_cont, it);
+    if (pf && pf->prim_c2i) {
+        if (len == (long)ilen)
+            return pf->prim_c2i(pval, cont, ilen, utype, free_cont, it);
+        ASN1err(ASN1_F_ASN1_EX_C2I, ASN1_R_TOO_LONG);
+        return 0;
+    }
     /* If ANY type clear type and set pointer to internal value */
     if (it->utype == V_ASN1_ANY) {
         if (!*pval) {
@@ -895,7 +900,8 @@ int asn1_ex_c2i(ASN1_VALUE **pval, const unsigned char *cont, int len,
     }
     switch (utype) {
     case V_ASN1_OBJECT:
-        if (!c2i_ASN1_OBJECT((ASN1_OBJECT **)pval, &cont, len))
+        if (len != (long)ilen
+            || !c2i_ASN1_OBJECT((ASN1_OBJECT **)pval, &cont, ilen))
             goto err;
         break;
 
@@ -950,6 +956,10 @@ int asn1_ex_c2i(ASN1_VALUE **pval, const unsigned char *cont, int len,
     case V_ASN1_SET:
     case V_ASN1_SEQUENCE:
     default:
+        if (len != (long)ilen) {
+            ASN1err(ASN1_F_ASN1_EX_C2I, ASN1_R_TOO_LONG);
+            goto err;
+        }
         if (utype == V_ASN1_BMPSTRING && (len & 1)) {
             ASN1err(ASN1_F_ASN1_EX_C2I, ASN1_R_BMPSTRING_IS_WRONG_LENGTH);
             goto err;
@@ -976,10 +986,10 @@ int asn1_ex_c2i(ASN1_VALUE **pval, const unsigned char *cont, int len,
             if (stmp->data)
                 OPENSSL_free(stmp->data);
             stmp->data = (unsigned char *)cont; /* UGLY CAST! RL */
-            stmp->length = len;
+            stmp->length = ilen;
             *free_cont = 0;
         } else {
-            if (!ASN1_STRING_set(stmp, cont, len)) {
+            if (!ASN1_STRING_set(stmp, cont, ilen)) {
                 ASN1err(ASN1_F_ASN1_EX_C2I, ERR_R_MALLOC_FAILURE);
                 ASN1_STRING_free(stmp);
                 *pval = NULL;

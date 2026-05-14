@@ -946,7 +946,7 @@ void ASN1_primitive_free(ASN1_VALUE **pval, const ASN1_ITEM *it);
 
 int asn1_ex_i2c(ASN1_VALUE **pval, unsigned char *cont, int *putype,
                 const ASN1_ITEM *it);
-int asn1_ex_c2i(ASN1_VALUE **pval, const unsigned char *cont, int len,
+int asn1_ex_c2i(ASN1_VALUE **pval, const unsigned char *cont, long len,
                 int utype, char *free_cont, const ASN1_ITEM *it);
 
 int asn1_get_choice_selector(ASN1_VALUE **pval, const ASN1_ITEM *it);
