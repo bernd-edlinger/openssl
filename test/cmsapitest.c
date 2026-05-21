@@ -9,6 +9,7 @@
 
 static X509 *cert = NULL;
 static EVP_PKEY *privkey = NULL;
+static char *pwri_kek_oob_der_in = NULL;
 static char *ec_recip_in = NULL;
 
 static int test_encrypt_decrypt(void)
@@ -314,6 +315,48 @@ end:
     return ret;
 }
 
+/*
+ * CMS EnvelopedData with a single PasswordRecipientInfo using
+ * id-alg-PWRI-KEK and an AES-128-CFB key encryption cipher
+ * (1-byte effective block size).  The encryptedKey OCTET STRING is
+ * only two bytes long, so the wrapped key buffer is shorter than
+ * the seven octets read by the check-byte test in kek_unwrap_key().
+ * Prior to CVE-2026-9076 this triggered an out-of-bounds heap read;
+ * CMS_decrypt() must now fail cleanly.
+ */
+static int test_pwri_kek_unwrap_short_encrypted_key(void)
+{
+    BIO *in = NULL;
+    CMS_ContentInfo *cms = NULL;
+    unsigned long err = 0;
+    int ret = 0;
+
+    if (!TEST_ptr(in = BIO_new_file(pwri_kek_oob_der_in, "rb"))
+        || !TEST_ptr(cms = d2i_CMS_bio(in, NULL)))
+        goto end;
+
+    /*
+     * The unwrap is attempted eagerly inside CMS_decrypt_set1_password().
+     * It must fail cleanly (no OOB read) and report the
+     * CMS_R_NO_MATCHING_RECIPIENT error.
+     */
+    if (!TEST_false(CMS_decrypt_set1_password(cms,
+            (unsigned char *)"password", -1)))
+        goto end;
+
+    err = ERR_peek_last_error();
+    if (!TEST_int_eq(ERR_GET_LIB(err), ERR_LIB_CMS)
+        || !TEST_int_eq(ERR_GET_REASON(err), CMS_R_NO_MATCHING_RECIPIENT))
+        goto end;
+
+    ERR_clear_error();
+    ret = 1;
+end:
+    CMS_ContentInfo_free(cms);
+    BIO_free(in);
+    return ret;
+}
+
 #ifndef OPENSSL_NO_EC
 
 /*
@@ -414,7 +457,8 @@ int setup_tests(void)
 
     if (!TEST_ptr(certin = test_get_argument(0))
             || !TEST_ptr(privkeyin = test_get_argument(1))
-            || !TEST_ptr(ec_recip_in = test_get_argument(2)))
+            || !TEST_ptr(pwri_kek_oob_der_in = test_get_argument(2))
+            || !TEST_ptr(ec_recip_in = test_get_argument(3)))
         return 0;
 
     certbio = BIO_new_file(certin, "r");
@@ -444,6 +488,7 @@ int setup_tests(void)
     ADD_TEST(test_d2i_CMS_bio_NULL);
     ADD_TEST(test_CMS_set1_key_mem_leak);
     ADD_TEST(test_encrypted_data);
+    ADD_TEST(test_pwri_kek_unwrap_short_encrypted_key);
 
 #ifndef OPENSSL_NO_EC
     ADD_TEST(test_kari_wrap_pad_unwrap_overflow);
