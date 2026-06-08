@@ -7,6 +7,13 @@
 
   Major changes between OpenSSL 0.9.8zh and OpenSSL 0.9.8zi [under development]
 
+      o Fixed heap use-after-free in `PKCS7_verify()`.
+        (CVE-2026-45447)
+      o Fixed possible heap buffer overflow in ASN.1 multibyte string
+        conversion.
+        (CVE-2026-7383)
+      o Fixed heap buffer over-read in ASN.1 content parsing.
+        (CVE-2026-34180)
       o Fixed Heap out-of-bounds write in `BIO_f_linebuffer` on short writes.
         (CVE-2025-68160)
       o Fixed NULL Pointer Dereference in `PKCS12_item_decrypt_d2i_ex()`

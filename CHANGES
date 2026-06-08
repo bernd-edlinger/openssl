@@ -4,6 +4,56 @@
 
  Changes between 0.9.8zh and 0.9.8zi [xx XXX xxxx]
 
+ *) Fixed heap use-after-free in `PKCS7_verify()`.
+
+    Severity: High
+
+    Issue summary: A specially crafted PKCS#7 or S/MIME signed message could
+    trigger a use-after-free during PKCS#7 signature verification.
+
+    Impact summary: A use-after-free may result in process crashes, heap
+    corruption, or, potentially, remote code execution.
+
+    Reported by: Thai Duong (Calif.io in collaboration with Claude
+    and Anthropic Research).
+
+    (CVE-2026-45447)
+    [Igor Ustinov]
+
+ *) Fixed possible heap buffer overflow in ASN.1 multibyte string conversion.
+
+    Severity: Low
+
+    Issue summary: A signed integer overflow when sizing the destination
+    buffer for Unicode output in `ASN1_mbstring_ncopy()` can lead to a heap
+    buffer overflow.
+
+    Impact summary: A heap buffer overflow may lead to a crash or possibly
+    attacker controlled code execution or other undefined behaviour.
+
+    Reported by: Zehua Qiao and Jinwen He.
+
+    (CVE-2026-7383)
+    [Viktor Dukhovni]
+
+ *) Fixed heap buffer over-read in ASN.1 content parsing.
+
+    Severity: Low
+
+    Issue summary: Parsing a crafted DER-encoded ASN.1 structure with a
+    primitive element whose content exceeds 2 gigabytes in length may cause a
+    heap buffer over-read on 64-bit Unix and Unix-like platforms.
+
+    Impact summary: The heap buffer over-read may crash the application (Denial
+    of Service) or to load into the decoded ASN.1 object contents of memory
+    beyond the end of the input buffer.  More typically, such ASN.1 elements
+    would instead be truncated.
+
+    Reported by: Frank Buss.
+
+    (CVE-2026-34180)
+    [Viktor Dukhovni]
+
  *) Fixed Heap out-of-bounds write in `BIO_f_linebuffer` on short writes.
 
     Severity: Low
