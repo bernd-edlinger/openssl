@@ -7,6 +7,17 @@
 
   Major changes between OpenSSL 1.0.2u and OpenSSL 1.0.2v [under development]
 
+      o Fixed heap use-after-free in `PKCS7_verify()`.
+        (CVE-2026-45447)
+      o Fixed possible heap buffer overflow in ASN.1 multibyte string
+        conversion.
+        (CVE-2026-7383)
+      o Fixed out-of-bounds read in CMS password-based decryption.
+        (CVE-2026-9076)
+      o Fixed heap buffer over-read in ASN.1 content parsing.
+        (CVE-2026-34180)
+      o Fixed possible NULL dereference in password-dased CMS decryption.
+        (CVE-2026-42766)
       o Fixed NULL pointer dereference when processing a delta CRL.
         (CVE-2026-28388)
       o Fixed possible NULL dereference when processing CMS
