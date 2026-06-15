@@ -194,7 +194,8 @@ static int asn1_d2i_read_bio(BIO *in, BUF_MEM **pb)
                     goto err;
                 }
                 len += i;
-                if ((size_t)i < want)
+                want += diff;
+                if (len - off < want)
                     continue;
             }
         }
@@ -215,7 +216,7 @@ static int asn1_d2i_read_bio(BIO *in, BUF_MEM **pb)
             unsigned int n = 0;
             /* Multi-byte tag.  See if we have the whole thing yet */
             do {
-                if (n > 4) {
+                if (n > 5) {
                     /* The tag value must fit into int */
                     ASN1err(ASN1_F_ASN1_D2I_READ_BIO,
                             ASN1_R_HEADER_TOO_LONG);
@@ -243,10 +244,10 @@ static int asn1_d2i_read_bio(BIO *in, BUF_MEM **pb)
         if (*c.p & 0x80) {
             unsigned int n = *c.p & 0x7f;
 
-            if (n > sizeof(long)) {
-                ASN1err(ASN1_F_ASN1_D2I_READ_BIO, ASN1_R_TOO_LONG);
-                goto err;
-            }
+            /*
+             * Tolerate BER length encoding which may include leading zeroes,
+             * since ASN1_get_object does also accept BER encoding.
+             */
             if (n > diff) {
                 want = c.p - p + n + 1;
                 continue;
