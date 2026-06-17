@@ -387,7 +387,7 @@ int PKCS7_set_digest(PKCS7 *p7, const EVP_MD *md)
     }
 
     PKCS7err(PKCS7_F_PKCS7_SET_DIGEST, PKCS7_R_WRONG_CONTENT_TYPE);
-    return 1;
+    return 0;
 }
 
 STACK_OF(PKCS7_SIGNER_INFO) *PKCS7_get_signer_info(PKCS7 *p7)
