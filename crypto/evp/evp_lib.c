@@ -65,6 +65,8 @@ int EVP_CIPHER_asn1_to_param(EVP_CIPHER_CTX *c, ASN1_TYPE *type)
 
         default:
             ret = EVP_CIPHER_get_asn1_iv(c, type);
+            if (ret == 0 && EVP_CIPHER_CTX_iv_length(c) == 0)
+                ret = 1;
             break;
         }
     } else
