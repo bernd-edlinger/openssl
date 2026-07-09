@@ -611,6 +611,10 @@ int PKCS7_stream(unsigned char ***boundary, PKCS7 *p7)
         break;
 
     case NID_pkcs7_signedAndEnveloped:
+        if (p7->d.signed_and_enveloped == NULL || p7->d.signed_and_enveloped->enc_data == NULL) {
+            PKCS7err(PKCS7_F_PKCS7_STREAM, PKCS7_R_NO_CONTENT);
+            break;
+        }
         os = p7->d.signed_and_enveloped->enc_data->enc_data;
         if (os == NULL) {
             os = M_ASN1_OCTET_STRING_new();
@@ -619,6 +623,10 @@ int PKCS7_stream(unsigned char ***boundary, PKCS7 *p7)
         break;
 
     case NID_pkcs7_enveloped:
+        if (p7->d.enveloped == NULL || p7->d.enveloped->enc_data == NULL) {
+            PKCS7err(PKCS7_F_PKCS7_STREAM, PKCS7_R_NO_CONTENT);
+            break;
+        }
         os = p7->d.enveloped->enc_data->enc_data;
         if (os == NULL) {
             os = M_ASN1_OCTET_STRING_new();
