@@ -126,6 +126,8 @@ int BN_uadd(BIGNUM *r, const BIGNUM *a, const BIGNUM *b)
         return 0;
 
     r->top = max;
+    if (max == 0)
+        goto end;
 
     ap = a->d;
     bp = b->d;
@@ -157,6 +159,8 @@ int BN_uadd(BIGNUM *r, const BIGNUM *a, const BIGNUM *b)
         while (dif--)
             /* copy remaining words if ap != rp */
             *(rp++) = *(ap++);
+
+end:
     r->neg = 0;
     bn_check_top(r);
     return 1;
@@ -186,6 +190,9 @@ int BN_usub(BIGNUM *r, const BIGNUM *a, const BIGNUM *b)
 
     if (bn_wexpand(r, max) == NULL)
         return (0);
+
+    if (max == 0)
+        goto end;
 
     ap = a->d;
     bp = b->d;
@@ -250,6 +257,7 @@ int BN_usub(BIGNUM *r, const BIGNUM *a, const BIGNUM *b)
     }
 #endif
 
+end:
     r->top = max;
     r->neg = 0;
     bn_correct_top(r);
