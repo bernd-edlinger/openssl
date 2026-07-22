@@ -18,6 +18,8 @@
         (CVE-2026-34180)
       o Fixed possible NULL dereference in password-dased CMS decryption.
         (CVE-2026-42766)
+      o Fixed excessive allocation of the handshake message
+        buffer (aka HollowByte)
       o Fixed potential use-after-free in DANE client code.
         (CVE-2026-28387)
       o Fixed NULL pointer dereference when processing a delta CRL.
