@@ -639,6 +639,10 @@ int PKCS7_stream(unsigned char ***boundary, PKCS7 *p7)
             PKCS7err(PKCS7_F_PKCS7_STREAM, PKCS7_R_NO_CONTENT);
             break;
         }
+        if (!PKCS7_type_is_data(p7->d.sign->contents)) {
+            PKCS7err(PKCS7_F_PKCS7_STREAM, PKCS7_R_UNSUPPORTED_CONTENT_TYPE);
+            break;
+        }
         os = p7->d.sign->contents->d.data;
         break;
 
