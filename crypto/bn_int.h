@@ -5,6 +5,7 @@
  * returned out of public API. It may only be passed internally into other
  * functions known to support non-minimal or zero-padded BIGNUMs.
  */
+int bn_set_top_fixed(BIGNUM *a, int words);
 int bn_mul_mont_fixed_top(BIGNUM *r, const BIGNUM *a, const BIGNUM *b,
                           BN_MONT_CTX *mont, BN_CTX *ctx);
 int bn_mod_exp_mont_fixed_top(BIGNUM *rr, const BIGNUM *a, const BIGNUM *p,
