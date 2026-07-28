@@ -72,6 +72,7 @@ static const ERR_STRING_DATA BN_str_functs[] = {
     {ERR_PACK(ERR_LIB_BN, BN_F_BN_RAND_RANGE, 0), "BN_rand_range"},
     {ERR_PACK(ERR_LIB_BN, BN_F_BN_RECP_CTX_NEW, 0), "BN_RECP_CTX_new"},
     {ERR_PACK(ERR_LIB_BN, BN_F_BN_RSHIFT, 0), "BN_rshift"},
+    {ERR_PACK(ERR_LIB_BN, BN_F_BN_SET_TOP_FIXED, 0), "bn_set_top_fixed"},
     {ERR_PACK(ERR_LIB_BN, BN_F_BN_SET_WORDS, 0), "bn_set_words"},
     {ERR_PACK(ERR_LIB_BN, BN_F_BN_STACK_PUSH, 0), "BN_STACK_push"},
     {ERR_PACK(ERR_LIB_BN, BN_F_BN_USUB, 0), "BN_usub"},

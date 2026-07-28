@@ -68,6 +68,7 @@ int ERR_load_BN_strings(void);
 # define BN_F_BN_RAND_RANGE                               122
 # define BN_F_BN_RECP_CTX_NEW                             150
 # define BN_F_BN_RSHIFT                                   146
+# define BN_F_BN_SET_TOP_FIXED                            152
 # define BN_F_BN_SET_WORDS                                144
 # define BN_F_BN_STACK_PUSH                               148
 # define BN_F_BN_USUB                                     115
