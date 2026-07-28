@@ -389,47 +389,19 @@ BIGNUM *BN_dup(const BIGNUM *a)
 
 BIGNUM *BN_copy(BIGNUM *a, const BIGNUM *b)
 {
-    int i;
-    BN_ULONG *A;
-    const BN_ULONG *B;
+    int bn_words;
 
     bn_check_top(b);
 
+    bn_words = BN_get_flags(b, BN_FLG_CONSTTIME) ? b->dmax : b->top;
+
     if (a == b)
         return (a);
-    if (bn_wexpand(a, b->top) == NULL)
+    if (bn_wexpand(a, bn_words) == NULL)
         return (NULL);
 
-#if 1
-    A = a->d;
-    B = b->d;
-    for (i = b->top >> 2; i > 0; i--, A += 4, B += 4) {
-        BN_ULONG a0, a1, a2, a3;
-        a0 = B[0];
-        a1 = B[1];
-        a2 = B[2];
-        a3 = B[3];
-        A[0] = a0;
-        A[1] = a1;
-        A[2] = a2;
-        A[3] = a3;
-    }
-    /* ultrix cc workaround, see comments in bn_expand_internal */
-    switch (b->top & 3) {
-    case 3:
-        A[2] = B[2];
-        /* fall thru */
-    case 2:
-        A[1] = B[1];
-        /* fall thru */
-    case 1:
-        A[0] = B[0];
-        /* fall thru */
-    case 0:;
-    }
-#else
-    memcpy(a->d, b->d, sizeof(b->d[0]) * b->top);
-#endif
+    if (b->top > 0)
+        memcpy(a->d, b->d, sizeof(b->d[0]) * bn_words);
 
     a->neg = b->neg;
     a->top = b->top;

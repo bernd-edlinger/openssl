@@ -181,6 +181,16 @@ static int ec_mul_consttime(const EC_GROUP *group, EC_POINT *r,
         || (bn_wexpand(lambda, group_top + 2) == NULL))
         goto err;
 
+    /*
+     * Constant-timeness of this copy depends on the caller: BN_copy() moves
+     * scalar->top words unless |scalar| is flagged BN_FLG_CONSTTIME (in which
+     * case scalar->dmax words are moved).  Secret scalars are therefore
+     * expected to arrive either BN_FLG_CONSTTIME or fixed-top, so that their
+     * top is a public, value-independent width and the copy length does not
+     * leak their magnitude.  The fixed-top pinning below makes
+     * the subsequent arithmetic constant time regardless, but cannot
+     * retroactively fix the copy length here.
+     */
     if (!BN_copy(k, scalar))
         goto err;
 
@@ -195,7 +205,29 @@ static int ec_mul_consttime(const EC_GROUP *group, EC_POINT *r,
             goto err;
     }
 
+    /*
+     * |k| may still carry a top that depends on the value of the secret
+     * scalar: callers pass either a fixed-top BIGNUM (e.g. the ECDSA nonce)
+     * or a minimal-top one (e.g. SM2), and BN_copy() above preserves that
+     * top.  Pin |k| to a fixed number of words (matching the group
+     * cardinality) so that the additions below run in constant time,
+     * independently of the bit length of the scalar.  Otherwise the work
+     * done by BN_add()/BN_uadd() depends on the operand tops and leaks the
+     * magnitude of the secret scalar.
+     */
+    if (!bn_set_top_fixed(k, group_top))
+        goto err;
+
     if (!BN_add(lambda, k, cardinality))
+        goto err;
+    /*
+     * |lambda| = scalar + cardinality may or may not have produced a carry
+     * into an extra word depending on the secret scalar.  Pin its top to one
+     * word above the group top so that the second addition, which consumes
+     * |lambda|, is likewise constant time and so that the BN_is_bit_set()
+     * below always inspects a defined word.
+     */
+    if (!bn_set_top_fixed(lambda, group_top + 1))
         goto err;
     BN_set_flags(lambda, BN_FLG_CONSTTIME);
     if (!BN_add(k, lambda, cardinality))
