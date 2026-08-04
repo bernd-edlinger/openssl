@@ -1630,10 +1630,12 @@ int dtls1_get_record(SSL *s)
      */
     if (is_next_epoch) {
         if ((SSL_in_init(s) || ossl_statem_get_in_handshake(s))) {
-            if (dtls1_buffer_record
-                (s, &(DTLS_RECORD_LAYER_get_unprocessed_rcds(&s->rlayer)),
-                 rr->seq_num) < 0)
+            if (dtls1_buffer_record (s,
+                    &(DTLS_RECORD_LAYER_get_unprocessed_rcds(&s->rlayer)),
+                    rr->seq_num, DTLS1_MAX_UNPROCESSED_RECORDS) < 0) {
+                /* SSLfatal() already called */
                 return -1;
+            }
         }
         rr->length = 0;
         rr->read = 1;

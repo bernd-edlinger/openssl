@@ -174,13 +174,14 @@ static int dtls1_copy_record(SSL *s, pitem *item)
     return (1);
 }
 
-int dtls1_buffer_record(SSL *s, record_pqueue *queue, unsigned char *priority)
+int dtls1_buffer_record(SSL *s, record_pqueue *queue, unsigned char *priority,
+                        size_t limit)
 {
     DTLS1_RECORD_DATA *rdata;
     pitem *item;
 
     /* Limit the size of the queue to prevent DOS attacks */
-    if (pqueue_size(queue->q) >= 100)
+    if (pqueue_size(queue->q) >= limit)
         return 0;
 
     rdata = OPENSSL_malloc(sizeof(*rdata));
@@ -342,8 +343,11 @@ int dtls1_process_buffered_records(SSL *s)
             }
 
             if (dtls1_buffer_record(s, &(s->rlayer.d->processed_rcds),
-                    SSL3_RECORD_get_seq_num(s->rlayer.rrec)) < 0)
+                    SSL3_RECORD_get_seq_num(s->rlayer.rrec),
+                    DTLS1_MAX_BUFFERED_RECORDS) < 0) {
+                /* SSLfatal() already called */
                 return 0;
+            }
         }
     }
 
@@ -520,8 +524,9 @@ int dtls1_read_bytes(SSL *s, int type, int *recvd_type, unsigned char *buf,
          * data for later processing rather than dropping the connection.
          */
         if (dtls1_buffer_record(s, &(s->rlayer.d->buffered_app_data),
-                                SSL3_RECORD_get_seq_num(rr)) < 0) {
-            SSLerr(SSL_F_DTLS1_READ_BYTES, ERR_R_INTERNAL_ERROR);
+                                SSL3_RECORD_get_seq_num(rr),
+                                DTLS1_MAX_BUFFERED_RECORDS) < 0) {
+            /* SSLfatal() already called */
             return -1;
         }
         SSL3_RECORD_set_length(rr, 0);
