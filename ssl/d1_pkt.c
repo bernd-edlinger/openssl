@@ -210,13 +210,22 @@ static int dtls1_record_replay_check(SSL *s, DTLS1_BITMAP *bitmap);
 static void dtls1_record_bitmap_update(SSL *s, DTLS1_BITMAP *bitmap);
 static DTLS1_BITMAP *dtls1_get_bitmap(SSL *s, SSL3_RECORD *rr,
                                       unsigned int *is_next_epoch);
+
+/*
+ * Limits on the number of records dtls1_buffer_record() will hold, to prevent
+ * DOS attacks. Records arriving early for the next epoch get a tighter limit:
+ * a legitimate peer only ever has a small burst of those in flight.
+ */
+#define DTLS1_MAX_UNPROCESSED_RECORDS 16
+#define DTLS1_MAX_BUFFERED_RECORDS    100
+
 #if 0
 static int dtls1_record_needs_buffering(SSL *s, SSL3_RECORD *rr,
                                         unsigned short *priority,
                                         unsigned long *offset);
 #endif
 static int dtls1_buffer_record(SSL *s, record_pqueue *q,
-                               unsigned char *priority);
+                               unsigned char *priority, int limit);
 static int dtls1_process_record(SSL *s, DTLS1_BITMAP *bitmap);
 
 /* copy buffered record into SSL structure */
@@ -273,13 +282,14 @@ static int dtls1_copy_record(SSL *s, pitem *item)
 }
 
 static int
-dtls1_buffer_record(SSL *s, record_pqueue *queue, unsigned char *priority)
+dtls1_buffer_record(SSL *s, record_pqueue *queue, unsigned char *priority,
+                    int limit)
 {
     DTLS1_RECORD_DATA *rdata;
     pitem *item;
 
     /* Limit the size of the queue to prevent DOS attacks */
-    if (pqueue_size(queue->q) >= 100)
+    if (pqueue_size(queue->q) >= limit)
         return 0;
 
     rdata = OPENSSL_malloc(sizeof(DTLS1_RECORD_DATA));
@@ -452,7 +462,8 @@ static int dtls1_process_buffered_records(SSL *s)
             }
 
             if (dtls1_buffer_record(s, &(s->d1->processed_rcds),
-                                    s->s3->rrec.seq_num) < 0)
+                                    s->s3->rrec.seq_num,
+                                    DTLS1_MAX_BUFFERED_RECORDS) < 0)
                 return 0;
         }
     }
@@ -849,7 +860,8 @@ int dtls1_get_record(SSL *s)
     if (is_next_epoch) {
         if ((SSL_in_init(s) || s->in_handshake) && !s->d1->listen) {
             if (dtls1_buffer_record
-                (s, &(s->d1->unprocessed_rcds), rr->seq_num) < 0)
+                (s, &(s->d1->unprocessed_rcds), rr->seq_num,
+                 DTLS1_MAX_UNPROCESSED_RECORDS) < 0)
                 return -1;
         }
         rr->length = 0;
@@ -1023,11 +1035,9 @@ int dtls1_read_bytes(SSL *s, int type, unsigned char *buf, int len, int peek)
          * the packets were reordered on their way, so buffer the application
          * data for later processing rather than dropping the connection.
          */
-        if (dtls1_buffer_record(s, &(s->d1->buffered_app_data), rr->seq_num) <
-            0) {
-            SSLerr(SSL_F_DTLS1_READ_BYTES, ERR_R_INTERNAL_ERROR);
+        if (dtls1_buffer_record(s, &(s->d1->buffered_app_data), rr->seq_num,
+                                DTLS1_MAX_BUFFERED_RECORDS) < 0)
             return -1;
-        }
         rr->length = 0;
         goto start;
     }
