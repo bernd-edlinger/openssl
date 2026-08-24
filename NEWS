@@ -7,6 +7,10 @@
 
   Major changes between OpenSSL 1.1.0l and OpenSSL 1.1.0m [under development]
 
+      o Fixed heap buffer overflow in CMS key unwrapping.
+        (CVE-2026-63072)
+      o Fixed excessive memory use buffering DTLS records for a future epoch.
+        (CVE-2026-54874)
       o Fixed heap use-after-free in `PKCS7_verify()`.
         (CVE-2026-45447)
       o Fixed possible heap buffer overflow in ASN.1 multibyte string
