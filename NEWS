@@ -7,6 +7,8 @@
 
   Major changes between OpenSSL 1.0.2u and OpenSSL 1.0.2v [under development]
 
+      o Fixed excessive memory use buffering DTLS records for a future epoch.
+        (CVE-2026-54874)
       o Fixed heap use-after-free in `PKCS7_verify()`.
         (CVE-2026-45447)
       o Fixed possible heap buffer overflow in ASN.1 multibyte string

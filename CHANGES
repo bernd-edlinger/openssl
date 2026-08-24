@@ -9,6 +9,23 @@
 
  Changes between 1.0.2u and 1.0.2v [xx XXX xxxx]
 
+ *) Fixed excessive memory use buffering DTLS records for a future epoch.
+
+    Severity: Low
+
+    Issue summary: Receiving a DTLS record for a future epoch while a handshake
+    is in progress causes OpenSSL to buffer far more memory than the record
+    itself requires.
+
+    Impact summary: A peer can use a small amount of network traffic to make
+    an OpenSSL DTLS endpoint retain a disproportionately large amount of memory,
+    which may lead to a Denial of Service.
+
+    Reported by: Amazon Web Services.
+
+    (CVE-2026-54874)
+    [Matt Caswell]
+
  *) Fixed heap use-after-free in `PKCS7_verify()`.
 
     Severity: High
