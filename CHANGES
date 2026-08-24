@@ -9,6 +9,42 @@
 
  Changes between 1.1.1w and 1.1.1x [xx XXX xxxx]
 
+ *) Fixed heap buffer overflow in CMS key unwrapping.
+
+    Severity: Moderate
+
+    Issue summary: OpenSSL CMS decryption sizes the key-unwrap output buffer
+    based on querying the unwrapped key size, but the AES-WRAP-PAD unwrap
+    primitive can write and cleanse more bytes than that query reports, causing
+    an 8-byte out-of-bounds heap write.
+
+    Impact summary: An attacker who supplies a crafted CMS message can trigger
+    a deterministic 8-byte out-of-bounds heap write when the victim decrypts it
+    with `CMS_decrypt()`, corrupting the heap and typically resulting in a
+    Denial of Service.
+
+    Reported by: Bhabani Sankar Das and Filipe Casal (Trail of Bits).
+
+    (CVE-2026-63072)
+    [Daniel Kubec]
+
+ *) Fixed excessive memory use buffering DTLS records for a future epoch.
+
+    Severity: Low
+
+    Issue summary: Receiving a DTLS record for a future epoch while a handshake
+    is in progress causes OpenSSL to buffer far more memory than the record
+    itself requires.
+
+    Impact summary: A peer can use a small amount of network traffic to make
+    an OpenSSL DTLS endpoint retain a disproportionately large amount of memory,
+    which may lead to a Denial of Service.
+
+    Reported by: Amazon Web Services.
+
+    (CVE-2026-54874)
+    [Matt Caswell]
+
  *) Updated compliance with TLS 1.3 session ticket lifetime requirements.
 
     TLS 1.3 clients now cap `ticket_lifetime_hint` to 7 days (604800 seconds)
