@@ -416,7 +416,7 @@ char ssl3_cbc_record_digest_supported(const EVP_MD_CTX *ctx)
 int ssl3_cbc_digest_record(const EVP_MD_CTX *ctx,
                             unsigned char *md_out,
                             size_t *md_out_size,
-                            const unsigned char header[13],
+                            const unsigned char *header,
                             const unsigned char *data,
                             size_t data_plus_mac_size,
                             size_t data_plus_mac_plus_padding_size,
@@ -622,7 +622,13 @@ int ssl3_cbc_digest_record(const EVP_MD_CTX *ctx,
          */
         bits += 8 * md_block_size;
         memset(hmac_pad, 0, md_block_size);
-        OPENSSL_assert(mac_secret_length <= sizeof(hmac_pad));
+        /*
+         * Ensure that we don't overrun the buffer in the memcpy below
+         * We shouldn't ever do this, but gcc warns about it if we don't
+         * check
+         */
+        if (mac_secret_length > sizeof(hmac_pad))
+            return 0;
         memcpy(hmac_pad, mac_secret, mac_secret_length);
         for (i = 0; i < md_block_size; i++)
             hmac_pad[i] ^= 0x36;
