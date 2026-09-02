@@ -7,6 +7,8 @@
  * https://www.openssl.org/source/license.html
  */
 
+#include <openssl/x509v3.h>
+
 /* Internal X509 structures and functions: not for application use */
 
 /* Note: unless otherwise stated a field pointer is mandatory and should
@@ -266,3 +268,5 @@ struct x509_object_st {
 
 int a2i_ipadd(unsigned char *ipout, const char *ipasc);
 int x509_set1_time(ASN1_TIME **ptm, const ASN1_TIME *tm);
+X509_NAME *ossl_dist_point_name_full(const struct DIST_POINT_NAME_st *dpn,
+                                     X509_NAME *iname);
