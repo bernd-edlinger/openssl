@@ -53,6 +53,7 @@ int ERR_load_X509V3_strings(void);
 # define X509V3_F_S2I_ASN1_INTEGER                        108
 # define X509V3_F_S2I_ASN1_OCTET_STRING                   112
 # define X509V3_F_S2I_SKEY_ID                             115
+# define X509V3_F_SETUP_DP                                175
 # define X509V3_F_SET_DIST_POINT_NAME                     158
 # define X509V3_F_SXNET_ADD_ID_ASC                        125
 # define X509V3_F_SXNET_ADD_ID_INTEGER                    126
@@ -116,6 +117,7 @@ int ERR_load_X509V3_strings(void);
 # define X509V3_R_INVALID_ASNUMBER                        162
 # define X509V3_R_INVALID_ASRANGE                         163
 # define X509V3_R_INVALID_BOOLEAN_STRING                  104
+# define X509V3_R_INVALID_DISTPOINT                       158
 # define X509V3_R_INVALID_EXTENSION_STRING                105
 # define X509V3_R_INVALID_INHERITANCE                     165
 # define X509V3_R_INVALID_IPADDRESS                       166
