@@ -22,6 +22,7 @@ int create_bare_ssl_connection(SSL *serverssl, SSL *clientssl, int want,
                                int read);
 int create_ssl_connection(SSL *serverssl, SSL *clientssl, int want);
 void shutdown_ssl_connection(SSL *serverssl, SSL *clientssl);
+void ossl_sleep(unsigned int millis);
 
 /* Note: Not thread safe! */
 const BIO_METHOD *bio_f_tls_dump_filter(void);

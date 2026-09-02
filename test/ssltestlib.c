@@ -17,7 +17,7 @@
 #ifdef OPENSSL_SYS_UNIX
 # include <unistd.h>
 
-static ossl_inline void ossl_sleep(unsigned int millis)
+ossl_inline void ossl_sleep(unsigned int millis)
 {
 # ifdef OPENSSL_SYS_VXWORKS
     struct timespec ts;
@@ -31,13 +31,13 @@ static ossl_inline void ossl_sleep(unsigned int millis)
 #elif defined(_WIN32)
 # include <windows.h>
 
-static ossl_inline void ossl_sleep(unsigned int millis)
+void ossl_sleep(unsigned int millis)
 {
     Sleep(millis);
 }
 #else
 /* Fallback to a busy wait */
-static ossl_inline void ossl_sleep(unsigned int millis)
+void ossl_sleep(unsigned int millis)
 {
     struct timeval start, now;
     unsigned int elapsedms;
