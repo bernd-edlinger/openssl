@@ -340,7 +340,7 @@ static int aria_gcm_ctrl(EVP_CIPHER_CTX *c, int type, int arg, void *ptr)
     case EVP_CTRL_AEAD_TLS1_AAD:
         /* Save the AAD for later use */
         if (arg != EVP_AEAD_TLS1_AAD_LEN)
-            return 0;
+            return -1;
         memcpy(EVP_CIPHER_CTX_buf_noconst(c), ptr, arg);
         gctx->tls_aad_len = arg;
         {
@@ -546,7 +546,7 @@ static int aria_ccm_ctrl(EVP_CIPHER_CTX *c, int type, int arg, void *ptr)
     case EVP_CTRL_AEAD_TLS1_AAD:
         /* Save the AAD for later use */
         if (arg != EVP_AEAD_TLS1_AAD_LEN)
-            return 0;
+            return -1;
         memcpy(EVP_CIPHER_CTX_buf_noconst(c), ptr, arg);
         cctx->tls_aad_len = arg;
         {

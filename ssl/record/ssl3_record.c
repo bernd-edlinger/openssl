@@ -1080,6 +1080,16 @@ int tls1_enc(SSL *s, SSL3_RECORD *recs, size_t n_recs, int sending,
                 pad = EVP_CIPHER_CTX_ctrl(ds, EVP_CTRL_AEAD_TLS1_AAD,
                                           EVP_AEAD_TLS1_AAD_LEN, buf[ctr]);
                 if (pad <= 0) {
+
+                    /*
+                     * Publicly invalid: the record is shorter than the
+                     * mandatory AEAD overhead. Leave alert handling to the
+                     * caller so TLS reports bad_record_mac and DTLS silently
+                     * discards the record.
+                     */
+                    if (!sending && pad == 0)
+                        return 0;
+
                     SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS1_ENC,
                              ERR_R_INTERNAL_ERROR);
                     return -1;

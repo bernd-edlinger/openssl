@@ -1763,7 +1763,7 @@ static int s390x_aes_gcm_ctrl(EVP_CIPHER_CTX *c, int type, int arg, void *ptr)
     case EVP_CTRL_AEAD_TLS1_AAD:
         /* Save the aad for later use. */
         if (arg != EVP_AEAD_TLS1_AAD_LEN)
-            return 0;
+            return -1;
 
         buf = EVP_CIPHER_CTX_buf_noconst(c);
         memcpy(buf, ptr, arg);
@@ -2364,7 +2364,7 @@ static int s390x_aes_ccm_ctrl(EVP_CIPHER_CTX *c, int type, int arg, void *ptr)
 
     case EVP_CTRL_AEAD_TLS1_AAD:
         if (arg != EVP_AEAD_TLS1_AAD_LEN)
-            return 0;
+            return -1;
 
         /* Save the aad for later use. */
         buf = EVP_CIPHER_CTX_buf_noconst(c);
@@ -2966,7 +2966,7 @@ static int aes_gcm_ctrl(EVP_CIPHER_CTX *c, int type, int arg, void *ptr)
     case EVP_CTRL_AEAD_TLS1_AAD:
         /* Save the AAD for later use */
         if (arg != EVP_AEAD_TLS1_AAD_LEN)
-            return 0;
+            return -1;
         memcpy(c->buf, ptr, arg);
         gctx->tls_aad_len = arg;
         {
@@ -3548,7 +3548,7 @@ static int aes_ccm_ctrl(EVP_CIPHER_CTX *c, int type, int arg, void *ptr)
     case EVP_CTRL_AEAD_TLS1_AAD:
         /* Save the AAD for later use */
         if (arg != EVP_AEAD_TLS1_AAD_LEN)
-            return 0;
+            return -1;
         memcpy(EVP_CIPHER_CTX_buf_noconst(c), ptr, arg);
         cctx->tls_aad_len = arg;
         {

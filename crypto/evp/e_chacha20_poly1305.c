@@ -572,7 +572,7 @@ static int chacha20_poly1305_ctrl(EVP_CIPHER_CTX *ctx, int type, int arg,
 
     case EVP_CTRL_AEAD_TLS1_AAD:
         if (arg != EVP_AEAD_TLS1_AAD_LEN)
-            return 0;
+            return -1;
         {
             unsigned int len;
             unsigned char *aad = ptr;
