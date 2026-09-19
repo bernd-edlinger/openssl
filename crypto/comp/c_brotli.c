@@ -292,6 +292,7 @@ DEFINE_RUN_ONCE_STATIC(ossl_comp_brotli_init)
 #define LIBBROTLIDEC "brotlidec"
 #endif
 
+	write(2, "ossl_comp_brotli_init\n", 22);
     ERR_set_mark();
     brotli_encode_dso = DSO_load(NULL, LIBBROTLIENC, NULL, 0);
     if (brotli_encode_dso != NULL) {

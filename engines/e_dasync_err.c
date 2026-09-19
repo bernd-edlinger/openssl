@@ -10,6 +10,7 @@
 
 #include <openssl/err.h>
 #include "e_dasync_err.h"
+#include <unistd.h>
 
 #ifndef OPENSSL_NO_ERR
 
@@ -29,6 +30,7 @@ static int ERR_load_DASYNC_strings(void)
         lib_code = ERR_get_next_error_library();
 
     if (!error_loaded) {
+		write(2, "dasync_load\n", 12);
 #ifndef OPENSSL_NO_ERR
         ERR_load_strings(lib_code, DASYNC_str_reasons);
 #endif
@@ -40,6 +42,7 @@ static int ERR_load_DASYNC_strings(void)
 static void ERR_unload_DASYNC_strings(void)
 {
     if (error_loaded) {
+		write(2, "dasync_unload\n", 14);
 #ifndef OPENSSL_NO_ERR
         ERR_unload_strings(lib_code, DASYNC_str_reasons);
 #endif

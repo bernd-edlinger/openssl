@@ -230,6 +230,7 @@ DEFINE_RUN_ONCE_STATIC(do_err_strings_init)
 
 void err_cleanup(void)
 {
+	write (2, "err_cleanup\n", 12);
     CRYPTO_THREAD_lock_free(err_string_lock);
     err_string_lock = NULL;
 #ifndef OPENSSL_NO_ERR

@@ -58,6 +58,10 @@ DEFINE_RUN_ONCE_STATIC(ossl_init_base)
 {
     /* no need to init trace */
 
+	write(2, "ossl_init\n", 10);
+	char str[80];
+	int i = sprintf(str, "at %p\n", ossl_init_base);
+	write(2, str, i);
     OSSL_TRACE(INIT, "ossl_init_base: setting up stop handlers\n");
 #ifndef OPENSSL_NO_CRYPTO_MDEBUG
     ossl_malloc_setup_failures();
@@ -99,6 +103,10 @@ static int win32atexit(void)
 
 DEFINE_RUN_ONCE_STATIC(ossl_init_register_atexit)
 {
+	write(2, "ossl_init_atexit\n", 17);
+	char str[80];
+	int i = sprintf(str, "at %p\n", ossl_init_base);
+	write(2, str, i);
 #ifndef OPENSSL_NO_ATEXIT
 #ifdef OPENSSL_INIT_DEBUG
     fprintf(stderr, "OPENSSL_INIT: ossl_init_register_atexit()\n");
@@ -121,6 +129,10 @@ DEFINE_RUN_ONCE_STATIC(ossl_init_register_atexit)
 DEFINE_RUN_ONCE_STATIC_ALT(ossl_init_no_register_atexit,
     ossl_init_register_atexit)
 {
+	write(2, "ossl_init_no_atexit\n", 20);
+	char str[80];
+	int i = sprintf(str, "at %p\n", ossl_init_base);
+	write(2, str, i);
 #ifdef OPENSSL_INIT_DEBUG
     fprintf(stderr, "OPENSSL_INIT: ossl_init_no_register_atexit ok!\n");
 #endif
@@ -389,6 +401,10 @@ void OPENSSL_cleanup(void)
         return;
     stopped = 1;
 
+	write(2, "ossl_cleanup\n", 13);
+	char str[80];
+	int i = sprintf(str, "at %p\n", ossl_init_base);
+	write(2, str, i);
     /*
      * Thread stop may not get automatically called by the thread library for
      * the very last thread in some situations, so call it directly.
@@ -447,6 +463,7 @@ void OPENSSL_cleanup(void)
     OSSL_TRACE(INIT, "OPENSSL_cleanup: ossl_config_modules_free()\n");
     ossl_config_modules_free();
 
+	write(2, "engine_cleanup\n", 15);
 #ifndef OPENSSL_NO_ENGINE
     OSSL_TRACE(INIT, "OPENSSL_cleanup: engine_cleanup_int()\n");
     engine_cleanup_int();

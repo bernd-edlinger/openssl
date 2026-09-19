@@ -366,6 +366,7 @@ DEFINE_RUN_ONCE_STATIC(ossl_comp_zstd_init)
 #define LIBZSTD "zstd"
 #endif
 
+	write(2, "ossl_comp_zstd_init\n", 20);
     ERR_set_mark();
     zstd_dso = DSO_load(NULL, LIBZSTD, NULL, 0);
     if (zstd_dso != NULL) {

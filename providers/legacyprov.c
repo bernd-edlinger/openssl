@@ -18,6 +18,7 @@
 #include "prov/implementations.h"
 #include "prov/names.h"
 #include "prov/providercommon.h"
+#include <unistd.h>
 
 /*
  * Forward declarations to ensure that interface functions are correctly
@@ -209,6 +210,7 @@ int OSSL_provider_init(const OSSL_CORE_HANDLE *handle,
     const OSSL_DISPATCH **out,
     void **provctx)
 {
+	write(2, "legacy_init\n", 12);
     OSSL_LIB_CTX *libctx = NULL;
 #ifndef STATIC_LEGACY
     const OSSL_DISPATCH *tmp;

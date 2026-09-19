@@ -281,9 +281,11 @@ DEFINE_RUN_ONCE_STATIC(ossl_comp_zlib_init)
 #endif
 #endif
 
+	write(2, "ossl_comp_zlib_init\n", 20);
     ERR_set_mark();
     zlib_dso = DSO_load(NULL, LIBZ, NULL, 0);
     if (zlib_dso != NULL) {
+	write(2, "zlib_dso_loaded\n", 16);
         p_compress = (compress_ft)DSO_bind_func(zlib_dso, "compress");
         p_uncompress = (uncompress_ft)DSO_bind_func(zlib_dso, "uncompress");
         p_inflateEnd = (inflateEnd_ft)DSO_bind_func(zlib_dso, "inflateEnd");
@@ -301,6 +303,7 @@ DEFINE_RUN_ONCE_STATIC(ossl_comp_zlib_init)
         || p_deflateInit_ == NULL || p_zError == NULL) {
         ERR_clear_last_mark();
         ossl_comp_zlib_cleanup();
+	write(2, "ossl_comp_zlib_fail\n", 20);
         return 0;
     }
     /* Do not leave errors behind on success. */

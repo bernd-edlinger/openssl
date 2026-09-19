@@ -422,6 +422,7 @@ static int dasync_finish(ENGINE *e)
 
 static int dasync_destroy(ENGINE *e)
 {
+	write(2, "dasync_destroy\n", 15);
     destroy_digests();
     destroy_ciphers();
     destroy_pkey();
