@@ -51,3 +51,24 @@ jobs:
       with:
         name: "ci@enable_non-default_options"
         path: artifacts.tar.gz
+
+  enable_non-default_options_asan:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v6
+      with:
+        persist-credentials: false
+    - name: checkout fuzz/corpora submodule
+      run: git submodule update --init --depth 1 fuzz/corpora
+    - name: modprobe tls
+      run: sudo modprobe tls
+    - name: config
+      run: ./config --strict-warnings --banner=Configured enable-asan enable-demos enable-h3demo no-ec enable-ssl-trace enable-zlib enable-zlib-dynamic enable-crypto-mdebug enable-egd enable-ktls enable-fips enable-lms no-threads && perl configdata.pm --dump
+    - name: make
+      run: make -s -j4
+    - name: get cpu info
+      run: |
+        cat /proc/cpuinfo
+        ./util/opensslwrap.sh version -c
+    - name: make test
+      run: .github/workflows/make-test
