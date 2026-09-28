@@ -4,6 +4,32 @@
 
  Changes between 0.9.8zh and 0.9.8zi [xx XXX xxxx]
 
+ *) Fixed DTLS retransmissions of handshake messages from a stale buffer offset.
+
+    Severity: High
+
+    Issue summary: The DTLS retransmission logic does not correctly handle
+    a handshake message write that is suspended part-way through.
+    The retransmitted message can be read past the message buffer
+    and the retransmission overwrites the internal state the suspended write
+    needs to resume correctly.
+
+    Impact summary: The retransmitted message can disclose a heap memory
+    to the peer as plaintext handshake data or cause a crash and a Denial
+    of Service when the read reaches an unmapped memory region.
+
+    Reported by: Laurent Gaffie (secorizon.com).
+
+    (CVE-2026-84782)
+    [Ryan Hooper]
+
+ *) Changed the compiler flags supplied to MSVC targets to no longer include
+    `/Gs0` (resetting the minimum memory size occupied by local variables
+    for including stack probes to the default value of 4096), as it led
+    to mis-compilation of MD4 C implementation on ARM64.
+
+    [Norbert Pocs]
+
  *) Fixed heap use-after-free in `PKCS7_verify()`.
 
     Severity: High
