@@ -9,6 +9,69 @@
 
  Changes between 1.1.0l and 1.1.0m [xx XXX xxxx]
 
+ *) Fixed DTLS retransmissions of handshake messages from a stale buffer offset.
+
+    Severity: High
+
+    Issue summary: The DTLS retransmission logic does not correctly handle
+    a handshake message write that is suspended part-way through.
+    The retransmitted message can be read past the message buffer
+    and the retransmission overwrites the internal state the suspended write
+    needs to resume correctly.
+
+    Impact summary: The retransmitted message can disclose a heap memory
+    to the peer as plaintext handshake data or cause a crash and a Denial
+    of Service when the read reaches an unmapped memory region.
+
+    Reported by: Laurent Gaffie (secorizon.com).
+
+    (CVE-2026-84782)
+    [Ryan Hooper]
+
+ *) Fixed excessive memory allocation in relative CRLDP processing.
+
+    Severity: Low
+
+    Issue summary: A certificate with many `nameRelativeToCRLIssuer` CRL
+    distribution points causes disproportionate heap growth when OpenSSL caches
+    X.509 extensions.
+
+    Impact summary: Receiving a crafted certificate from a malicious peer
+    can lead to significant memory pressure and possible Denial of Service
+    in clients or in servers that solicit client certificates.
+
+    Reported by: Fuzz0x (ZKSC Institute of Security Research).
+
+    (CVE-2026-35189)
+    [Viktor Dukhovni]
+
+ *) Fixed a timing side-channel in scalar multiplication for mon-NIST EC curves.
+
+    Severity: Low
+
+    Issue summary: The generic elliptic-curve scalar multiplication, used
+    for ECDSA and SM2 signature operations with curves that do not have
+    a dedicated implementation, leaks information about the secret nonce
+    through timing.
+
+    Impact summary: An attacker, who is able to measure signing times, may learn
+    information about the per-signature secret nonce, which over many signatures
+    can, via a Hidden Number Problem (lattice) attack, lead to recovery
+    of the private key.
+
+    Reported by: Alicja Kario and George Pantelakis (Red Hat), based
+    on the report of Youngjae Choi (Korea University).
+
+    (CVE-2026-54872)
+    [Igor Ustinov]
+
+ *) Changed the compiler flags supplied to MSVC targets to no longer include
+    `/Gs0` (resetting the minimum memory size occupied by local variables
+    for including stack probes to the default value of 4096), as it led
+    to mis-compilation of MD4 C implementation on ARM64.
+
+    [Norbert Pocs]
+
  *) Fixed heap buffer overflow in CMS key unwrapping.
 
     Severity: Moderate
