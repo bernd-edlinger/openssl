@@ -7,6 +7,16 @@
 
   Major changes between OpenSSL 1.1.1w and OpenSSL 1.1.1x [under development]
 
+      o Fixed DTLS retransmissions of handshake messages from a stale buffer offset.
+        (CVE-2026-84782)
+      o Fixed excessive memory allocation in relative CRLDP processing.
+        (CVE-2026-35189)
+      o Fixed a timing side-channel in scalar multiplication for mon-NIST EC curves.
+        (CVE-2026-54872)
+      o Fixed an unauthenticated and undersized DTLS 1.2 AEAD record causing DoS.
+        (CVE-2026-75806)
+      o Fixed a timing side-channel in SM2 signature generation.
+        (CVE-2026-77696)
       o Fixed heap buffer overflow in CMS key unwrapping.
         (CVE-2026-63072)
       o Fixed excessive memory use buffering DTLS records for a future epoch.
