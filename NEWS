@@ -7,6 +7,12 @@
 
   Major changes between OpenSSL 1.0.2u and OpenSSL 1.0.2v [under development]
 
+      o Fixed DTLS retransmissions of handshake messages from a stale buffer offset.
+        (CVE-2026-84782)
+      o Fixed excessive memory allocation in relative CRLDP processing.
+        (CVE-2026-35189)
+      o Fixed a timing side-channel in scalar multiplication for mon-NIST EC curves.
+        (CVE-2026-54872)
       o Fixed excessive memory use buffering DTLS records for a future epoch.
         (CVE-2026-54874)
       o Fixed heap use-after-free in `PKCS7_verify()`.
