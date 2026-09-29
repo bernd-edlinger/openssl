@@ -32,7 +32,7 @@ jobs:
         extra_cflags=""
         if [[ ${cc} == "clang" ]] ; then
           # https://www.openwall.com/lists/musl/2022/02/16/14
-          extra_cflags="-Wno-sign-compare"
+          extra_cflags="-Wno-sign-compare -Wno-unused-but-set-global"
         fi
 
         ls --full-time ./config
