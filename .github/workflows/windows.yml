@@ -1,0 +1,56 @@
+---
+name: Windows GitHub CI for 0.9.8
+
+on: [pull_request, push]
+
+jobs:
+  shared:
+    # Run a job for each of the specified target architectures:
+    strategy:
+      matrix:
+        os:
+        - windows-2022
+        - windows-2025
+        platform:
+        - arch: win64
+          config: VC-WIN64A
+          scheme: win64a
+        - arch: win32
+          config: VC-WIN32
+          scheme: nasm
+    runs-on: ${{matrix.os}}
+    steps:
+    - uses: actions/checkout@v6
+    - uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: ${{ matrix.platform.arch }}
+    - name: install nasm
+      run: |
+        choco install nasm ${{ matrix.platform.arch == 'win32' && '--x86' || '' }}
+        "C:\Program Files${{ matrix.platform.arch == 'win32' && ' (x86)' || '' }}\NASM" | Out-File -FilePath "$env:GITHUB_PATH" -Append
+    - name: config
+      run: |
+        perl Configure ${{ matrix.platform.config }}
+        ms\do_${{ matrix.platform.scheme }}
+    - name: build
+      run: nmake -f ms\ntdll.mak
+    - name: test
+      run: nmake -f ms\ntdll.mak test
+  plain:
+    strategy:
+      matrix:
+        os:
+        - windows-2022
+        - windows-2025
+    runs-on: ${{matrix.os}}
+    steps:
+    - uses: actions/checkout@v6
+    - uses: ilammy/msvc-dev-cmd@v1
+    - name: config
+      run: |
+        perl Configure no-asm VC-WIN64A
+        ms\do_win64a
+    - name: build
+      run: nmake -f ms\nt.mak
+    - name: test
+      run: nmake -f ms\nt.mak test

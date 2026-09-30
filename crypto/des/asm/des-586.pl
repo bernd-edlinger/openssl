@@ -4,7 +4,7 @@
 # Svend Olaf Mikkelsen <svolaf@inet.uni-c.dk>
 #
 
-push(@INC,"perlasm","../../perlasm");
+push(@INC,".","../../perlasm");
 require "x86asm.pl";
 require "cbc.pl";
 require "desboth.pl";
