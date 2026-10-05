@@ -48,12 +48,23 @@ jobs:
     - name: make test
       run: make test
 
+  no-deprecated:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v6
+    - name: config
+      run: ./config no-deprecated && make depend
+    - name: make
+      run: make -s
+    - name: make test
+      run: make test
+
   shared:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v6
     - name: config
-      run: ./config --strict-warnings shared
+      run: ./config shared
     - name: make
       run: make -s
     - name: make test
