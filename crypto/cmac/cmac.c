@@ -200,6 +200,8 @@ int CMAC_Init(CMAC_CTX *ctx, const void *key, size_t keylen,
         if (!EVP_EncryptInit_ex(&ctx->cctx, NULL, NULL, key, zero_iv))
             return 0;
         bl = EVP_CIPHER_CTX_block_size(&ctx->cctx);
+        if (bl < 0)
+            return 0;
         if (!EVP_Cipher(&ctx->cctx, ctx->tbl, zero_iv, bl))
             return 0;
         make_kn(ctx->k1, ctx->tbl, bl);

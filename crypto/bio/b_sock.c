@@ -590,7 +590,7 @@ int BIO_socket_ioctl(int fd, long type, void *arg)
  * The reason I have implemented this instead of using sscanf is because
  * Visual C 1.52c gives an unresolved external when linking a DLL :-(
  */
-static int get_ip(const char *str, unsigned char ip[4])
+static int get_ip(const char *str, unsigned char *ip)
 {
     unsigned int tmp[4];
     int num = 0, c, ok = 0;
