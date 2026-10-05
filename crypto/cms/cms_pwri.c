@@ -52,6 +52,7 @@
  * ====================================================================
  */
 
+#include <limits.h>
 #include "cryptlib.h"
 #include <openssl/asn1t.h>
 #include <openssl/pem.h>
