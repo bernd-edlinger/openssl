@@ -7775,9 +7775,7 @@ static int test_pipelining(int idx)
     unsigned char *buf = NULL;
     ENGINE *e;
 
-#ifdef OPENSSL_NO_AUTOLOAD_CONFIG
     OPENSSL_init_crypto(OPENSSL_INIT_ENGINE_DYNAMIC, NULL);
-#endif
 
     if (!TEST_ptr(e = ENGINE_by_id("dasync")))
         return 0;
