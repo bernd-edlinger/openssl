@@ -59,6 +59,7 @@
 
 #include <stdio.h>
 #include <ctype.h>
+#include <limits.h>
 #include "cryptlib.h"
 #include <openssl/asn1.h>
 
