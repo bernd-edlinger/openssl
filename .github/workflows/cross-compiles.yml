@@ -107,7 +107,7 @@ jobs:
             tests: none
           }
         ]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
     - name: install packages
       run: |
