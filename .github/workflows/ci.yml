@@ -93,26 +93,26 @@ jobs:
     steps:
     - uses: actions/checkout@v6
     - name: config
-      uses: cross-platform-actions/action@v0.26.0
+      uses: cross-platform-actions/action@v1.7.0
       with:
         operating_system: freebsd
-        version: "13.4"
+        version: "15.1"
         shutdown_vm: false
         run: |
           sudo pkg install -y gcc perl5
           ./config --strict-warnings enable-ec_nistp_64_gcc_128 enable-md2 enable-rc5 enable-ssl3 enable-ssl3-method && perl configdata.pm --dump
     - name: make
-      uses: cross-platform-actions/action@v0.26.0
+      uses: cross-platform-actions/action@v1.7.0
       with:
         operating_system: freebsd
-        version: "13.4"
+        version: "15.1"
         shutdown_vm: false
         run: make -s -j4
     - name: make test
-      uses: cross-platform-actions/action@v0.26.0
+      uses: cross-platform-actions/action@v1.7.0
       with:
         operating_system: freebsd
-        version: "13.4"
+        version: "15.1"
         run: make test
 
   minimal:
@@ -306,7 +306,7 @@ jobs:
         RUST:
           - 1.51.0
         PYTHON:
-          - 3.9
+          - 3.14
     steps:
     - uses: actions/checkout@v6
       with:
@@ -316,7 +316,7 @@ jobs:
     - name: make
       run: make -s -j4
     - name: Setup Python
-      uses: actions/setup-python@v6.2.0
+      uses: actions/setup-python@v7
       with:
         python-version: ${{ matrix.PYTHON }}
     - uses: dtolnay/rust-toolchain@master
